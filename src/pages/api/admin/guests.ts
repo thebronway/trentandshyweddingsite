@@ -1,5 +1,7 @@
 import type { APIRoute } from 'astro';
-import { db, Guest, eq } from 'astro:db';
+import { db } from '../../../db';
+import { guests } from '../../../db/schema';
+import { eq } from 'drizzle-orm';
 
 export const POST: APIRoute = async ({ request, redirect }) => {
   const formData = await request.formData();
@@ -36,17 +38,16 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const p3MealChoice = p3Attending ? (formData.get('p3MealChoice')?.toString() || null) : null;
 
   if (action === 'delete' && id) {
-    await db.delete(Guest).where(eq(Guest.id, id));
+    await db.delete(guests).where(eq(guests.id, id));
     return redirect('/admin/');
   } 
   
-  // ... Keep the rest of your edit and add logic exactly the same ...
   if (action === 'edit' && id) {
     try {
-      await db.update(Guest).set({ 
+      await db.update(guests).set({ 
         firstName, lastName, email, role, allocatedPlusOnes, hasRsvpd, isAttending, mealChoice, dietaryNotes,
         p1Name, p1Attending, p1MealChoice, p2Name, p2Attending, p2MealChoice, p3Name, p3Attending, p3MealChoice
-      }).where(eq(Guest.id, id));
+      }).where(eq(guests.id, id));
     } catch (e) {
       return redirect('/admin/?error=duplicate');
     }
@@ -55,7 +56,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   
   if (action === 'add') {
     try {
-      await db.insert(Guest).values({
+      await db.insert(guests).values({
         firstName, lastName, email, role, allocatedPlusOnes, hasRsvpd: false, isAttending: false
       });
     } catch (e) {

@@ -1,9 +1,10 @@
 ---
 import Layout from '../../components/Layout.astro';
 import Nav from '../../components/Nav.astro';
-import { db, Guest } from 'astro:db';
+import { db } from '../../db';
+import { guests } from '../../db/schema';
 
-const allGuests = await db.select().from(Guest);
+const allGuests = await db.select().from(guests);
 const error = Astro.url.searchParams.get('error');
 
 // Headcounts

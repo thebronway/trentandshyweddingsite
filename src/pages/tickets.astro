@@ -1,7 +1,9 @@
 ---
 import Layout from '../components/Layout.astro';
 import Nav from '../components/Nav.astro';
-import { db, Guest, eq } from 'astro:db';
+import { db } from '../db';
+import { guests } from '../db/schema';
+import { eq } from 'drizzle-orm';
 
 let guestRecord = null;
 let lookupError = null;
@@ -12,7 +14,7 @@ if (Astro.request.method === 'POST') {
   const email = data.get('email')?.toString().trim().toLowerCase();
   
   if (email) {
-    const found = await db.select().from(Guest).where(eq(Guest.email, email));
+    const found = await db.select().from(guests).where(eq(guests.email, email));
     if (found.length > 0) {
       guestRecord = found[0];
     } else {

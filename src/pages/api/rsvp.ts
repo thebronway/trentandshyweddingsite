@@ -1,5 +1,7 @@
 import type { APIRoute } from 'astro';
-import { db, Guest, eq } from 'astro:db';
+import { db } from '../../db';
+import { guests } from '../../db/schema';
+import { eq } from 'drizzle-orm';
 
 export const POST: APIRoute = async ({ request, redirect }) => {
   const formData = await request.formData();
@@ -12,25 +14,20 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const p2Attending = formData.get('p2Attending') === 'true';
   const p3Attending = formData.get('p3Attending') === 'true';
 
-  await db.update(Guest)
+  await db.update(guests)
     .set({ 
       isAttending, 
-      // If not attending, FORCE meal to null
       mealChoice: isAttending ? (formData.get('mealChoice')?.toString() || null) : null, 
       dietaryNotes: formData.get('dietaryNotes')?.toString() || null,
-      
       p1Attending,
       p1MealChoice: p1Attending ? (formData.get('p1MealChoice')?.toString() || null) : null,
-      
       p2Attending,
       p2MealChoice: p2Attending ? (formData.get('p2MealChoice')?.toString() || null) : null,
-      
       p3Attending,
       p3MealChoice: p3Attending ? (formData.get('p3MealChoice')?.toString() || null) : null,
-      
       hasRsvpd: true 
     })
-    .where(eq(Guest.email, email));
+    .where(eq(guests.email, email));
 
   return redirect('/tickets?success=true');
 };
