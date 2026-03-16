@@ -35,12 +35,13 @@ const error = Astro.url.searchParams.get('error');
           </div>
         )}
 
-        <form action="/api/auth" method="POST" class="flex flex-col gap-4">
+        <form action="/api/verify" method="POST" class="flex flex-col gap-4">
           <input 
-            type="password" 
-            name="password" 
+            type="text" 
+            name="code" 
             required 
             placeholder="PRESALE CODE"
+            oninput="this.value = this.value.replace(/ /g, '')"
             class="w-full bg-zinc-900 border border-zinc-800 text-zinc-100 px-4 py-4 text-center tracking-widest uppercase focus:outline-none focus:border-amber-600 focus:ring-1 focus:ring-amber-600 transition-colors"
           />
           <button type="submit" class="w-full bg-amber-700 hover:bg-amber-600 text-zinc-950 font-bold text-lg uppercase tracking-widest py-4 transition-colors">

@@ -37,12 +37,21 @@ if (Astro.request.method === 'POST') {
     {!guestRecord && (
       <div class="bg-zinc-900 border border-zinc-800 p-8 shadow-2xl flex flex-col items-center">
         <h1 class="text-6xl text-zinc-100 font-display mb-2 uppercase text-center w-full">Box Office</h1>
-        <p class="text-zinc-400 mb-8 uppercase tracking-widest text-sm text-center">Look up your ticket</p>
+        <p class="text-zinc-400 mb-8 uppercase tracking-widest text-sm text-center">Look up your email to RSVP</p>
         
         {lookupError && <p class="text-red-500 mb-6 font-bold uppercase tracking-wider bg-red-950/50 border border-red-900 px-4 py-2 w-full text-center">{lookupError}</p>}
         
         <form method="POST" class="flex flex-col gap-4 w-full max-w-md">
-          <input type="email" name="email" required placeholder="ENTER YOUR EMAIL" class="w-full bg-zinc-950 border border-zinc-700 text-zinc-100 px-4 py-4 text-center tracking-widest focus:outline-none focus:border-amber-600 transition-colors" />
+          <input 
+            type="email" 
+            name="email" 
+            required 
+            placeholder="ENTER YOUR EMAIL" 
+            pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"
+            title="Please enter a valid email address (e.g., name@domain.com)"
+            oninput="this.value = this.value.toLowerCase().replace(/ /g, '')"
+            class="w-full bg-zinc-950 border border-zinc-700 text-zinc-100 px-4 py-4 text-center tracking-widest focus:outline-none focus:border-amber-600 transition-colors" 
+          />         
           <button type="submit" class="w-full bg-amber-700 hover:bg-amber-600 text-zinc-950 font-bold text-lg uppercase tracking-widest py-4 transition-colors">Find My Ticket</button>
         </form>
       </div>
@@ -76,7 +85,7 @@ if (Astro.request.method === 'POST') {
               <div>
                 <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Meal</label>
                 <select name="mealChoice" id="main-meal" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 px-4 py-3 focus:outline-none focus:border-amber-600 uppercase text-sm tracking-wider">
-                  <option value="">None</option>
+                  <option value="" disabled selected={!guestRecord.mealChoice}>Select Meal</option>
                   <option value="Chicken" selected={guestRecord.mealChoice === 'Chicken'}>Chicken</option>
                   <option value="Beef" selected={guestRecord.mealChoice === 'Beef'}>Beef</option>
                   <option value="Vegan" selected={guestRecord.mealChoice === 'Vegan'}>Vegan</option>
@@ -94,14 +103,15 @@ if (Astro.request.method === 'POST') {
                 <div>
                   <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Attending?</label>
                   <select name="p1Attending" id="p1-attending" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 px-4 py-3 focus:outline-none focus:border-emerald-600 uppercase text-sm tracking-wider">
-                    <option value="true" selected={guestRecord.p1Attending === true}>Yes</option>
-                    <option value="false" selected={guestRecord.hasRsvpd && guestRecord.p1Attending === false}>No</option>
+                    <option value="pending" selected={guestRecord.p1Attending === 'pending'}>Pending</option>
+                    <option value="true" selected={guestRecord.p1Attending === 'true'}>Hell Yes</option>
+                    <option value="false" selected={guestRecord.p1Attending === 'false'}>Can't Make It</option>
                   </select>
                 </div>
                 <div>
                   <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Meal</label>
                   <select name="p1MealChoice" id="p1-meal" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 px-4 py-3 focus:outline-none focus:border-emerald-600 uppercase text-sm tracking-wider">
-                    <option value="">None</option>
+                    <option value="" disabled selected={!guestRecord.p1MealChoice}>Select Meal</option>
                     <option value="Chicken" selected={guestRecord.p1MealChoice === 'Chicken'}>Chicken</option>
                     <option value="Beef" selected={guestRecord.p1MealChoice === 'Beef'}>Beef</option>
                     <option value="Vegan" selected={guestRecord.p1MealChoice === 'Vegan'}>Vegan</option>
@@ -120,14 +130,15 @@ if (Astro.request.method === 'POST') {
                 <div>
                   <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Attending?</label>
                   <select name="p2Attending" id="p2-attending" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 px-4 py-3 focus:outline-none focus:border-emerald-600 uppercase text-sm tracking-wider">
-                    <option value="true" selected={guestRecord.p2Attending === true}>Yes</option>
-                    <option value="false" selected={guestRecord.hasRsvpd && guestRecord.p2Attending === false}>No</option>
+                    <option value="pending" selected={guestRecord.p2Attending === 'pending'}>Pending</option>
+                    <option value="true" selected={guestRecord.p2Attending === 'true'}>Hell Yes</option>
+                    <option value="false" selected={guestRecord.p2Attending === 'false'}>Can't Make It</option>
                   </select>
                 </div>
                 <div>
                   <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Meal</label>
                   <select name="p2MealChoice" id="p2-meal" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 px-4 py-3 focus:outline-none focus:border-emerald-600 uppercase text-sm tracking-wider">
-                    <option value="">None</option>
+                    <option value="" disabled selected={!guestRecord.p2MealChoice}>Select Meal</option>
                     <option value="Chicken" selected={guestRecord.p2MealChoice === 'Chicken'}>Chicken</option>
                     <option value="Beef" selected={guestRecord.p2MealChoice === 'Beef'}>Beef</option>
                     <option value="Vegan" selected={guestRecord.p2MealChoice === 'Vegan'}>Vegan</option>
@@ -146,14 +157,15 @@ if (Astro.request.method === 'POST') {
                 <div>
                   <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Attending?</label>
                   <select name="p3Attending" id="p3-attending" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 px-4 py-3 focus:outline-none focus:border-emerald-600 uppercase text-sm tracking-wider">
-                    <option value="true" selected={guestRecord.p3Attending === true}>Yes</option>
-                    <option value="false" selected={guestRecord.hasRsvpd && guestRecord.p3Attending === false}>No</option>
+                    <option value="pending" selected={guestRecord.p3Attending === 'pending'}>Pending</option>
+                    <option value="true" selected={guestRecord.p3Attending === 'true'}>Hell Yes</option>
+                    <option value="false" selected={guestRecord.p3Attending === 'false'}>Can't Make It</option>
                   </select>
                 </div>
                 <div>
                   <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Meal</label>
                   <select name="p3MealChoice" id="p3-meal" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 px-4 py-3 focus:outline-none focus:border-emerald-600 uppercase text-sm tracking-wider">
-                    <option value="">None</option>
+                    <option value="" disabled selected={!guestRecord.p3MealChoice}>Select Meal</option>
                     <option value="Chicken" selected={guestRecord.p3MealChoice === 'Chicken'}>Chicken</option>
                     <option value="Beef" selected={guestRecord.p3MealChoice === 'Beef'}>Beef</option>
                     <option value="Vegan" selected={guestRecord.p3MealChoice === 'Vegan'}>Vegan</option>
@@ -178,29 +190,55 @@ if (Astro.request.method === 'POST') {
 </Layout>
 
 <script is:inline>
-  // Dynamic UI Locking logic
   function linkAttendanceAndMeal(attendingSelectId, mealSelectId) {
     const attSelect = document.getElementById(attendingSelectId);
     const mealSelect = document.getElementById(mealSelectId);
     
     if (!attSelect || !mealSelect) return;
-
+    
     function updateMealState() {
-      if (attSelect.value === 'false') {
-        mealSelect.value = ''; // Reset meal
-        mealSelect.classList.add('opacity-30', 'pointer-events-none', 'bg-zinc-800'); // Gray it out
+      if (attSelect.value === 'false' || attSelect.value === 'pending') {
+        mealSelect.value = ''; 
+        mealSelect.classList.add('opacity-30', 'pointer-events-none', 'bg-zinc-800'); 
+        mealSelect.removeAttribute('required'); 
       } else {
-        mealSelect.classList.remove('opacity-30', 'pointer-events-none', 'bg-zinc-800'); // Re-enable
+        mealSelect.classList.remove('opacity-30', 'pointer-events-none', 'bg-zinc-800'); 
+        mealSelect.setAttribute('required', 'true'); 
       }
     }
 
     attSelect.addEventListener('change', updateMealState);
-    updateMealState(); // Run immediately on load
+    updateMealState();
   }
 
-  // Hook up the boxes
   linkAttendanceAndMeal('main-attending', 'main-meal');
   linkAttendanceAndMeal('p1-attending', 'p1-meal');
   linkAttendanceAndMeal('p2-attending', 'p2-meal');
   linkAttendanceAndMeal('p3-attending', 'p3-meal');
+
+  // Cascading "No" Logic
+  const mainAttending = document.getElementById('main-attending');
+  if (mainAttending) {
+    mainAttending.addEventListener('change', (e) => {
+      if (e.target.value === 'false') {
+        let partyChanged = false;
+        
+        ['p1-attending', 'p2-attending', 'p3-attending'].forEach(id => {
+          const pSelect = document.getElementById(id);
+          // If the plus one isn't already 'false', change them to 'false'
+          if (pSelect && pSelect.value !== 'false') {
+            pSelect.value = 'false';
+            // Manually trigger the change event so the meal dropdown locks out
+            pSelect.dispatchEvent(new Event('change'));
+            partyChanged = true;
+          }
+        });
+        
+        // Only show the alert if we actually changed someone else's RSVP
+        if (partyChanged) {
+          alert("Since you can't make it, we've updated your party's RSVP to match. We'll miss you guys!");
+        }
+      }
+    });
+  }
 </script>

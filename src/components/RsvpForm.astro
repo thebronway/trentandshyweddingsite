@@ -12,6 +12,9 @@
       id="email" 
       name="email" 
       required 
+      pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"
+      title="Please enter a valid email address (e.g., name@domain.com)"
+      oninput="this.value = this.value.toLowerCase().replace(/ /g, '')"
       class="w-full bg-zinc-950 border border-zinc-700 text-zinc-100 px-4 py-3 focus:outline-none focus:border-amber-600 focus:ring-1 focus:ring-amber-600 transition-colors"
       placeholder="you@example.com"
     />

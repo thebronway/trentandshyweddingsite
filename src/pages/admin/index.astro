@@ -31,16 +31,19 @@ allGuests.forEach(g => {
     if (g.isAttending) countMeal(g.mealChoice);
 
     if (g.allocatedPlusOnes >= 1) {
-      g.p1Attending ? totalYes++ : totalNo++;
-      if (g.p1Attending) countMeal(g.p1MealChoice);
+      if (g.p1Attending === 'true') { totalYes++; countMeal(g.p1MealChoice); }
+      else if (g.p1Attending === 'false') { totalNo++; }
+      else { totalPending++; }
     }
     if (g.allocatedPlusOnes >= 2) {
-      g.p2Attending ? totalYes++ : totalNo++;
-      if (g.p2Attending) countMeal(g.p2MealChoice);
+      if (g.p2Attending === 'true') { totalYes++; countMeal(g.p2MealChoice); }
+      else if (g.p2Attending === 'false') { totalNo++; }
+      else { totalPending++; }
     }
     if (g.allocatedPlusOnes >= 3) {
-      g.p3Attending ? totalYes++ : totalNo++;
-      if (g.p3Attending) countMeal(g.p3MealChoice);
+      if (g.p3Attending === 'true') { totalYes++; countMeal(g.p3MealChoice); }
+      else if (g.p3Attending === 'false') { totalNo++; }
+      else { totalPending++; }
     }
   }
 });
@@ -67,15 +70,15 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
         <div class="grid grid-cols-3 gap-4 text-center">
           <div class="bg-emerald-950/30 border border-emerald-900 p-4">
             <div class="text-4xl font-bold text-emerald-500">{totalYes}</div>
-            <div class="text-xs uppercase tracking-widest text-emerald-700 mt-1">Confirmed</div>
+            <div class="text-[10px] md:text-xs uppercase tracking-widest text-emerald-700 mt-1">Confirmed</div>
           </div>
           <div class="bg-red-950/30 border border-red-900 p-4">
             <div class="text-4xl font-bold text-red-500">{totalNo}</div>
-            <div class="text-xs uppercase tracking-widest text-red-700 mt-1">Declined</div>
+            <div class="text-[10px] md:text-xs uppercase tracking-widest text-red-700 mt-1">Declined</div>
           </div>
           <div class="bg-zinc-950 border border-zinc-800 p-4">
             <div class="text-4xl font-bold text-zinc-400">{totalPending}</div>
-            <div class="text-xs uppercase tracking-widest text-zinc-500 mt-1">Pending</div>
+            <div class="text-[10px] md:text-xs uppercase tracking-widest text-zinc-500 mt-1">Pending</div>
           </div>
         </div>
       </div>
@@ -100,7 +103,7 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
     </div>
 
     <div class="bg-zinc-900 border border-zinc-800 p-6 shadow-xl mb-8">
-      <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Comms (BCC Lists)</h2>
+      <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Email Lists for Main Guests</h2>
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label class="block text-xs font-bold uppercase tracking-widest text-emerald-600 mb-1">Attending ({emailsYes ? emailsYes.split(',').length : 0})</label>
@@ -243,8 +246,9 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
             <input type="text" name="p1Name" id="edit-p1name" placeholder="Name" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 mb-2 text-sm" />
             <div class="flex gap-2">
               <select name="p1Attending" id="edit-p1attending" class="w-1/2 bg-zinc-950 border border-zinc-700 px-2 py-2 text-xs">
-                <option value="false">No</option>
+                <option value="pending">Pending</option>
                 <option value="true">Yes</option>
+                <option value="false">No</option>
               </select>
               <select name="p1MealChoice" id="edit-p1meal" class="w-1/2 bg-zinc-950 border border-zinc-700 px-2 py-2 text-xs">
                 <option value="">Meal</option>
@@ -260,8 +264,9 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
             <input type="text" name="p2Name" id="edit-p2name" placeholder="Name" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 mb-2 text-sm" />
             <div class="flex gap-2">
               <select name="p2Attending" id="edit-p2attending" class="w-1/2 bg-zinc-950 border border-zinc-700 px-2 py-2 text-xs">
-                <option value="false">No</option>
+                <option value="pending">Pending</option>
                 <option value="true">Yes</option>
+                <option value="false">No</option>
               </select>
               <select name="p2MealChoice" id="edit-p2meal" class="w-1/2 bg-zinc-950 border border-zinc-700 px-2 py-2 text-xs">
                 <option value="">Meal</option>
@@ -277,8 +282,9 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
             <input type="text" name="p3Name" id="edit-p3name" placeholder="Name" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 mb-2 text-sm" />
             <div class="flex gap-2">
               <select name="p3Attending" id="edit-p3attending" class="w-1/2 bg-zinc-950 border border-zinc-700 px-2 py-2 text-xs">
-                <option value="false">No</option>
+                <option value="pending">Pending</option>
                 <option value="true">Yes</option>
+                <option value="false">No</option>
               </select>
               <select name="p3MealChoice" id="edit-p3meal" class="w-1/2 bg-zinc-950 border border-zinc-700 px-2 py-2 text-xs">
                 <option value="">Meal</option>
@@ -324,18 +330,36 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
                 <td class="px-6 py-4">
                   {guest.hasRsvpd ? (guest.isAttending ? <span class="text-emerald-500 font-bold">YES</span> : <span class="text-red-500 font-bold">NO</span>) : <span class="text-zinc-500">Pending</span>}
                 </td>
-                <td class="px-6 py-4 text-emerald-400 text-xs leading-relaxed">
-                  {guest.allocatedPlusOnes >= 1 ? <div>P1: {guest.p1Name || '-'} {guest.p1Attending ? '(Y)' : '(N)'}</div> : ''}
-                  {guest.allocatedPlusOnes >= 2 ? <div>P2: {guest.p2Name || '-'} {guest.p2Attending ? '(Y)' : '(N)'}</div> : ''}
-                  {guest.allocatedPlusOnes >= 3 ? <div>P3: {guest.p3Name || '-'} {guest.p3Attending ? '(Y)' : '(N)'}</div> : ''}
+                <td class="px-6 py-4 text-xs leading-relaxed text-zinc-400">
+                  {guest.allocatedPlusOnes >= 1 && (
+                    <div>P1: {guest.p1Name || '-'} 
+                      {guest.p1Attending === 'true' ? <span class="text-emerald-500 font-bold ml-1">(Y)</span> : 
+                       guest.p1Attending === 'false' ? <span class="text-red-500 font-bold ml-1">(N)</span> : 
+                       <span class="text-amber-500 font-bold ml-1">(P)</span>}
+                    </div>
+                  )}
+                  {guest.allocatedPlusOnes >= 2 && (
+                    <div>P2: {guest.p2Name || '-'} 
+                      {guest.p2Attending === 'true' ? <span class="text-emerald-500 font-bold ml-1">(Y)</span> : 
+                       guest.p2Attending === 'false' ? <span class="text-red-500 font-bold ml-1">(N)</span> : 
+                       <span class="text-amber-500 font-bold ml-1">(P)</span>}
+                    </div>
+                  )}
+                  {guest.allocatedPlusOnes >= 3 && (
+                    <div>P3: {guest.p3Name || '-'} 
+                      {guest.p3Attending === 'true' ? <span class="text-emerald-500 font-bold ml-1">(Y)</span> : 
+                       guest.p3Attending === 'false' ? <span class="text-red-500 font-bold ml-1">(N)</span> : 
+                       <span class="text-amber-500 font-bold ml-1">(P)</span>}
+                    </div>
+                  )}
                 </td>
                 <td class="px-6 py-4 text-right flex justify-end gap-3">
                   <button type="button" class="trigger-edit-btn text-amber-600 hover:text-amber-400 font-bold uppercase tracking-widest text-xs" 
                     data-id={guest.id} data-first={guest.firstName} data-last={guest.lastName || ''} data-email={guest.email} 
                     data-role={guest.role} data-alloc={guest.allocatedPlusOnes} data-rsvp={statusStr} data-meal={guest.mealChoice || ''} data-notes={guest.dietaryNotes || ''}
-                    data-p1name={guest.p1Name || ''} data-p1att={guest.p1Attending ? 'true' : 'false'} data-p1meal={guest.p1MealChoice || ''}
-                    data-p2name={guest.p2Name || ''} data-p2att={guest.p2Attending ? 'true' : 'false'} data-p2meal={guest.p2MealChoice || ''}
-                    data-p3name={guest.p3Name || ''} data-p3att={guest.p3Attending ? 'true' : 'false'} data-p3meal={guest.p3MealChoice || ''}>
+                    data-p1name={guest.p1Name || ''} data-p1att={guest.p1Attending} data-p1meal={guest.p1MealChoice || ''}
+                    data-p2name={guest.p2Name || ''} data-p2att={guest.p2Attending} data-p2meal={guest.p2MealChoice || ''}
+                    data-p3name={guest.p3Name || ''} data-p3att={guest.p3Attending} data-p3meal={guest.p3MealChoice || ''}>
                     Edit
                   </button>
                   <form action="/api/admin/guests" method="POST" onsubmit="return confirm('Delete this guest?');">

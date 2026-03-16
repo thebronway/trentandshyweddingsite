@@ -8,6 +8,9 @@ interface ImportMetaEnv {
   readonly GUEST_PASSWORD: string;
   readonly VIP_PASSWORD: string;
   readonly ADMIN_PASSWORD: string;
+  readonly ADMIN_NOTIFY_EMAIL: string;
+  readonly SENDER_NO_REPLY: string;
+  readonly SENDER_RSVP: string;
 }
 
 interface ImportMeta {

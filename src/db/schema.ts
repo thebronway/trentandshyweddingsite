@@ -18,16 +18,16 @@ export const guests = pgTable('guests', {
 
   // Plus One
   p1Name: text('p1_name'),
-  p1Attending: boolean('p1_attending').default(false).notNull(),
+  p1Attending: text('p1_attending').default('pending').notNull(),
   p1MealChoice: text('p1_meal_choice'),
 
   // Plus Two
   p2Name: text('p2_name'),
-  p2Attending: boolean('p2_attending').default(false).notNull(),
+  p2Attending: text('p2_attending').default('pending').notNull(),
   p2MealChoice: text('p2_meal_choice'),
 
   // Plus Three
   p3Name: text('p3_name'),
-  p3Attending: boolean('p3_attending').default(false).notNull(),
+  p3Attending: text('p3_attending').default('pending').notNull(),
   p3MealChoice: text('p3_meal_choice'),
 });

@@ -33,10 +33,10 @@ import Nav from '../components/Nav.astro';
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-      <a href="/about" class="bg-zinc-950 border border-zinc-700 p-6 hover:border-amber-600 transition-colors group">
-        <h3 class="text-2xl font-display text-zinc-100 group-hover:text-amber-600 transition-colors uppercase leading-none">Meet The Band</h3>
-        <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-2">How it Started</p>
-      </a>
+      <div class="bg-zinc-900 border border-amber-600 p-6 cursor-default">
+        <h3 class="text-2xl font-display text-amber-600 uppercase leading-none">Meet The Band</h3>
+        <p class="text-amber-600/70 text-[10px] font-bold uppercase tracking-widest mt-2">How it Started</p>
+      </div>
 
       <a href="/openers" class="bg-zinc-950 border border-zinc-700 p-6 hover:border-amber-600 transition-colors group">
         <h3 class="text-2xl font-display text-zinc-100 group-hover:text-amber-600 transition-colors uppercase leading-none">The Openers</h3>
@@ -48,14 +48,21 @@ import Nav from '../components/Nav.astro';
         <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-2">Setlist & Venue</p>
       </a>
 
+      <div class="bg-zinc-950/50 border border-zinc-800 p-6 cursor-not-allowed opacity-60">
+        <h3 class="text-2xl font-display text-zinc-500 uppercase leading-none">Box Office (RSVP)</h3>
+        <p class="text-zinc-600 text-[10px] font-bold uppercase tracking-widest mt-2">Coming Soon • July 1</p>
+      </div>
+
+      <!--
       <a href="/tickets" class="bg-zinc-950 border border-zinc-700 p-6 hover:border-amber-600 transition-colors group">
         <h3 class="text-2xl font-display text-zinc-100 group-hover:text-amber-600 transition-colors uppercase leading-none">Box Office</h3>
-        <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-2">RSVP & Meals</p>
+        <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-2">RSVP</p>
       </a>
+      -->
 
       <a href="/faq" class="bg-zinc-950 border border-zinc-700 p-6 hover:border-amber-600 transition-colors group">
         <h3 class="text-2xl font-display text-zinc-100 group-hover:text-amber-600 transition-colors uppercase leading-none">Tour FAQ</h3>
-        <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-2">Tour Logistics</p>
+        <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-2">Day of Logistics</p>
       </a>
 
       <a href="/merch" class="bg-zinc-950 border border-zinc-700 p-6 hover:border-amber-600 transition-colors group">

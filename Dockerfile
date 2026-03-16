@@ -29,4 +29,4 @@ ENV PORT=4321
 ENV NODE_ENV=production
 
 # The clean startup sequence: just start Nginx and Node!
-CMD ["sh", "-c", "service nginx start && node ./dist/server/entry.mjs"]
+CMD ["sh", "-c", "npm run db:push && service nginx start && node ./dist/server/entry.mjs"]

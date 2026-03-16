@@ -5,15 +5,15 @@ import Nav from '../components/Nav.astro';
 const openers = [
   { name: "Alyssa", role: "Vocals / Entourage", img: "/images/alyssa.webp" },
   { name: "Ben", role: "Bass / The Roadies", img: "/images/ben.webp" },
-  { name: "Brian", role: "MC / Officiant", img: "/images/brian.webp" },
+  { name: "Brian", role: "Sound Guy / Officiant", img: "/images/brian.webp" },
   { name: "Carney", role: "Lead Guitar / The Roadies", img: "/images/carney.webp" },
   { name: "Devan", role: "Rhythm Guitar / Entourage", img: "/images/devan.webp" },
   { name: "Evan", role: "Tour Manager / Entourage", img: "/images/evan.webp" },
   { name: "Jake", role: "Drums / The Roadies", img: "/images/jake.webp" },
   { name: "Jordan", role: "Keys / Entourage", img: "/images/jordan.webp" },
-  { name: "Jordy", role: "Backing Vocals / Entourage", img: "/images/jordy.webp" },
-  { name: "Matt", role: "Stage Security / The Roadies", img: "/images/matt.webp" },
-  { name: "Nick", role: "Pyro & FX / The Roadies", img: "/images/nick.webp" },
+  { name: "Jordy", role: "Lights / Entourage", img: "/images/jordy.webp" },
+  { name: "Matt", role: "Security / The Roadies", img: "/images/matt.webp" },
+  { name: "Nick", role: "Pyro / The Roadies", img: "/images/nick.webp" },
 ].sort((a, b) => a.name.localeCompare(b.name));
 ---
 <Layout title="The Openers">
@@ -21,7 +21,7 @@ const openers = [
   <main class="max-w-6xl mx-auto p-6 w-full mt-8">
     <div class="text-center mb-16">
       <h1 class="text-6xl text-zinc-100 font-display mb-4 uppercase tracking-wider">The Openers</h1>
-      <p class="text-amber-600 font-bold tracking-widest uppercase text-sm">The crew warming up the stage tonight</p>
+      <p class="text-amber-600 font-bold tracking-widest uppercase text-sm">The wedding party warming up the stage for the main act</p>
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
