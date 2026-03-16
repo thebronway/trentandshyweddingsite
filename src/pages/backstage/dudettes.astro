@@ -1,21 +1,37 @@
 ---
 import Layout from '../../components/Layout.astro';
 import Nav from '../../components/Nav.astro';
-import TicketCard from '../../components/TicketCard.astro';
 ---
-<Layout title="The Dudettes">
+<Layout title="The Entourage (Bridesmaids)">
   <Nav />
   <main class="max-w-4xl mx-auto p-6 w-full mt-8">
-    <a href="/backstage" class="text-amber-600 text-sm font-bold uppercase tracking-widest hover:text-amber-500 mb-8 inline-block">&larr; Back to Hub</a>
+    <a href="/backstage" class="text-amber-600 text-xs font-bold uppercase tracking-widest hover:text-amber-500 mb-8 inline-block">&larr; Back to Hub</a>
     
-    <h1 class="text-6xl text-zinc-100 font-display mb-8">The Dudettes</h1>
+    <h1 class="text-6xl text-zinc-100 font-display mb-2 uppercase">The Entourage</h1>
+    <p class="text-zinc-500 uppercase tracking-widest text-sm font-bold mb-12">Bridesmaids Eyes Only</p>
     
-    <TicketCard title="Dresses" subtitle="Order ASAP">
-      <p>We are doing mismatched dresses in earthy greens and bronzes. Send Shy a picture of yours before you buy it to make sure it fits the vibe.</p>
-    </TicketCard>
+    <div class="bg-zinc-900 border border-zinc-800 p-8 mb-8 border-l-4 border-l-amber-600 shadow-xl">
+      <h2 class="text-3xl text-zinc-100 font-display mb-2 uppercase tracking-widest">The Bachelorette</h2>
+      <p class="text-amber-600 font-bold uppercase tracking-wider text-xs mb-4">August 15th • Downtown</p>
+      <div class="text-zinc-300 leading-relaxed space-y-4">
+        <p>We are doing a filthy dive bar crawl followed by aggressively off-key karaoke. Wear black leather, bring cash for the jukebox, and prepare to embarrass yourselves. Dana is making the itinerary and will send it to the group chat.</p>
+      </div>
+    </div>
 
-    <TicketCard title="Hair & Makeup" subtitle="Call Time: 9:00 AM">
-      <p>Meet at the bridal suite at 9:00 AM sharp. Coffee and bagels will be provided. Bring your own playlist.</p>
-    </TicketCard>
+    <div class="bg-zinc-900 border border-zinc-800 p-8 mb-8 border-l-4 border-l-zinc-100 shadow-xl">
+      <h2 class="text-3xl text-zinc-100 font-display mb-2 uppercase tracking-widest">Stage Outfits (Dresses)</h2>
+      <p class="text-zinc-500 font-bold uppercase tracking-wider text-xs mb-4">Order ASAP</p>
+      <div class="text-zinc-300 leading-relaxed space-y-4">
+        <p>We are doing mismatched dresses in earthy greens, emeralds, and bronzes. Pick a style that you can actually dance and mosh in. Send a picture to Shy before you click buy just to make sure the colors don't clash.</p>
+      </div>
+    </div>
+
+    <div class="bg-zinc-900 border border-zinc-800 p-8 mb-8 border-l-4 border-l-emerald-600 shadow-xl">
+      <h2 class="text-3xl text-zinc-100 font-display mb-2 uppercase tracking-widest">Soundcheck (Hair & Makeup)</h2>
+      <p class="text-emerald-500 font-bold uppercase tracking-wider text-xs mb-4">Call Time: 9:00 AM Sharp</p>
+      <div class="text-zinc-300 leading-relaxed space-y-4">
+        <p>Meet at the bridal suite at the hotel. Show up with a clean, dry face and hair. I am providing iced coffees, bagels, and mimosas. Your only job is to curate the 2000s pop-punk playlist and keep my anxiety levels low.</p>
+      </div>
+    </div>
   </main>
 </Layout>

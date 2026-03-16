@@ -18,8 +18,10 @@ const role = roleCookie ? roleCookie.value : null;
   
   <ul id="nav-links" class="hidden w-full sm:w-auto sm:flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6 text-sm font-semibold tracking-wider uppercase text-zinc-400 mt-6 sm:mt-0">
     <li class="w-full sm:w-auto"><a href="/about" class="block hover:text-zinc-100 transition-colors">Meet the Band</a></li>
+    <li class="w-full sm:w-auto"><a href="/openers" class="block hover:text-zinc-100 transition-colors">The Openers</a></li>
     <li class="w-full sm:w-auto"><a href="/lineup" class="block hover:text-zinc-100 transition-colors">The Lineup</a></li>
     <li class="w-full sm:w-auto"><a href="/tickets" class="block hover:text-amber-500 transition-colors">Box Office</a></li>
+    <li class="w-full sm:w-auto"><a href="/faq" class="block hover:text-zinc-100 transition-colors">Tour FAQ</a></li>
     <li class="w-full sm:w-auto"><a href="/merch" class="block hover:text-zinc-100 transition-colors">Merch Table</a></li>
     
     { (role === 'party' || role === 'admin') && (
@@ -32,9 +34,7 @@ const role = roleCookie ? roleCookie.value : null;
 
     { role && (
       <li class="w-full sm:w-auto pt-4 sm:pt-0 sm:pl-4 border-t sm:border-t-0 sm:border-l border-zinc-700 mt-2 sm:mt-0">
-        <a href="/api/logout" class="block text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
-          Sign Out
-        </a>
+        <a href="/api/logout" class="block text-xs text-zinc-500 hover:text-zinc-300 transition-colors">Sign Out</a>
       </li>
     )}
   </ul>

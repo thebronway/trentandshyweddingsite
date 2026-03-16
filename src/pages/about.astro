@@ -2,37 +2,65 @@
 import Layout from '../components/Layout.astro';
 import Nav from '../components/Nav.astro';
 ---
-<Layout title="About the Band">
+<Layout title="Meet the Band">
   <Nav />
   <main class="max-w-4xl mx-auto p-6 w-full mt-8 text-center">
-    <h1 class="text-6xl text-zinc-100 font-display mb-4 uppercase tracking-wider">The Band</h1>
+    <h1 class="text-6xl text-zinc-100 font-display mb-4 uppercase tracking-wider">Meet The Band</h1>
     <p class="text-amber-600 font-bold tracking-widest uppercase text-sm mb-12">Trent & Shy • Est. 2022</p>
+
+    <div class="w-full h-64 sm:h-96 mb-12 border border-zinc-800 relative overflow-hidden group">
+      <img 
+        src="/images/about.webp" 
+        alt="Trent and Shy" 
+        class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
+      />
+      <div class="absolute inset-0 border-[12px] border-zinc-950/20 pointer-events-none"></div>
+    </div>
 
     <div class="bg-zinc-900 border border-zinc-800 p-8 shadow-2xl mb-12 text-left">
       <h2 class="text-3xl text-zinc-100 font-display mb-4 uppercase">How It Started</h2>
       <p class="text-zinc-300 leading-relaxed mb-6">
-        It was 2022, and the energy at the Baltimore Soundstage was electric. Somewhere in the middle of the Knocked Loose pit, Trent and Shy collided. They spent the rest of the set shouting lyrics at each other, and by the time the house lights came up, they knew they’d found their permanent stage-dive partner. <br /> <br />
+        It was 2022, and the energy at the Baltimore Soundstage was electric. Somewhere in the middle of the Knocked Loose pit, Trent and Shy collided. They spent the rest of the set shouting lyrics at each other, and by the time the house lights came up, they knew they’d found their permanent stage-dive partner.
+      </p>
 
-        Fast forward to 2026: we’re heading back to the scene of the crime. We’re trading the mosh pit for the altar and getting married right where it all started. <br /> <br />
+      <p class="text-zinc-300 leading-relaxed mb-6">
+        Fast forward to 2026: we’re heading back to the scene of the crime. We’re trading the mosh pit for the altar and getting married right where it all started.
+      </p>
 
-        Same venue, new setlist. Let’s make some noise. <br /> <br />
       <p class="text-zinc-300 leading-relaxed">
         This isn't your traditional wedding. Wear black, come thirsty, and get ready for a heavy night.
       </p>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <a href="/about" class="bg-zinc-950 border border-zinc-700 p-6 hover:border-amber-600 transition-colors group">
+        <h3 class="text-2xl font-display text-zinc-100 group-hover:text-amber-600 transition-colors uppercase leading-none">Meet The Band</h3>
+        <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-2">How it Started</p>
+      </a>
+
+      <a href="/openers" class="bg-zinc-950 border border-zinc-700 p-6 hover:border-amber-600 transition-colors group">
+        <h3 class="text-2xl font-display text-zinc-100 group-hover:text-amber-600 transition-colors uppercase leading-none">The Openers</h3>
+        <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-2">The Wedding Party</p>
+      </a>
+
       <a href="/lineup" class="bg-zinc-950 border border-zinc-700 p-6 hover:border-amber-600 transition-colors group">
-        <h3 class="text-2xl font-display text-zinc-100 group-hover:text-amber-600 transition-colors uppercase">The Lineup</h3>
-        <p class="text-zinc-500 text-sm mt-2">Setlist & venue info</p>
+        <h3 class="text-2xl font-display text-zinc-100 group-hover:text-amber-600 transition-colors uppercase leading-none">The Lineup</h3>
+        <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-2">Setlist & Venue</p>
       </a>
+
       <a href="/tickets" class="bg-zinc-950 border border-zinc-700 p-6 hover:border-amber-600 transition-colors group">
-        <h3 class="text-2xl font-display text-zinc-100 group-hover:text-amber-600 transition-colors uppercase">Box Office</h3>
-        <p class="text-zinc-500 text-sm mt-2">RSVP & Meal Choices</p>
+        <h3 class="text-2xl font-display text-zinc-100 group-hover:text-amber-600 transition-colors uppercase leading-none">Box Office</h3>
+        <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-2">RSVP & Meals</p>
       </a>
+
+      <a href="/faq" class="bg-zinc-950 border border-zinc-700 p-6 hover:border-amber-600 transition-colors group">
+        <h3 class="text-2xl font-display text-zinc-100 group-hover:text-amber-600 transition-colors uppercase leading-none">Tour FAQ</h3>
+        <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-2">Tour Logistics</p>
+      </a>
+
       <a href="/merch" class="bg-zinc-950 border border-zinc-700 p-6 hover:border-amber-600 transition-colors group">
-        <h3 class="text-2xl font-display text-zinc-100 group-hover:text-amber-600 transition-colors uppercase">Merch</h3>
-        <p class="text-zinc-500 text-sm mt-2">Registry & Honeymoon</p>
+        <h3 class="text-2xl font-display text-zinc-100 group-hover:text-amber-600 transition-colors uppercase leading-none">Merch Table</h3>
+        <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-2">Registry & Deck Fund</p>
       </a>
     </div>
   </main>
