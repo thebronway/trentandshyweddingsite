@@ -1,0 +1,23 @@
+---
+interface Props {
+  title: string;
+  subtitle?: string;
+}
+const { title, subtitle } = Astro.props;
+---
+<div class="relative flex flex-col sm:flex-row bg-zinc-800 border border-zinc-700 rounded-sm overflow-hidden shadow-2xl my-6">
+  <div class="bg-zinc-950 px-6 py-8 flex flex-col justify-center items-center border-b sm:border-b-0 sm:border-r border-dashed border-zinc-600">
+    <span class="text-center text-amber-700 text-xs font-bold uppercase tracking-widest rotate-0 sm:-rotate-90 whitespace-nowrap">
+      Trent & Shy<br /><br />Baltimore<br />Soundstage<br /><br />Oct 10, 2026
+    </span>
+  </div>
+  
+  <div class="p-8 flex-1">
+    <h3 class="text-4xl text-zinc-100 mb-1">{title}</h3>
+    {subtitle && <p class="text-amber-600 font-bold uppercase tracking-wider text-sm mb-4">{subtitle}</p>}
+    
+    <div class="text-zinc-300 leading-relaxed space-y-4">
+      <slot />
+    </div>
+  </div>
+</div>

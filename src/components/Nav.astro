@@ -1,0 +1,54 @@
+---
+// Read the cookie to see if they are a guest, party, or admin
+const roleCookie = Astro.cookies.get('role');
+const role = roleCookie ? roleCookie.value : null;
+---
+<nav class="flex flex-wrap items-center justify-between p-6 border-b border-zinc-800 bg-zinc-950/80 relative z-50">
+  <div class="flex items-center justify-between w-full sm:w-auto">
+    <a href="/about" class="text-3xl tracking-widest text-amber-600 hover:text-amber-500 transition-colors">
+      T&S
+    </a>
+    
+    <button id="mobile-menu-btn" class="sm:hidden text-zinc-400 hover:text-amber-500 focus:outline-none">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+  </div>
+  
+  <ul id="nav-links" class="hidden w-full sm:w-auto sm:flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6 text-sm font-semibold tracking-wider uppercase text-zinc-400 mt-6 sm:mt-0">
+    <li class="w-full sm:w-auto"><a href="/about" class="block hover:text-zinc-100 transition-colors">Meet the Band</a></li>
+    <li class="w-full sm:w-auto"><a href="/lineup" class="block hover:text-zinc-100 transition-colors">The Lineup</a></li>
+    <li class="w-full sm:w-auto"><a href="/tickets" class="block hover:text-amber-500 transition-colors">Box Office</a></li>
+    <li class="w-full sm:w-auto"><a href="/merch" class="block hover:text-zinc-100 transition-colors">Merch Table</a></li>
+    
+    { (role === 'party' || role === 'admin') && (
+      <li class="w-full sm:w-auto"><a href="/backstage/" class="block hover:text-emerald-600 transition-colors">Backstage</a></li>
+    )}
+    
+    { role === 'admin' && (
+      <li class="w-full sm:w-auto"><a href="/admin/" class="block hover:text-red-600 transition-colors">Admin</a></li>
+    )}
+
+    { role && (
+      <li class="w-full sm:w-auto pt-4 sm:pt-0 sm:pl-4 border-t sm:border-t-0 sm:border-l border-zinc-700 mt-2 sm:mt-0">
+        <a href="/api/logout" class="block text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+          Sign Out
+        </a>
+      </li>
+    )}
+  </ul>
+</nav>
+
+<script>
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('nav-links');
+
+  if (btn && menu) {
+    btn.addEventListener('click', () => {
+      // Toggles the menu between hidden and flex (which makes it visible)
+      menu.classList.toggle('hidden');
+      menu.classList.toggle('flex');
+    });
+  }
+</script>

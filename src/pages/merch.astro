@@ -1,0 +1,20 @@
+---
+import Layout from '../components/Layout.astro';
+import Nav from '../components/Nav.astro';
+---
+<Layout title="Merch Table">
+  <Nav />
+  <main class="max-w-4xl mx-auto p-6 w-full mt-8 text-center">
+    <h1 class="text-6xl text-zinc-100 font-display mb-4">Merch Table</h1>
+    <p class="text-zinc-400 max-w-xl mx-auto mb-12">Your presence at our show is all we really want. But if you'd like to support the band, you can contribute to our honeymoon fund or check out our registry below.</p>
+    
+    <div class="flex flex-col sm:flex-row gap-6 justify-center">
+      <a href="#" class="bg-amber-700 hover:bg-amber-600 text-zinc-950 font-bold text-lg uppercase tracking-widest px-8 py-4 transition-colors">
+        Honeymoon Fund
+      </a>
+      <a href="#" class="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-100 font-bold text-lg uppercase tracking-widest px-8 py-4 transition-colors">
+        Target Registry
+      </a>
+    </div>
+  </main>
+</Layout>

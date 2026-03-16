@@ -1,0 +1,23 @@
+---
+import Layout from '../../components/Layout.astro';
+import Nav from '../../components/Nav.astro';
+---
+<Layout title="Backstage Access">
+  <Nav />
+  <main class="max-w-4xl mx-auto p-6 w-full mt-8 text-center">
+    <h1 class="text-6xl text-zinc-100 font-display mb-4">Backstage Access</h1>
+    <p class="text-zinc-400 mb-12">Wedding party only. Choose your crew for specific instructions.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <a href="/backstage/dudes" class="bg-zinc-900 border border-zinc-800 p-12 hover:border-amber-600 transition-colors group">
+        <h2 class="text-4xl font-display text-zinc-100 group-hover:text-amber-600 transition-colors">The Dudes</h2>
+        <p class="text-zinc-400 mt-2 uppercase tracking-widest text-xs font-bold">Groomsmen Info</p>
+      </a>
+
+      <a href="/backstage/dudettes" class="bg-zinc-900 border border-zinc-800 p-12 hover:border-amber-600 transition-colors group">
+        <h2 class="text-4xl font-display text-zinc-100 group-hover:text-amber-600 transition-colors">The Dudettes</h2>
+        <p class="text-zinc-400 mt-2 uppercase tracking-widest text-xs font-bold">Bridesmaids Info</p>
+      </a>
+    </div>
+  </main>
+</Layout>

@@ -1,0 +1,45 @@
+---
+import Layout from '../components/Layout.astro';
+import Nav from '../components/Nav.astro';
+import TicketCard from '../components/TicketCard.astro';
+---
+<Layout title="The Lineup">
+  <Nav />
+  <main class="max-w-4xl mx-auto p-6 w-full mt-8">
+    <h1 class="text-6xl text-zinc-100 font-display mb-8">Setlist</h1>
+    
+    <div class="grid md:grid-cols-2 gap-8 mb-12">
+      <div class="p-6 border-l-4 border-zinc-100 bg-zinc-900/50">
+        <h2 class="text-2xl font-display text-zinc-100 uppercase tracking-widest">The Venue</h2>
+        <p class="text-zinc-400 mt-2 text-lg">
+          Baltimore Soundstage<br />
+          124 Market Pl<br />
+          Baltimore, MD 21202
+        </p>
+      </div>
+
+      <div class="p-6 border-l-4 border-zinc-100 bg-zinc-900/50">
+        <h2 class="text-2xl font-display text-zinc-100 uppercase tracking-widest">Dress Code</h2>
+        <p class="text-zinc-400 mt-2 text-lg italic">"Show-Ready Casual"</p>
+        <p class="text-zinc-400 mt-2">
+          Leave the ties and gowns at home. Wear what makes you feel like a VIP, but remember: <strong>strictly no outshining the headliners</strong> (the Bride & Groom). 
+        </p>
+        <p class="text-zinc-500 text-sm mt-2 italic">
+          *Pit-safe footwear recommended.
+        </p>
+      </div>
+    </div>
+    
+    <TicketCard title="Doors Open" subtitle="4:30 PM - The Lobby">
+      <p>Check your coat, grab a drink, and find your spot in the crowd. The pre-show bar is open.</p>
+    </TicketCard>
+
+    <TicketCard title="The Main Act" subtitle="5:00 PM - Main Stage">
+      <p>The ceremony. Short, sweet, and heavy. Please silence your phones so you don't ruin the recording.</p>
+    </TicketCard>
+
+    <TicketCard title="The Afterparty" subtitle="6:00 PM - Midnight">
+      <p>Dinner, drinks, and a very loud playlist. Bring your earplugs if you're sensitive to punching music—we’re turning it up to eleven.</p>
+    </TicketCard>
+  </main>
+</Layout>

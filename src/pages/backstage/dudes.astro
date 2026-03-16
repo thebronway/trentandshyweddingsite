@@ -1,0 +1,21 @@
+---
+import Layout from '../../components/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import TicketCard from '../../components/TicketCard.astro';
+---
+<Layout title="The Dudes">
+  <Nav />
+  <main class="max-w-4xl mx-auto p-6 w-full mt-8">
+    <a href="/backstage" class="text-amber-600 text-sm font-bold uppercase tracking-widest hover:text-amber-500 mb-8 inline-block">&larr; Back to Hub</a>
+    
+    <h1 class="text-6xl text-zinc-100 font-display mb-8">The Dudes</h1>
+    
+    <TicketCard title="Suit Up" subtitle="Due: October 1st">
+      <p>We are going with black suits, white shirts, and a specific green tie. Check your group text for the link to rent the suit.</p>
+    </TicketCard>
+
+    <TicketCard title="Day-of Timeline" subtitle="Call Time: 1:00 PM">
+      <p>Be at the venue at exactly 1:00 PM for photos. Do not be late, or Trent will leave you out of the pictures.</p>
+    </TicketCard>
+  </main>
+</Layout>

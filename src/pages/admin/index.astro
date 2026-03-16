@@ -1,0 +1,430 @@
+---
+import Layout from '../../components/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import { db, Guest } from 'astro:db';
+
+const allGuests = await db.select().from(Guest);
+const error = Astro.url.searchParams.get('error');
+
+// Headcounts
+let totalYes = 0;
+let totalNo = 0;
+let totalPending = 0;
+
+// Catering
+let chicken = 0;
+let beef = 0;
+let vegan = 0;
+
+const countMeal = (meal: any) => {
+  if (meal === 'Chicken') chicken++;
+  if (meal === 'Beef') beef++;
+  if (meal === 'Vegan') vegan++;
+};
+
+allGuests.forEach(g => {
+  if (!g.hasRsvpd) {
+    totalPending += 1 + g.allocatedPlusOnes;
+  } else {
+    g.isAttending ? totalYes++ : totalNo++;
+    if (g.isAttending) countMeal(g.mealChoice);
+
+    if (g.allocatedPlusOnes >= 1) {
+      g.p1Attending ? totalYes++ : totalNo++;
+      if (g.p1Attending) countMeal(g.p1MealChoice);
+    }
+    if (g.allocatedPlusOnes >= 2) {
+      g.p2Attending ? totalYes++ : totalNo++;
+      if (g.p2Attending) countMeal(g.p2MealChoice);
+    }
+    if (g.allocatedPlusOnes >= 3) {
+      g.p3Attending ? totalYes++ : totalNo++;
+      if (g.p3Attending) countMeal(g.p3MealChoice);
+    }
+  }
+});
+
+// Email Lists for Gmail (Comma separated)
+const emailsYes = allGuests.filter(g => g.hasRsvpd && g.isAttending).map(g => g.email).join(', ');
+const emailsNo = allGuests.filter(g => g.hasRsvpd && !g.isAttending).map(g => g.email).join(', ');
+const emailsPending = allGuests.filter(g => !g.hasRsvpd).map(g => g.email).join(', ');
+const emailsAll = allGuests.map(g => g.email).join(', ');
+---
+
+<Layout title="Mission Control">
+  <Nav />
+  <main class="max-w-7xl mx-auto p-6 w-full mt-8">
+    
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-zinc-800 pb-4 mb-6 gap-4">
+      <h1 class="text-5xl text-zinc-100 font-display uppercase tracking-widest">Mission Control</h1>
+      <a href="/api/admin/export.csv" class="bg-amber-700 hover:bg-amber-600 text-zinc-950 font-bold px-6 py-2 uppercase tracking-wider transition-colors text-sm">Export CSV</a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-zinc-900 border border-zinc-800 p-6 shadow-xl">
+        <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Headcount</h2>
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div class="bg-emerald-950/30 border border-emerald-900 p-4">
+            <div class="text-4xl font-bold text-emerald-500">{totalYes}</div>
+            <div class="text-xs uppercase tracking-widest text-emerald-700 mt-1">Confirmed</div>
+          </div>
+          <div class="bg-red-950/30 border border-red-900 p-4">
+            <div class="text-4xl font-bold text-red-500">{totalNo}</div>
+            <div class="text-xs uppercase tracking-widest text-red-700 mt-1">Declined</div>
+          </div>
+          <div class="bg-zinc-950 border border-zinc-800 p-4">
+            <div class="text-4xl font-bold text-zinc-400">{totalPending}</div>
+            <div class="text-xs uppercase tracking-widest text-zinc-500 mt-1">Pending</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-zinc-900 border border-zinc-800 p-6 shadow-xl">
+        <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Catering Ops</h2>
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div class="bg-amber-950/30 border border-amber-900 p-4">
+            <div class="text-4xl font-bold text-amber-500">{beef}</div>
+            <div class="text-xs uppercase tracking-widest text-amber-700 mt-1">Beef</div>
+          </div>
+          <div class="bg-amber-950/30 border border-amber-900 p-4">
+            <div class="text-4xl font-bold text-amber-500">{chicken}</div>
+            <div class="text-xs uppercase tracking-widest text-amber-700 mt-1">Chicken</div>
+          </div>
+          <div class="bg-emerald-950/30 border border-emerald-900 p-4">
+            <div class="text-4xl font-bold text-emerald-500">{vegan}</div>
+            <div class="text-xs uppercase tracking-widest text-emerald-700 mt-1">Vegan</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-zinc-900 border border-zinc-800 p-6 shadow-xl mb-8">
+      <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Comms (BCC Lists)</h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest text-emerald-600 mb-1">Attending ({emailsYes ? emailsYes.split(',').length : 0})</label>
+          <textarea readonly class="w-full bg-zinc-950 border border-zinc-700 text-zinc-500 text-xs p-2 h-20 cursor-pointer focus:border-emerald-500" onclick="this.select()">{emailsYes}</textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1">Pending ({emailsPending ? emailsPending.split(',').length : 0})</label>
+          <textarea readonly class="w-full bg-zinc-950 border border-zinc-700 text-zinc-500 text-xs p-2 h-20 cursor-pointer focus:border-zinc-500" onclick="this.select()">{emailsPending}</textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest text-red-600 mb-1">Declined ({emailsNo ? emailsNo.split(',').length : 0})</label>
+          <textarea readonly class="w-full bg-zinc-950 border border-zinc-700 text-zinc-500 text-xs p-2 h-20 cursor-pointer focus:border-red-500" onclick="this.select()">{emailsNo}</textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest text-amber-600 mb-1">Everyone ({emailsAll ? emailsAll.split(',').length : 0})</label>
+          <textarea readonly class="w-full bg-zinc-950 border border-zinc-700 text-zinc-500 text-xs p-2 h-20 cursor-pointer focus:border-amber-500" onclick="this.select()">{emailsAll}</textarea>
+        </div>
+      </div>
+    </div>
+
+    {error === 'duplicate' && (
+      <div class="bg-red-950/50 border border-red-500 text-red-200 p-4 mb-6 uppercase tracking-widest font-bold text-sm">Error: That email is already on the list!</div>
+    )}
+
+    <div class="flex flex-col md:flex-row gap-4 mb-8 bg-zinc-900 border border-zinc-800 p-4 shadow-xl">
+      <input type="text" id="search-bar" placeholder="SEARCH NAME OR EMAIL..." class="flex-1 bg-zinc-950 border border-zinc-700 text-zinc-100 px-4 py-2 focus:border-amber-600 uppercase text-sm tracking-wider" />
+      <button id="toggle-add-btn" class="bg-zinc-100 hover:bg-zinc-300 text-zinc-950 font-bold uppercase tracking-widest px-6 py-2 transition-colors">+ Add Guest</button>
+    </div>
+
+    <div id="add-panel" class="hidden bg-zinc-900 border border-emerald-900 p-6 shadow-xl mb-8 border-l-4 border-l-emerald-600">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest">New Guest Record</h2>
+        <button type="button" class="close-add-btn text-zinc-500 hover:text-zinc-300 font-bold">X</button>
+      </div>
+      <form action="/api/admin/guests" method="POST" class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+        <input type="hidden" name="action" value="add" />
+        <div class="md:col-span-1">
+          <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1">First Name</label>
+          <input type="text" name="firstName" required class="w-full bg-zinc-950 border border-zinc-700 text-zinc-100 px-3 py-2" />
+        </div>
+        <div class="md:col-span-1">
+          <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1">Last Name</label>
+          <input type="text" name="lastName" class="w-full bg-zinc-950 border border-zinc-700 text-zinc-100 px-3 py-2" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1">Email</label>
+          <input type="email" name="email" required class="w-full bg-zinc-950 border border-zinc-700 text-zinc-100 px-3 py-2" />
+        </div>
+        <div class="md:col-span-1">
+          <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1">Role</label>
+          <select name="role" class="w-full bg-zinc-950 border border-zinc-700 text-zinc-100 px-3 py-2 text-sm">
+            <option value="guest">Guest</option>
+            <option value="party">Party</option>
+            <option value="admin">Main Act</option>
+          </select>
+        </div>
+        <div class="md:col-span-1">
+          <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1">Party Size (+)</label>
+          <select name="allocatedPlusOnes" class="w-full bg-zinc-950 border border-zinc-700 text-zinc-100 px-3 py-2 text-sm text-center">
+            <option value="0">+0</option>
+            <option value="1">+1</option>
+            <option value="2">+2</option>
+            <option value="3">+3</option>
+          </select>
+        </div>
+        <div class="md:col-span-6 flex justify-end mt-2">
+          <button type="submit" class="bg-emerald-700 hover:bg-emerald-600 text-zinc-100 font-bold uppercase px-8 py-2">Create</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="edit-panel" class="hidden bg-zinc-900 border border-amber-900 p-6 shadow-xl mb-8 border-l-4 border-l-amber-600">
+      <div class="flex justify-between items-center mb-4 border-b border-zinc-800 pb-2">
+        <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest">Edit Record</h2>
+        <button type="button" class="close-edit-btn text-zinc-500 hover:text-zinc-300 font-bold">X</button>
+      </div>
+      <form action="/api/admin/guests" method="POST" class="flex flex-col gap-6">
+        <input type="hidden" name="action" value="edit" />
+        <input type="hidden" name="id" id="edit-id" />
+        
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+          <div class="md:col-span-1">
+            <label class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1 block">First</label>
+            <input type="text" name="firstName" id="edit-first" required class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2" />
+          </div>
+          <div class="md:col-span-1">
+            <label class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1 block">Last</label>
+            <input type="text" name="lastName" id="edit-last" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1 block">Email</label>
+            <input type="email" name="email" id="edit-email" required class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2" />
+          </div>
+          <div class="md:col-span-1">
+            <label class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1 block">Role</label>
+            <select name="role" id="edit-role" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm">
+              <option value="guest">Guest</option>
+              <option value="party">Party</option>
+              <option value="admin">Main Act</option>
+            </select>
+          </div>
+          <div class="md:col-span-1">
+            <label class="text-xs font-bold uppercase tracking-widest text-amber-500 mb-1 block">Party Size</label>
+            <select name="allocatedPlusOnes" id="edit-allocation" class="w-full bg-zinc-950 border border-amber-700 text-amber-500 font-bold px-3 py-2 text-sm text-center">
+              <option value="0">+0</option>
+              <option value="1">+1</option>
+              <option value="2">+2</option>
+              <option value="3">+3</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-4 bg-zinc-950/50 p-4 border border-zinc-800">
+          <div class="md:col-span-2">
+            <p class="text-xs font-bold uppercase tracking-widest text-amber-700 mb-1">Main RSVP</p>
+            <select name="rsvpStatus" id="edit-rsvp" class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm">
+              <option value="pending">Pending</option>
+              <option value="attending">Yes</option>
+              <option value="declined">No</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <p class="text-xs font-bold uppercase tracking-widest text-amber-700 mb-1">Main Meal</p>
+            <select name="mealChoice" id="edit-meal" class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm">
+              <option value="">None</option>
+              <option value="Chicken">Chicken</option>
+              <option value="Beef">Beef</option>
+              <option value="Vegan">Vegan</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <p class="text-xs font-bold uppercase tracking-widest text-amber-700 mb-1">Dietary Notes</p>
+            <input type="text" name="dietaryNotes" id="edit-notes" class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-block border border-zinc-800 p-4" data-index="1">
+            <p class="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-2">+1 Name & RSVP</p>
+            <input type="text" name="p1Name" id="edit-p1name" placeholder="Name" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 mb-2 text-sm" />
+            <div class="flex gap-2">
+              <select name="p1Attending" id="edit-p1attending" class="w-1/2 bg-zinc-950 border border-zinc-700 px-2 py-2 text-xs">
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+              </select>
+              <select name="p1MealChoice" id="edit-p1meal" class="w-1/2 bg-zinc-950 border border-zinc-700 px-2 py-2 text-xs">
+                <option value="">Meal</option>
+                <option value="Chicken">Chicken</option>
+                <option value="Beef">Beef</option>
+                <option value="Vegan">Vegan</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="p-block border border-zinc-800 p-4" data-index="2">
+            <p class="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-2">+2 Name & RSVP</p>
+            <input type="text" name="p2Name" id="edit-p2name" placeholder="Name" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 mb-2 text-sm" />
+            <div class="flex gap-2">
+              <select name="p2Attending" id="edit-p2attending" class="w-1/2 bg-zinc-950 border border-zinc-700 px-2 py-2 text-xs">
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+              </select>
+              <select name="p2MealChoice" id="edit-p2meal" class="w-1/2 bg-zinc-950 border border-zinc-700 px-2 py-2 text-xs">
+                <option value="">Meal</option>
+                <option value="Chicken">Chicken</option>
+                <option value="Beef">Beef</option>
+                <option value="Vegan">Vegan</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="p-block border border-zinc-800 p-4" data-index="3">
+            <p class="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-2">+3 Name & RSVP</p>
+            <input type="text" name="p3Name" id="edit-p3name" placeholder="Name" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 mb-2 text-sm" />
+            <div class="flex gap-2">
+              <select name="p3Attending" id="edit-p3attending" class="w-1/2 bg-zinc-950 border border-zinc-700 px-2 py-2 text-xs">
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+              </select>
+              <select name="p3MealChoice" id="edit-p3meal" class="w-1/2 bg-zinc-950 border border-zinc-700 px-2 py-2 text-xs">
+                <option value="">Meal</option>
+                <option value="Chicken">Chicken</option>
+                <option value="Beef">Beef</option>
+                <option value="Vegan">Vegan</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-end mt-2 gap-4 border-t border-zinc-800 pt-4">
+          <button type="button" class="close-edit-btn bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold uppercase tracking-widest px-6 py-2">Cancel</button>
+          <button type="submit" class="bg-amber-700 hover:bg-amber-600 text-zinc-950 font-bold uppercase tracking-widest px-8 py-2">Save Record</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="overflow-x-auto bg-zinc-900 border border-zinc-800 shadow-2xl">
+      <table class="w-full text-left text-sm text-zinc-300">
+        <thead class="text-xs uppercase bg-zinc-950 text-amber-700 border-b border-zinc-800">
+          <tr>
+            <th class="px-6 py-4">Name</th>
+            <th class="px-6 py-4">Email</th>
+            <th class="px-6 py-4">Role & Party</th>
+            <th class="px-6 py-4">Main RSVP</th>
+            <th class="px-6 py-4">Party Members</th>
+            <th class="px-6 py-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {allGuests.map((guest) => {
+            const statusStr = guest.hasRsvpd ? (guest.isAttending ? 'attending' : 'declined') : 'pending';
+            const searchableText = `${guest.firstName} ${guest.lastName || ''} ${guest.email} ${guest.p1Name || ''} ${guest.p2Name || ''} ${guest.p3Name || ''}`.toLowerCase();
+            return (
+              <tr class="guest-row border-b border-zinc-800 hover:bg-zinc-800/50 transition-colors" data-search={searchableText}>
+                <td class="px-6 py-4 font-medium text-zinc-100">{guest.firstName} {guest.lastName || ''} <br/><span class="text-xs text-amber-600">{guest.mealChoice || ''}</span></td>
+                <td class="px-6 py-4">{guest.email} <br/><span class="text-xs text-zinc-500">{guest.dietaryNotes || ''}</span></td>
+                <td class="px-6 py-4 uppercase text-xs">
+                  {guest.role === 'admin' ? <span class="text-amber-500 font-bold">Main Act</span> : guest.role} 
+                  <br/><span class="text-emerald-500 font-bold">+{guest.allocatedPlusOnes}</span>
+                </td>
+                <td class="px-6 py-4">
+                  {guest.hasRsvpd ? (guest.isAttending ? <span class="text-emerald-500 font-bold">YES</span> : <span class="text-red-500 font-bold">NO</span>) : <span class="text-zinc-500">Pending</span>}
+                </td>
+                <td class="px-6 py-4 text-emerald-400 text-xs leading-relaxed">
+                  {guest.allocatedPlusOnes >= 1 ? <div>P1: {guest.p1Name || '-'} {guest.p1Attending ? '(Y)' : '(N)'}</div> : ''}
+                  {guest.allocatedPlusOnes >= 2 ? <div>P2: {guest.p2Name || '-'} {guest.p2Attending ? '(Y)' : '(N)'}</div> : ''}
+                  {guest.allocatedPlusOnes >= 3 ? <div>P3: {guest.p3Name || '-'} {guest.p3Attending ? '(Y)' : '(N)'}</div> : ''}
+                </td>
+                <td class="px-6 py-4 text-right flex justify-end gap-3">
+                  <button type="button" class="trigger-edit-btn text-amber-600 hover:text-amber-400 font-bold uppercase tracking-widest text-xs" 
+                    data-id={guest.id} data-first={guest.firstName} data-last={guest.lastName || ''} data-email={guest.email} 
+                    data-role={guest.role} data-alloc={guest.allocatedPlusOnes} data-rsvp={statusStr} data-meal={guest.mealChoice || ''} data-notes={guest.dietaryNotes || ''}
+                    data-p1name={guest.p1Name || ''} data-p1att={guest.p1Attending ? 'true' : 'false'} data-p1meal={guest.p1MealChoice || ''}
+                    data-p2name={guest.p2Name || ''} data-p2att={guest.p2Attending ? 'true' : 'false'} data-p2meal={guest.p2MealChoice || ''}
+                    data-p3name={guest.p3Name || ''} data-p3att={guest.p3Attending ? 'true' : 'false'} data-p3meal={guest.p3MealChoice || ''}>
+                    Edit
+                  </button>
+                  <form action="/api/admin/guests" method="POST" onsubmit="return confirm('Delete this guest?');">
+                    <input type="hidden" name="action" value="delete" />
+                    <input type="hidden" name="id" value={guest.id} />
+                    <button type="submit" class="text-red-600 font-bold px-2">X</button>
+                  </form>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</Layout>
+
+<script is:inline>
+  const searchInput = document.getElementById('search-bar');
+  const rows = document.querySelectorAll('.guest-row');
+
+  searchInput.addEventListener('input', () => {
+    const term = searchInput.value.toLowerCase();
+    rows.forEach(row => {
+      row.style.display = row.dataset.search.includes(term) ? '' : 'none';
+    });
+  });
+
+  const addPanel = document.getElementById('add-panel');
+  const editPanel = document.getElementById('edit-panel');
+  
+  document.getElementById('toggle-add-btn').addEventListener('click', () => {
+    addPanel.classList.remove('hidden');
+    editPanel.classList.add('hidden');
+  });
+
+  document.querySelectorAll('.close-add-btn').forEach(btn => btn.addEventListener('click', () => addPanel.classList.add('hidden')));
+  document.querySelectorAll('.close-edit-btn').forEach(btn => btn.addEventListener('click', () => editPanel.classList.add('hidden')));
+
+  // Dynamic Party Size Disabling
+  const allocSelect = document.getElementById('edit-allocation');
+  const pBlocks = document.querySelectorAll('.p-block');
+
+  function updatePartyBlocks() {
+    const alloc = parseInt(allocSelect.value);
+    pBlocks.forEach(block => {
+      const idx = parseInt(block.getAttribute('data-index'));
+      const inputs = block.querySelectorAll('input, select');
+      if (idx > alloc) {
+        block.classList.add('opacity-30', 'grayscale');
+        inputs.forEach(i => i.disabled = true);
+      } else {
+        block.classList.remove('opacity-30', 'grayscale');
+        inputs.forEach(i => i.disabled = false);
+      }
+    });
+  }
+
+  allocSelect.addEventListener('change', updatePartyBlocks);
+
+  document.querySelectorAll('.trigger-edit-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const el = e.currentTarget;
+      addPanel.classList.add('hidden');
+      editPanel.classList.remove('hidden');
+
+      document.getElementById('edit-id').value = el.getAttribute('data-id');
+      document.getElementById('edit-first').value = el.getAttribute('data-first');
+      document.getElementById('edit-last').value = el.getAttribute('data-last');
+      document.getElementById('edit-email').value = el.getAttribute('data-email');
+      document.getElementById('edit-role').value = el.getAttribute('data-role');
+      document.getElementById('edit-allocation').value = el.getAttribute('data-alloc');
+      document.getElementById('edit-rsvp').value = el.getAttribute('data-rsvp');
+      document.getElementById('edit-meal').value = el.getAttribute('data-meal');
+      document.getElementById('edit-notes').value = el.getAttribute('data-notes');
+      
+      document.getElementById('edit-p1name').value = el.getAttribute('data-p1name');
+      document.getElementById('edit-p1attending').value = el.getAttribute('data-p1att');
+      document.getElementById('edit-p1meal').value = el.getAttribute('data-p1meal');
+
+      document.getElementById('edit-p2name').value = el.getAttribute('data-p2name');
+      document.getElementById('edit-p2attending').value = el.getAttribute('data-p2att');
+      document.getElementById('edit-p2meal').value = el.getAttribute('data-p2meal');
+
+      document.getElementById('edit-p3name').value = el.getAttribute('data-p3name');
+      document.getElementById('edit-p3attending').value = el.getAttribute('data-p3att');
+      document.getElementById('edit-p3meal').value = el.getAttribute('data-p3meal');
+      
+      updatePartyBlocks();
+      window.scrollTo(0, 0);
+    });
+  });
+</script>

@@ -1,0 +1,16 @@
+---
+import Layout from '../components/Layout.astro';
+import Nav from '../components/Nav.astro';
+import TicketCard from '../components/TicketCard.astro';
+---
+<Layout title="The Preshow">
+  <Nav />
+  <main class="max-w-4xl mx-auto p-6 w-full mt-8">
+    <h1 class="text-6xl text-zinc-100 font-display mb-8">The Preshow</h1>
+    
+    <TicketCard title="Rehearsal & Dinner" subtitle="Friday, 6:00 PM - Local Dive Bar">
+      <p>For the wedding party and out-of-town guests. We're keeping it casual with pizza, beers, and a run-through of the main event.</p>
+      <p class="text-amber-600 font-bold mt-4">Address: 123 Main St. Anytown, USA</p>
+    </TicketCard>
+  </main>
+</Layout>

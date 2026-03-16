@@ -1,0 +1,21 @@
+---
+import Layout from '../../components/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import TicketCard from '../../components/TicketCard.astro';
+---
+<Layout title="The Dudettes">
+  <Nav />
+  <main class="max-w-4xl mx-auto p-6 w-full mt-8">
+    <a href="/backstage" class="text-amber-600 text-sm font-bold uppercase tracking-widest hover:text-amber-500 mb-8 inline-block">&larr; Back to Hub</a>
+    
+    <h1 class="text-6xl text-zinc-100 font-display mb-8">The Dudettes</h1>
+    
+    <TicketCard title="Dresses" subtitle="Order ASAP">
+      <p>We are doing mismatched dresses in earthy greens and bronzes. Send Shy a picture of yours before you buy it to make sure it fits the vibe.</p>
+    </TicketCard>
+
+    <TicketCard title="Hair & Makeup" subtitle="Call Time: 9:00 AM">
+      <p>Meet at the bridal suite at 9:00 AM sharp. Coffee and bagels will be provided. Bring your own playlist.</p>
+    </TicketCard>
+  </main>
+</Layout>
