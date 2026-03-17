@@ -24,8 +24,16 @@ const faqs = [
     a: "Yes, we are providing a full dinner during the afterparty, plus an open bar. Make sure you select your meal choice when you claim your ticket at the Box Office when RSVPs open."
   },
   {
+    q: "Will there be an open bar?",
+    a: "I sure hope so. It depends on how good Trent is at negotiating. Otherwise, there will be tickets and it will be complicated."
+  },
+  {
     q: "When and how can I RSVP?",
-    a: "RSVPs will open on July 1, 2026 through this website. A link will be added to the menu called Box Office where you can RSVP and select meal options."
+    a: "You can RSVP on this website starting in August. A link will be added to the menu called Box Office where you can RSVP, select a meal, and request some sick beats."
+  },
+  {
+    q: "Is there a deadline to RSVP?",
+    a: "Absolutely. If you don't RSVP by September 10, 2026, then consider yourself not coming, and you'll only hear of the stories of the epic night."
   },
   {
     q: "Can I take pictures during the ceremony?",
@@ -36,7 +44,7 @@ const faqs = [
 <Layout title="Tour FAQ">
   <Nav />
   <main class="max-w-3xl mx-auto p-6 w-full mt-8">
-    <h1 class="text-6xl text-zinc-100 font-display mb-8 uppercase tracking-wider text-center">Tour FAQ</h1>
+    <h1 class="text-4xl md:text-6xl text-zinc-100 font-display mb-8 uppercase tracking-wider text-center">Tour FAQ</h1>
     
     <div class="space-y-6">
       {faqs.map(faq => (
@@ -49,7 +57,7 @@ const faqs = [
     
     <div class="mt-12 text-center p-6 border border-zinc-800 bg-zinc-950">
       <p class="text-zinc-500 uppercase tracking-widest text-xs font-bold mb-2">Still have questions?</p>
-      <a href="mailto:booking@trentandshy.com" class="text-amber-600 hover:text-amber-500 tracking-wider">Contact Management</a>
+      <a href="mailto:booking@trentandshy.com" class="text-amber-600 hover:text-amber-500 tracking-wider">Email Trent and Shy</a>
     </div>
   </main>
 </Layout>

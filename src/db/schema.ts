@@ -15,6 +15,7 @@ export const guests = pgTable('guests', {
   isAttending: boolean('is_attending').default(false).notNull(),
   mealChoice: text('meal_choice'),
   dietaryNotes: text('dietary_notes'),
+  songRequest: text('song_request'),
 
   // Plus One
   p1Name: text('p1_name'),

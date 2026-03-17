@@ -21,7 +21,9 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   
   // FORCE meal to null if not attending
   const mealChoice = isAttending ? (formData.get('mealChoice')?.toString() || null) : null;
-  const dietaryNotes = formData.get('dietaryNotes')?.toString().trim() || null;
+  const sanitizeText = (str: string | undefined) => str ? str.replace(/[\r\n]+/g, ' ').trim() : null;
+  const dietaryNotes = sanitizeText(formData.get('dietaryNotes')?.toString());
+  const songRequest = sanitizeText(formData.get('songRequest')?.toString());
   
   // +1 Data
   const p1Name = allocatedPlusOnes >= 1 ? (formData.get('p1Name')?.toString().trim() || null) : null;
@@ -53,7 +55,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   if (action === 'edit' && id) {
     try {
       await db.update(guests).set({ 
-        firstName, lastName, email, role, allocatedPlusOnes, hasRsvpd, isAttending, mealChoice, dietaryNotes,
+        firstName, lastName, email, role, allocatedPlusOnes, hasRsvpd, isAttending, mealChoice, dietaryNotes, songRequest,
         p1Name, p1Attending, p1MealChoice, p2Name, p2Attending, p2MealChoice, p3Name, p3Attending, p3MealChoice
       }).where(eq(guests.id, id));
       

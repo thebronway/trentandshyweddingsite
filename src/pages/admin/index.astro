@@ -65,38 +65,38 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <div class="bg-zinc-900 border border-zinc-800 p-6 shadow-xl">
+      <div class="bg-zinc-900 border border-zinc-800 p-4 sm:p-6 shadow-xl">
         <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Headcount</h2>
-        <div class="grid grid-cols-3 gap-4 text-center">
-          <div class="bg-emerald-950/30 border border-emerald-900 p-4">
-            <div class="text-4xl font-bold text-emerald-500">{totalYes}</div>
-            <div class="text-[10px] md:text-xs uppercase tracking-widest text-emerald-700 mt-1">Confirmed</div>
+        <div class="grid grid-cols-3 gap-2 sm:gap-4 text-center">
+          <div class="bg-emerald-950/30 border border-emerald-900 p-2 sm:p-4">
+            <div class="text-2xl sm:text-4xl font-bold text-emerald-500">{totalYes}</div>
+            <div class="text-[9px] sm:text-xs uppercase tracking-wider sm:tracking-widest text-emerald-700 mt-1">Confirmed</div>
           </div>
-          <div class="bg-red-950/30 border border-red-900 p-4">
-            <div class="text-4xl font-bold text-red-500">{totalNo}</div>
-            <div class="text-[10px] md:text-xs uppercase tracking-widest text-red-700 mt-1">Declined</div>
+          <div class="bg-red-950/30 border border-red-900 p-2 sm:p-4">
+            <div class="text-2xl sm:text-4xl font-bold text-red-500">{totalNo}</div>
+            <div class="text-[9px] sm:text-xs uppercase tracking-wider sm:tracking-widest text-red-700 mt-1">Declined</div>
           </div>
-          <div class="bg-zinc-950 border border-zinc-800 p-4">
-            <div class="text-4xl font-bold text-zinc-400">{totalPending}</div>
-            <div class="text-[10px] md:text-xs uppercase tracking-widest text-zinc-500 mt-1">Pending</div>
+          <div class="bg-zinc-950 border border-zinc-800 p-2 sm:p-4">
+            <div class="text-2xl sm:text-4xl font-bold text-zinc-400">{totalPending}</div>
+            <div class="text-[9px] sm:text-xs uppercase tracking-wider sm:tracking-widest text-zinc-500 mt-1">Pending</div>
           </div>
         </div>
       </div>
 
-      <div class="bg-zinc-900 border border-zinc-800 p-6 shadow-xl">
+      <div class="bg-zinc-900 border border-zinc-800 p-4 sm:p-6 shadow-xl">
         <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Catering Ops</h2>
-        <div class="grid grid-cols-3 gap-4 text-center">
-          <div class="bg-amber-950/30 border border-amber-900 p-4">
-            <div class="text-4xl font-bold text-amber-500">{beef}</div>
-            <div class="text-xs uppercase tracking-widest text-amber-700 mt-1">Beef</div>
+        <div class="grid grid-cols-3 gap-2 sm:gap-4 text-center">
+          <div class="bg-amber-950/30 border border-amber-900 p-2 sm:p-4">
+            <div class="text-2xl sm:text-4xl font-bold text-amber-500">{beef}</div>
+            <div class="text-[9px] sm:text-xs uppercase tracking-wider sm:tracking-widest text-amber-700 mt-1">Beef</div>
           </div>
-          <div class="bg-amber-950/30 border border-amber-900 p-4">
-            <div class="text-4xl font-bold text-amber-500">{chicken}</div>
-            <div class="text-xs uppercase tracking-widest text-amber-700 mt-1">Chicken</div>
+          <div class="bg-amber-950/30 border border-amber-900 p-2 sm:p-4">
+            <div class="text-2xl sm:text-4xl font-bold text-amber-500">{chicken}</div>
+            <div class="text-[9px] sm:text-xs uppercase tracking-wider sm:tracking-widest text-amber-700 mt-1">Chicken</div>
           </div>
-          <div class="bg-emerald-950/30 border border-emerald-900 p-4">
-            <div class="text-4xl font-bold text-emerald-500">{vegan}</div>
-            <div class="text-xs uppercase tracking-widest text-emerald-700 mt-1">Vegan</div>
+          <div class="bg-emerald-950/30 border border-emerald-900 p-2 sm:p-4">
+            <div class="text-2xl sm:text-4xl font-bold text-emerald-500">{vegan}</div>
+            <div class="text-[9px] sm:text-xs uppercase tracking-wider sm:tracking-widest text-emerald-700 mt-1">Vegan</div>
           </div>
         </div>
       </div>
@@ -234,9 +234,13 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
               <option value="Vegan">Vegan</option>
             </select>
           </div>
-          <div class="md:col-span-2">
+          <div class="md:col-span-1">
             <p class="text-xs font-bold uppercase tracking-widest text-amber-700 mb-1">Dietary Notes</p>
             <input type="text" name="dietaryNotes" id="edit-notes" class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2" />
+          </div>
+          <div class="md:col-span-1">
+            <p class="text-xs font-bold uppercase tracking-widest text-amber-700 mb-1">Song Request</p>
+            <input type="text" name="songRequest" id="edit-song" class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2" />
           </div>
         </div>
 
@@ -322,7 +326,19 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
             return (
               <tr class="guest-row border-b border-zinc-800 hover:bg-zinc-800/50 transition-colors" data-search={searchableText}>
                 <td class="px-6 py-4 font-medium text-zinc-100">{guest.firstName} {guest.lastName || ''} <br/><span class="text-xs text-amber-600">{guest.mealChoice || ''}</span></td>
-                <td class="px-6 py-4">{guest.email} <br/><span class="text-xs text-zinc-500">{guest.dietaryNotes || ''}</span></td>
+                <td class="px-6 py-4">
+                  {guest.email} 
+                  {guest.dietaryNotes && (
+                    <div class="text-xs text-zinc-500 mt-1">
+                      <strong class="uppercase tracking-widest text-[9px] text-zinc-600">Allergies:</strong> {guest.dietaryNotes}
+                    </div>
+                  )}
+                  {guest.songRequest && (
+                    <div class="text-xs text-amber-600/70 mt-1">
+                      <strong class="uppercase tracking-widest text-[9px] text-amber-800">Song:</strong> {guest.songRequest}
+                    </div>
+                  )}
+                </td>                
                 <td class="px-6 py-4 uppercase text-xs">
                   {guest.role === 'admin' ? <span class="text-amber-500 font-bold">Main Act</span> : guest.role} 
                   <br/><span class="text-emerald-500 font-bold">+{guest.allocatedPlusOnes}</span>
@@ -356,7 +372,7 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
                 <td class="px-6 py-4 text-right flex justify-end gap-3">
                   <button type="button" class="trigger-edit-btn text-amber-600 hover:text-amber-400 font-bold uppercase tracking-widest text-xs" 
                     data-id={guest.id} data-first={guest.firstName} data-last={guest.lastName || ''} data-email={guest.email} 
-                    data-role={guest.role} data-alloc={guest.allocatedPlusOnes} data-rsvp={statusStr} data-meal={guest.mealChoice || ''} data-notes={guest.dietaryNotes || ''}
+                    data-role={guest.role} data-alloc={guest.allocatedPlusOnes} data-rsvp={statusStr} data-meal={guest.mealChoice || ''} data-notes={guest.dietaryNotes || ''} data-song={guest.songRequest || ''}
                     data-p1name={guest.p1Name || ''} data-p1att={guest.p1Attending} data-p1meal={guest.p1MealChoice || ''}
                     data-p2name={guest.p2Name || ''} data-p2att={guest.p2Attending} data-p2meal={guest.p2MealChoice || ''}
                     data-p3name={guest.p3Name || ''} data-p3att={guest.p3Attending} data-p3meal={guest.p3MealChoice || ''}>
@@ -435,6 +451,7 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
       document.getElementById('edit-rsvp').value = el.getAttribute('data-rsvp');
       document.getElementById('edit-meal').value = el.getAttribute('data-meal');
       document.getElementById('edit-notes').value = el.getAttribute('data-notes');
+      document.getElementById('edit-song').value = el.getAttribute('data-song');
       
       document.getElementById('edit-p1name').value = el.getAttribute('data-p1name');
       document.getElementById('edit-p1attending').value = el.getAttribute('data-p1att');

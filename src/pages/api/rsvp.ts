@@ -18,11 +18,15 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const p2Attending = formData.get('p2Attending')?.toString() || 'pending';
   const p3Attending = formData.get('p3Attending')?.toString() || 'pending';
 
+  // Strip line breaks so they don't mess up simple CSV viewers
+  const sanitizeText = (str: string | undefined) => str ? str.replace(/[\r\n]+/g, ' ').trim() : null;
+
   await db.update(guests)
     .set({ 
       isAttending, 
       mealChoice: isAttending ? (formData.get('mealChoice')?.toString() || null) : null, 
-      dietaryNotes: formData.get('dietaryNotes')?.toString() || null,
+      dietaryNotes: sanitizeText(formData.get('dietaryNotes')?.toString()),
+      songRequest: sanitizeText(formData.get('songRequest')?.toString()),
       p1Attending,
       p1MealChoice: p1Attending === 'true' ? (formData.get('p1MealChoice')?.toString() || null) : null,
       p2Attending,

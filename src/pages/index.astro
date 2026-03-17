@@ -2,6 +2,7 @@
 import Layout from '../components/Layout.astro';
 
 const error = Astro.url.searchParams.get('error');
+const redirectTo = Astro.url.searchParams.get('redirectTo') || '/about';
 ---
 <Layout title="Presale Access">
   <main class="min-h-screen flex items-center justify-center p-6 bg-zinc-950">
@@ -12,7 +13,7 @@ const error = Astro.url.searchParams.get('error');
          <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent"></div>
          
          <div class="relative z-10 w-full mt-auto">
-           <h2 class="text-6xl text-zinc-100 font-display tracking-widest uppercase mb-2">Trent & Shy</h2>
+           <h2 class="text-4xl md:text-6xl text-zinc-100 font-display tracking-widest uppercase mb-2">Trent & Shy</h2>
            <p class="text-amber-600 font-bold uppercase tracking-wider text-sm mb-4">The "Till Death" Tour • One Night Only</p>
            
            <div class="space-y-1 border-l-2 border-amber-600 pl-4">
@@ -25,7 +26,7 @@ const error = Astro.url.searchParams.get('error');
 
       <div class="md:w-1/2 p-8 md:p-12 flex flex-col justify-center bg-zinc-950">
         <div class="mb-8">
-          <h1 class="text-4xl text-zinc-100 font-display tracking-widest uppercase mb-2">Box Office</h1>
+          <h1 class="text-3xl md:text-4xl text-zinc-100 font-display tracking-widest uppercase mb-2">Unlock Site Access</h1>
           <p class="text-zinc-400 font-bold tracking-widest uppercase text-xs">Enter your presale code to unlock the site</p>
         </div>
 
@@ -36,9 +37,10 @@ const error = Astro.url.searchParams.get('error');
         )}
 
         <form action="/api/verify" method="POST" class="flex flex-col gap-4">
+          <input type="hidden" name="redirectTo" value={redirectTo} />
           <input 
             type="text" 
-            name="code" 
+            name="code"
             required 
             placeholder="PRESALE CODE"
             oninput="this.value = this.value.replace(/ /g, '')"
