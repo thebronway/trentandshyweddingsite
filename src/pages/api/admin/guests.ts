@@ -53,6 +53,31 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const p3PhoneNumber = allocatedPlusOnes >= 3 ? extractPhone(formData.get('p3PhoneNumber')?.toString()) : null;
   const p3Attending = allocatedPlusOnes >= 3 ? (formData.get('p3Attending')?.toString() || 'pending') : 'pending';
 
+  const isAjax = request.headers.get('accept')?.includes('application/json');
+
+  if (action === 'add' || action === 'edit') {
+    const submittedEmails = [email, p1Email, p2Email, p3Email].filter(e => e !== null && e !== '');
+    const submittedPhones = [phoneNumber, p1PhoneNumber, p2PhoneNumber, p3PhoneNumber].filter(p => p !== null && p !== '');
+    
+    const allExisting = await db.select().from(guests);
+    for (const g of allExisting) {
+      if (action === 'edit' && g.id === id) continue; // Skip self when editing
+      
+      const existingEmails = [g.email, g.p1Email, g.p2Email, g.p3Email].filter(e => e !== null && e !== '');
+      const existingPhones = [g.phoneNumber, g.p1PhoneNumber, g.p2PhoneNumber, g.p3PhoneNumber].filter(p => p !== null && p !== '');
+
+      const hasDupEmail = submittedEmails.some(e => existingEmails.includes(e));
+      const hasDupPhone = submittedPhones.some(p => existingPhones.includes(p));
+
+      if (hasDupEmail || hasDupPhone) {
+        if (isAjax) {
+          return new Response(JSON.stringify({ error: "Duplicate email or phone number found across guests." }), { status: 400, headers: { 'Content-Type': 'application/json' }});
+        }
+        return redirect('/admin/?error=duplicate');
+      }
+    }
+  }
+
   if (action === 'delete' && id) {
     // Grab the name before deleting so we can put it in the email subject line
     const deletedGuest = await db.select().from(guests).where(eq(guests.id, id));
@@ -79,7 +104,9 @@ export const POST: APIRoute = async ({ request, redirect }) => {
       if (editedGuest.length > 0) {
         await sendAdminNotification(editedGuest[0], allGuests, 'Admin Edited Guest');
       }
+      if (isAjax) return new Response(JSON.stringify({ success: true }), { status: 200, headers: { 'Content-Type': 'application/json' }});
     } catch (e) {
+      if (isAjax) return new Response(JSON.stringify({ error: "Database error occurred." }), { status: 400, headers: { 'Content-Type': 'application/json' }});
       return redirect('/admin/?error=duplicate');
     }
     return redirect('/admin/');
@@ -99,7 +126,9 @@ export const POST: APIRoute = async ({ request, redirect }) => {
       if (newGuest.length > 0) {
         await sendAdminNotification(newGuest[0], allGuests, 'Admin Added Guest');
       }
+      if (isAjax) return new Response(JSON.stringify({ success: true }), { status: 200, headers: { 'Content-Type': 'application/json' }});
     } catch (e) {
+      if (isAjax) return new Response(JSON.stringify({ error: "Database error occurred." }), { status: 400, headers: { 'Content-Type': 'application/json' }});
       return redirect('/admin/?error=duplicate');
     }
   }

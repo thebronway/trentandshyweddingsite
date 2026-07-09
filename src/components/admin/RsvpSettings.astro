@@ -1,0 +1,39 @@
+---
+interface Props {
+  siteSettings: any;
+  success: string | null;
+}
+const { siteSettings, success } = Astro.props;
+
+const formatDateForInput = (dateObj: Date) => {
+  if (!dateObj) return '';
+  const d = new Date(dateObj.getTime());
+  d.setTime(d.getTime() - (4 * 60 * 60 * 1000));
+  return d.toISOString().slice(0, 16);
+};
+---
+<div class="bg-zinc-900 border border-zinc-800 p-4 sm:p-6 shadow-xl">
+  <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">RSVP Settings</h2>
+  {success === 'settings' && <div class="text-emerald-500 text-xs mb-2 font-bold uppercase">Settings Saved!</div>}
+  <form action="/api/admin/settings" method="POST" class="space-y-4">
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-[9px] font-bold uppercase tracking-widest text-amber-600 mb-1">Open Date (EDT)</label>
+        <input type="datetime-local" name="rsvpOpenDate" value={formatDateForInput(siteSettings.rsvpOpenDate)} required class="w-full bg-zinc-950 border border-zinc-700 text-zinc-100 px-2 py-1 text-xs" />
+      </div>
+      <div>
+        <label class="block text-[9px] font-bold uppercase tracking-widest text-amber-600 mb-1">Close Date (EDT)</label>
+        <input type="datetime-local" name="rsvpCloseDate" value={formatDateForInput(siteSettings.rsvpCloseDate)} required class="w-full bg-zinc-950 border border-zinc-700 text-zinc-100 px-2 py-1 text-xs" />
+      </div>
+    </div>
+    <div>
+      <label class="block text-[9px] font-bold uppercase tracking-widest text-amber-600 mb-1">Early Message (Before Open)</label>
+      <input type="text" name="earlyMessage" value={siteSettings.earlyMessage} required class="w-full bg-zinc-950 border border-zinc-700 text-zinc-100 px-2 py-1 text-xs" />
+    </div>
+    <div>
+      <label class="block text-[9px] font-bold uppercase tracking-widest text-amber-600 mb-1">Late Message (After Close)</label>
+      <input type="text" name="lateMessage" value={siteSettings.lateMessage} required class="w-full bg-zinc-950 border border-zinc-700 text-zinc-100 px-2 py-1 text-xs" />
+    </div>
+    <button type="submit" class="bg-amber-700 hover:bg-amber-600 text-zinc-950 font-bold uppercase text-[10px] px-4 py-2 w-full">Save Settings</button>
+  </form>
+</div>

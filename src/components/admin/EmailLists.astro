@@ -1,0 +1,30 @@
+---
+interface Props {
+  emailsYes: string;
+  emailsPending: string;
+  emailsNo: string;
+  emailsAll: string;
+}
+const { emailsYes, emailsPending, emailsNo, emailsAll } = Astro.props;
+---
+<div class="bg-zinc-900 border border-zinc-800 p-6 shadow-xl mb-8">
+  <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Guest Email Broadcast Lists</h2>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div>
+      <label class="block text-xs font-bold uppercase tracking-widest text-emerald-600 mb-1">Attending ({emailsYes ? emailsYes.split(',').length : 0})</label>
+      <textarea readonly class="w-full bg-zinc-950 border border-zinc-700 text-zinc-500 text-xs p-2 h-20 cursor-pointer focus:border-emerald-500" onclick="this.select()">{emailsYes}</textarea>
+    </div>
+    <div>
+      <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1">Pending ({emailsPending ? emailsPending.split(',').length : 0})</label>
+      <textarea readonly class="w-full bg-zinc-950 border border-zinc-700 text-zinc-500 text-xs p-2 h-20 cursor-pointer focus:border-zinc-500" onclick="this.select()">{emailsPending}</textarea>
+    </div>
+    <div>
+      <label class="block text-xs font-bold uppercase tracking-widest text-red-600 mb-1">Declined ({emailsNo ? emailsNo.split(',').length : 0})</label>
+      <textarea readonly class="w-full bg-zinc-950 border border-zinc-700 text-zinc-500 text-xs p-2 h-20 cursor-pointer focus:border-red-500" onclick="this.select()">{emailsNo}</textarea>
+    </div>
+    <div>
+      <label class="block text-xs font-bold uppercase tracking-widest text-amber-600 mb-1">Everyone ({emailsAll ? emailsAll.split(',').length : 0})</label>
+      <textarea readonly class="w-full bg-zinc-950 border border-zinc-700 text-zinc-500 text-xs p-2 h-20 cursor-pointer focus:border-amber-500" onclick="this.select()">{emailsAll}</textarea>
+    </div>
+  </div>
+</div>

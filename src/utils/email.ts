@@ -104,10 +104,19 @@ function buildGuestEmailHtml(guest: any, isUpdate: boolean, closeDate: Date | nu
 export async function sendGuestConfirmation(guest: any, isUpdate: boolean, closeDate: Date | null) {
   if (!process.env.SENDER_NO_REPLY) return;
   
+  // Gather all valid emails for the party to ensure everyone gets the confirmation
+  const toEmails = [guest.email, guest.p1Email, guest.p2Email, guest.p3Email]
+    .filter(email => email != null && email.trim() !== '');
+  
+  // Deduplicate emails just in case they used the same email for multiple party members
+  const uniqueToEmails = [...new Set(toEmails)].join(', ');
+
+  if (!uniqueToEmails) return;
+
   try {
     await transporter.sendMail({
       from: `"Trent & Shy Box Office" <${process.env.SENDER_NO_REPLY}>`,
-      to: guest.email,
+      to: uniqueToEmails,
       subject: isUpdate ? "Your Trent & Shy RSVP is Updated" : "Trent & Shy RSVP Confirmed",
       html: buildGuestEmailHtml(guest, isUpdate, closeDate)
     });

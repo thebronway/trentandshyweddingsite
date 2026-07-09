@@ -67,12 +67,15 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const siteSettingsQuery = await db.select().from(settings).limit(1);
   const closeDate = siteSettingsQuery.length > 0 ? siteSettingsQuery[0].rsvpCloseDate : null;
 
-  // Send the guest email (only if they have an email!), then send the admin the updated CSV
+  // Send the guest email (if anyone in the party has an email), then send the admin the updated CSV
   if (updatedGuestQuery.length > 0) {
-    if (updatedGuestQuery[0].email) {
-      await sendGuestConfirmation(updatedGuestQuery[0], isUpdate, closeDate);
+    const party = updatedGuestQuery[0];
+    const hasAnyEmail = party.email || party.p1Email || party.p2Email || party.p3Email;
+    
+    if (hasAnyEmail) {
+      await sendGuestConfirmation(party, isUpdate, closeDate);
     }
-    await sendAdminNotification(updatedGuestQuery[0], allGuests, isUpdate ? 'Updated RSVP' : 'Initial RSVP');
+    await sendAdminNotification(party, allGuests, isUpdate ? 'Updated RSVP' : 'Initial RSVP');
   }
 
   return redirect('/tickets?success=true');

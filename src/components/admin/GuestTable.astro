@@ -1,0 +1,131 @@
+---
+interface Props {
+  allGuests: any[];
+}
+const { allGuests } = Astro.props;
+---
+<div class="overflow-x-auto bg-zinc-900 border border-zinc-800 shadow-2xl">
+  <table class="w-full text-left text-sm text-zinc-300">
+    <thead class="text-xs uppercase bg-zinc-950 text-amber-700 border-b border-zinc-800">
+      <tr>
+        <th class="px-6 py-4">Name</th>
+        <th class="px-6 py-4">Contact</th>
+        <th class="px-6 py-4">Role & Party</th>
+        <th class="px-6 py-4">Main RSVP</th>
+        <th class="px-6 py-4 text-right">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {allGuests.map((guest) => {
+        const statusStr = guest.hasRsvpd ? (guest.isAttending ? 'attending' : 'declined') : 'pending';
+        const searchableText = `${guest.firstName} ${guest.lastName || ''} ${guest.email} ${guest.p1Name || ''} ${guest.p2Name || ''} ${guest.p3Name || ''}`.toLowerCase();
+        return (
+          <tr class="guest-row border-b border-zinc-800 hover:bg-zinc-800/50 transition-colors" data-search={searchableText}>
+            <td class="px-6 py-4 font-medium text-zinc-100">
+              <div class="text-base">{guest.firstName} {guest.lastName || ''}</div>
+              {guest.allocatedPlusOnes >= 1 && guest.p1Name && (
+                <div class="text-xs text-zinc-500 mt-1 uppercase tracking-widest">+1: {guest.p1Name} 
+                  {guest.p1Attending === 'true' ? <span class="text-emerald-500 font-bold ml-1">(Y)</span> : 
+                   guest.p1Attending === 'false' ? <span class="text-red-500 font-bold ml-1">(N)</span> : 
+                   <span class="text-amber-500 font-bold ml-1">(P)</span>}
+                </div>
+              )}
+              {guest.allocatedPlusOnes >= 2 && guest.p2Name && (
+                <div class="text-xs text-zinc-500 mt-1 uppercase tracking-widest">+2: {guest.p2Name}
+                  {guest.p2Attending === 'true' ? <span class="text-emerald-500 font-bold ml-1">(Y)</span> : 
+                   guest.p2Attending === 'false' ? <span class="text-red-500 font-bold ml-1">(N)</span> : 
+                   <span class="text-amber-500 font-bold ml-1">(P)</span>}
+                </div>
+              )}
+              {guest.allocatedPlusOnes >= 3 && guest.p3Name && (
+                <div class="text-xs text-zinc-500 mt-1 uppercase tracking-widest">+3: {guest.p3Name}
+                  {guest.p3Attending === 'true' ? <span class="text-emerald-500 font-bold ml-1">(Y)</span> : 
+                   guest.p3Attending === 'false' ? <span class="text-red-500 font-bold ml-1">(N)</span> : 
+                   <span class="text-amber-500 font-bold ml-1">(P)</span>}
+                </div>
+              )}
+            </td>
+            <td class="px-6 py-4">
+              {guest.email && <div>{guest.email}</div>}
+              {guest.phoneNumber && <div class="text-zinc-400">{guest.phoneNumber}</div>}
+              {guest.dietaryNotes && (
+                <div class="text-xs text-zinc-500 mt-1">
+                  <strong class="uppercase tracking-widest text-[9px] text-zinc-600">Allergies:</strong> {guest.dietaryNotes}
+                </div>
+              )}
+              {guest.songRequest && (
+                <div class="text-xs text-amber-600/70 mt-1">
+                  <strong class="uppercase tracking-widest text-[9px] text-amber-800">Song:</strong> {guest.songRequest}
+                </div>
+              )}
+            </td>                
+            <td class="px-6 py-4 uppercase text-xs">
+              {guest.role === 'admin' ? <span class="text-amber-500 font-bold">Main Act</span> : guest.role} 
+              <br/><span class="text-emerald-500 font-bold">+{guest.allocatedPlusOnes}</span>
+            </td>
+            <td class="px-6 py-4">
+              {guest.hasRsvpd ? (guest.isAttending ? <span class="text-emerald-500 font-bold">YES</span> : <span class="text-red-500 font-bold">NO</span>) : <span class="text-zinc-500">Pending</span>}
+            </td>
+            <td class="px-6 py-4 text-right flex justify-end gap-3">
+              <button type="button" class="trigger-edit-btn text-amber-600 hover:text-amber-400 font-bold uppercase tracking-widest text-xs" 
+                data-id={guest.id} data-first={guest.firstName} data-last={guest.lastName || ''} data-email={guest.email || ''} data-phone={guest.phoneNumber || ''}
+                data-role={guest.role} data-alloc={guest.allocatedPlusOnes} data-rsvp={statusStr} data-notes={guest.dietaryNotes || ''} data-song={guest.songRequest || ''}
+                data-p1name={guest.p1Name || ''} data-p1email={guest.p1Email || ''} data-p1phone={guest.p1PhoneNumber || ''} data-p1att={guest.p1Attending} 
+                data-p2name={guest.p2Name || ''} data-p2email={guest.p2Email || ''} data-p2phone={guest.p2PhoneNumber || ''} data-p2att={guest.p2Attending} 
+                data-p3name={guest.p3Name || ''} data-p3email={guest.p3Email || ''} data-p3phone={guest.p3PhoneNumber || ''} data-p3att={guest.p3Attending}>
+                Edit
+              </button>
+              <form action="/api/admin/guests" method="POST" onsubmit="return confirm('Delete this guest?');">
+                <input type="hidden" name="action" value="delete" />
+                <input type="hidden" name="id" value={guest.id} />
+                <button type="submit" class="text-red-600 font-bold px-2">X</button>
+              </form>
+            </td>
+          </tr>
+        )
+      })}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  document.querySelectorAll('.trigger-edit-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const el = e.currentTarget as HTMLElement;
+      document.getElementById('add-panel')?.classList.add('hidden');
+      document.getElementById('edit-panel')?.classList.remove('hidden');
+      document.getElementById('edit-error')?.classList.add('hidden');
+
+      (document.getElementById('edit-id') as HTMLInputElement).value = el.getAttribute('data-id') || '';
+      (document.getElementById('edit-first') as HTMLInputElement).value = el.getAttribute('data-first') || '';
+      (document.getElementById('edit-last') as HTMLInputElement).value = el.getAttribute('data-last') || '';
+      (document.getElementById('edit-email') as HTMLInputElement).value = el.getAttribute('data-email') || '';
+      (document.getElementById('edit-phone') as HTMLInputElement).value = el.getAttribute('data-phone') || '';
+      (document.getElementById('edit-role') as HTMLSelectElement).value = el.getAttribute('data-role') || '';
+      (document.getElementById('edit-allocation') as HTMLSelectElement).value = el.getAttribute('data-alloc') || '';
+      (document.getElementById('edit-rsvp') as HTMLSelectElement).value = el.getAttribute('data-rsvp') || '';
+      (document.getElementById('edit-notes') as HTMLInputElement).value = el.getAttribute('data-notes') || '';
+      (document.getElementById('edit-song') as HTMLInputElement).value = el.getAttribute('data-song') || '';
+      
+      (document.getElementById('edit-p1name') as HTMLInputElement).value = el.getAttribute('data-p1name') || '';
+      (document.getElementById('edit-p1email') as HTMLInputElement).value = el.getAttribute('data-p1email') || '';
+      (document.getElementById('edit-p1phone') as HTMLInputElement).value = el.getAttribute('data-p1phone') || '';
+      (document.getElementById('edit-p1attending') as HTMLSelectElement).value = el.getAttribute('data-p1att') || '';
+
+      (document.getElementById('edit-p2name') as HTMLInputElement).value = el.getAttribute('data-p2name') || '';
+      (document.getElementById('edit-p2email') as HTMLInputElement).value = el.getAttribute('data-p2email') || '';
+      (document.getElementById('edit-p2phone') as HTMLInputElement).value = el.getAttribute('data-p2phone') || '';
+      (document.getElementById('edit-p2attending') as HTMLSelectElement).value = el.getAttribute('data-p2att') || '';
+
+      (document.getElementById('edit-p3name') as HTMLInputElement).value = el.getAttribute('data-p3name') || '';
+      (document.getElementById('edit-p3email') as HTMLInputElement).value = el.getAttribute('data-p3email') || '';
+      (document.getElementById('edit-p3phone') as HTMLInputElement).value = el.getAttribute('data-p3phone') || '';
+      (document.getElementById('edit-p3attending') as HTMLSelectElement).value = el.getAttribute('data-p3att') || '';
+      
+      const allocSelect = document.getElementById('edit-allocation');
+      if(allocSelect) allocSelect.dispatchEvent(new Event('change'));
+      
+      window.scrollTo(0, 0);
+    });
+  });
+</script>

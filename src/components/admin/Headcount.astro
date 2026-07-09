@@ -1,0 +1,25 @@
+---
+interface Props {
+  totalYes: number;
+  totalNo: number;
+  totalPending: number;
+}
+const { totalYes, totalNo, totalPending } = Astro.props;
+---
+<div class="bg-zinc-900 border border-zinc-800 p-4 sm:p-6 shadow-xl">
+  <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Headcount</h2>
+  <div class="grid grid-cols-3 gap-2 sm:gap-4 text-center">
+    <div class="bg-emerald-950/30 border border-emerald-900 p-2 sm:p-4">
+      <div class="text-2xl sm:text-4xl font-bold text-emerald-500">{totalYes}</div>
+      <div class="text-[9px] sm:text-xs uppercase tracking-wider sm:tracking-widest text-emerald-700 mt-1">Confirmed</div>
+    </div>
+    <div class="bg-red-950/30 border border-red-900 p-2 sm:p-4">
+      <div class="text-2xl sm:text-4xl font-bold text-red-500">{totalNo}</div>
+      <div class="text-[9px] sm:text-xs uppercase tracking-wider sm:tracking-widest text-red-700 mt-1">Declined</div>
+    </div>
+    <div class="bg-zinc-950 border border-zinc-800 p-2 sm:p-4">
+      <div class="text-2xl sm:text-4xl font-bold text-zinc-400">{totalPending}</div>
+      <div class="text-[9px] sm:text-xs uppercase tracking-wider sm:tracking-widest text-zinc-500 mt-1">Pending</div>
+    </div>
+  </div>
+</div>
