@@ -84,7 +84,7 @@ function buildGuestEmailHtml(guest: any, isUpdate: boolean) {
   html += `
       <div style="margin-top: 40px; border-top: 1px solid #3f3f46; padding-top: 20px;">
         <p style="color: #f4f4f5; font-size: 14px; font-weight: bold; margin: 0 0 5px 0;">Questions?</p>
-        <p style="color: #a1a1aa; font-size: 14px; margin: 0 0 25px 0;">Please do not reply to this automated email. Instead, email <a href="mailto:conwayb2@gmail.com" style="color: #b45309; font-weight: bold;">conwayb2@gmail.com</a>.</p>
+        <p style="color: #a1a1aa; font-size: 14px; margin: 0 0 25px 0;">Please do not reply to this automated email. Instead, email <a href="mailto:shrentshredding@gmail.com" style="color: #b45309; font-weight: bold;">shrentshredding@gmail.com</a>.</p>
 
         <h4 style="color: #f4f4f5; text-transform: uppercase; margin-top: 0; margin-bottom: 10px;">Need to update your RSVP?</h4>
         <p style="color: #a1a1aa; font-size: 14px; margin-bottom: 10px;">You can log back into the Box Office anytime before the deadline (August 1, 2026) to change RSVP.</p>
