@@ -1,45 +1,11 @@
 ---
 import Layout from '../components/Layout.astro';
 import Nav from '../components/Nav.astro';
+import { db } from '../db';
+import { faqs } from '../db/schema';
+import { asc } from 'drizzle-orm';
 
-const faqs = [
-  {
-    q: "What is the address of the venue?",
-    a: "Baltimore Soundstage 124 Market Pl, Baltimore, MD 21202"
-  },
-  {
-    q: "Where do I park?",
-    a: "The Baltimore Soundstage does not have its own parking lot. However, there are several parking garages within a 2-block radius (like the Pier V Garage). We highly recommend taking an Uber/Lyft if you plan on visiting the bar."
-  },
-  {
-    q: "Is there an age limit for this show?",
-    a: "Strictly 21+. Leave the kids at home, book a sitter, and come ready to party. (Siblings of the bride are exempt)."
-  },
-  {
-    q: "What is the dress code?",
-    a: "Show-ready casual. We're getting married at a concert venue, so wear what makes you feel like a VIP. Black is highly encouraged. Please leave the ties, formal gowns, tuxedos, and white dresses in the closet. Pit-safe footwear recommended."
-  },
-  {
-    q: "Will there be food?",
-    a: "Yes, we are providing a full dinner during the afterparty, plus an open bar. Make sure you select your meal choice when you claim your ticket at the Box Office when RSVPs open."
-  },
-  {
-    q: "Will there be an open bar?",
-    a: "I sure hope so. It depends on how good Trent is at negotiating. Otherwise, there will be tickets and it will be complicated."
-  },
-  {
-    q: "When and how can I RSVP?",
-    a: "You can RSVP on this website starting in August. A link will be added to the menu called Box Office where you can RSVP, select a meal, and request some sick beats."
-  },
-  {
-    q: "Is there a deadline to RSVP?",
-    a: "Absolutely. If you don't RSVP by September 10, 2026, then consider yourself not coming, and you'll only hear of the stories of the epic night."
-  },
-  {
-    q: "Can I take pictures during the ceremony?",
-    a: "Our ceremony is an unplugged set. Please keep your phones in your pockets so our professional photographer can get the shots without screens in the air. Once the reception hits, take as many photos as you want."
-  }
-];
+const faqsList = await db.select().from(faqs).orderBy(asc(faqs.sortOrder));
 ---
 <Layout title="Tour FAQ">
   <Nav />
@@ -47,12 +13,16 @@ const faqs = [
     <h1 class="text-4xl md:text-6xl text-zinc-100 font-display mb-8 uppercase tracking-wider text-center">Tour FAQ</h1>
     
     <div class="space-y-6">
-      {faqs.map(faq => (
+      {faqsList.map(faq => (
         <div class="bg-zinc-900 border border-zinc-800 p-6 shadow-xl border-l-4 border-l-amber-700">
-          <h3 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-3">{faq.q}</h3>
-          <p class="text-zinc-400 leading-relaxed text-sm">{faq.a}</p>
+          <h3 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-3">{faq.question}</h3>
+          <div class="text-zinc-400 leading-relaxed text-sm prose prose-invert max-w-none" set:html={faq.answer}></div>
         </div>
       ))}
+      
+      {faqsList.length === 0 && (
+        <p class="text-zinc-500 text-center uppercase tracking-widest text-sm">FAQ is currently empty. Check back later!</p>
+      )}
     </div>
     
     <div class="mt-12 text-center p-6 border border-zinc-800 bg-zinc-950">

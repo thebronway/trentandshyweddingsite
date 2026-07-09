@@ -30,6 +30,14 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const p1Attending = formData.get('p1Attending')?.toString() || 'pending';
   const p2Attending = formData.get('p2Attending')?.toString() || 'pending';
   const p3Attending = formData.get('p3Attending')?.toString() || 'pending';
+  
+  const extractPhone = (val: string | undefined) => val ? val.replace(/\D/g, '').replace(/^1/, '') : null;
+  const p1Email = formData.get('p1Email')?.toString().trim().toLowerCase() || null;
+  const p1PhoneNumber = extractPhone(formData.get('p1PhoneNumber')?.toString());
+  const p2Email = formData.get('p2Email')?.toString().trim().toLowerCase() || null;
+  const p2PhoneNumber = extractPhone(formData.get('p2PhoneNumber')?.toString());
+  const p3Email = formData.get('p3Email')?.toString().trim().toLowerCase() || null;
+  const p3PhoneNumber = extractPhone(formData.get('p3PhoneNumber')?.toString());
 
   // Strip line breaks so they don't mess up simple CSV viewers
   const sanitizeText = (str: string | undefined) => str ? str.replace(/[\r\n]+/g, ' ').trim() : null;
@@ -42,10 +50,10 @@ export const POST: APIRoute = async ({ request, redirect }) => {
         isAttending,
         dietaryNotes: sanitizeText(formData.get('dietaryNotes')?.toString()),
         songRequest: sanitizeText(formData.get('songRequest')?.toString()),
-        p1Attending,
-        p2Attending,
-        p3Attending,
-        hasRsvpd: true 
+        p1Attending, p1Email, p1PhoneNumber,
+        p2Attending, p2Email, p2PhoneNumber,
+        p3Attending, p3Email, p3PhoneNumber,
+        hasRsvpd: true
       })
       .where(eq(guests.id, id));
   } catch (e) {

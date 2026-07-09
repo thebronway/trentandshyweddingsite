@@ -63,7 +63,10 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
     
     <div class="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-zinc-800 pb-4 mb-6 gap-4">
       <h1 class="text-5xl text-zinc-100 font-display uppercase tracking-widest">Mission Control</h1>
-      <a href="/api/admin/export.csv" class="bg-amber-700 hover:bg-amber-600 text-zinc-950 font-bold px-6 py-2 uppercase tracking-wider transition-colors text-sm">Export CSV</a>
+      <div class="flex gap-2">
+        <a href="/admin/faqs" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-bold px-6 py-2 uppercase tracking-wider transition-colors text-sm border border-zinc-700">Manage FAQs</a>
+        <a href="/api/admin/export.csv" class="bg-amber-700 hover:bg-amber-600 text-zinc-950 font-bold px-6 py-2 uppercase tracking-wider transition-colors text-sm">Export CSV</a>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -135,15 +138,20 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
     </div>
 
     {error === 'duplicate' && (
-      <div class="bg-red-950/50 border border-red-500 text-red-200 p-4 mb-6 uppercase tracking-widest font-bold text-sm">Error: That email is already on the list!</div>
+      <div class="bg-red-950/50 border border-red-500 text-red-200 p-4 mb-6 uppercase tracking-widest font-bold text-sm">Error: That email/phone number is already on the list!</div>
     )}
 
     <div class="flex flex-col md:flex-row gap-4 mb-8 bg-zinc-900 border border-zinc-800 p-4 shadow-xl">
       <input type="text" id="search-bar" placeholder="SEARCH NAME OR EMAIL..." class="flex-1 bg-zinc-950 border border-zinc-700 text-zinc-100 px-4 py-2 focus:border-amber-600 uppercase text-sm tracking-wider" />
-      <button id="toggle-add-btn" class="bg-zinc-100 hover:bg-zinc-300 text-zinc-950 font-bold uppercase tracking-widest px-6 py-2 transition-colors">+ Add Guest</button>
+      <button id="toggle-add-btn" class="bg-emerald-700 hover:bg-emerald-600 text-zinc-100 font-bold uppercase tracking-widest px-6 py-2 transition-colors">+ Add Guest</button>
+      <form action="/api/admin/import-guests" method="POST" enctype="multipart/form-data" class="flex gap-2 items-center border-l border-zinc-700 pl-4">
+        <input type="file" name="csv" accept=".csv" required class="text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-xs file:font-bold file:uppercase file:bg-zinc-800 file:text-zinc-100 hover:file:bg-zinc-700 cursor-pointer"/>
+        <button type="submit" class="bg-zinc-100 hover:bg-zinc-300 text-zinc-950 font-bold uppercase tracking-widest px-4 py-2 text-xs transition-colors">Import CSV</button>
+      </form>
     </div>
 
-    <div id="add-panel" class="hidden bg-zinc-900 border border-emerald-900 p-6 shadow-xl mb-8 border-l-4 border-l-emerald-600">
+    <div id="add-panel" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div class="bg-zinc-900 border border-emerald-900 p-6 shadow-2xl border-l-4 border-l-emerald-600 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest">New Guest Record</h2>
         <button type="button" class="close-add-btn text-zinc-500 hover:text-zinc-300 font-bold">X</button>
@@ -187,9 +195,11 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
           <button type="submit" class="bg-emerald-700 hover:bg-emerald-600 text-zinc-100 font-bold uppercase px-8 py-2">Create</button>
         </div>
       </form>
+      </div>
     </div>
 
-    <div id="edit-panel" class="hidden bg-zinc-900 border border-amber-900 p-6 shadow-xl mb-8 border-l-4 border-l-amber-600">
+    <div id="edit-panel" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div class="bg-zinc-900 border border-amber-900 p-6 shadow-2xl border-l-4 border-l-amber-600 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4 border-b border-zinc-800 pb-2">
         <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest">Edit Record</h2>
         <button type="button" class="close-edit-btn text-zinc-500 hover:text-zinc-300 font-bold">X</button>
@@ -262,6 +272,8 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
               <option value="true">Yes</option>
               <option value="false">No</option>
             </select>
+            <input type="email" name="p1Email" id="edit-p1email" placeholder="Email" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 mt-2 text-sm" />
+            <input type="text" name="p1PhoneNumber" id="edit-p1phone" placeholder="Phone" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 mt-2 text-sm" />
           </div>
           
           <div class="p-block border border-zinc-800 p-4" data-index="2">
@@ -272,6 +284,8 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
               <option value="true">Yes</option>
               <option value="false">No</option>
             </select>
+            <input type="email" name="p2Email" id="edit-p2email" placeholder="Email" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 mt-2 text-sm" />
+            <input type="text" name="p2PhoneNumber" id="edit-p2phone" placeholder="Phone" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 mt-2 text-sm" />
           </div>
 
           <div class="p-block border border-zinc-800 p-4" data-index="3">
@@ -282,6 +296,8 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
               <option value="true">Yes</option>
               <option value="false">No</option>
             </select>
+            <input type="email" name="p3Email" id="edit-p3email" placeholder="Email" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 mt-2 text-sm" />
+            <input type="text" name="p3PhoneNumber" id="edit-p3phone" placeholder="Phone" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 mt-2 text-sm" />
           </div>
         </div>
         
@@ -290,6 +306,7 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
           <button type="submit" class="bg-amber-700 hover:bg-amber-600 text-zinc-950 font-bold uppercase tracking-widest px-8 py-2">Save Record</button>
         </div>
       </form>
+      </div>
     </div>
 
     <div class="overflow-x-auto bg-zinc-900 border border-zinc-800 shadow-2xl">
@@ -360,9 +377,9 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
                   <button type="button" class="trigger-edit-btn text-amber-600 hover:text-amber-400 font-bold uppercase tracking-widest text-xs" 
                     data-id={guest.id} data-first={guest.firstName} data-last={guest.lastName || ''} data-email={guest.email || ''} data-phone={guest.phoneNumber || ''}
                     data-role={guest.role} data-alloc={guest.allocatedPlusOnes} data-rsvp={statusStr} data-notes={guest.dietaryNotes || ''} data-song={guest.songRequest || ''}
-                    data-p1name={guest.p1Name || ''} data-p1att={guest.p1Attending} 
-                    data-p2name={guest.p2Name || ''} data-p2att={guest.p2Attending} 
-                    data-p3name={guest.p3Name || ''} data-p3att={guest.p3Attending}>
+                    data-p1name={guest.p1Name || ''} data-p1email={guest.p1Email || ''} data-p1phone={guest.p1PhoneNumber || ''} data-p1att={guest.p1Attending} 
+                    data-p2name={guest.p2Name || ''} data-p2email={guest.p2Email || ''} data-p2phone={guest.p2PhoneNumber || ''} data-p2att={guest.p2Attending} 
+                    data-p3name={guest.p3Name || ''} data-p3email={guest.p3Email || ''} data-p3phone={guest.p3PhoneNumber || ''} data-p3att={guest.p3Attending}>
                     Edit
                   </button>
                   <form action="/api/admin/guests" method="POST" onsubmit="return confirm('Delete this guest?');">
@@ -381,15 +398,18 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
 </Layout>
 
 <script is:inline>
+;(() => {
   const searchInput = document.getElementById('search-bar');
   const rows = document.querySelectorAll('.guest-row');
 
-  searchInput.addEventListener('input', () => {
-    const term = searchInput.value.toLowerCase();
-    rows.forEach(row => {
-      row.style.display = row.dataset.search.includes(term) ? '' : 'none';
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      const term = searchInput.value.toLowerCase();
+      rows.forEach(row => {
+        row.style.display = row.dataset.search.includes(term) ? '' : 'none';
+      });
     });
-  });
+  }
 
   document.querySelectorAll('form').forEach(f => {
     f.addEventListener('submit', (e) => {
@@ -405,10 +425,13 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
   const addPanel = document.getElementById('add-panel');
   const editPanel = document.getElementById('edit-panel');
   
-  document.getElementById('toggle-add-btn').addEventListener('click', () => {
-    addPanel.classList.remove('hidden');
-    editPanel.classList.add('hidden');
-  });
+  const toggleAddBtn = document.getElementById('toggle-add-btn');
+  if (toggleAddBtn) {
+    toggleAddBtn.addEventListener('click', () => {
+      addPanel.classList.remove('hidden');
+      editPanel.classList.add('hidden');
+    });
+  }
 
   document.querySelectorAll('.close-add-btn').forEach(btn => btn.addEventListener('click', () => addPanel.classList.add('hidden')));
   document.querySelectorAll('.close-edit-btn').forEach(btn => btn.addEventListener('click', () => editPanel.classList.add('hidden')));
@@ -418,6 +441,7 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
   const pBlocks = document.querySelectorAll('.p-block');
 
   function updatePartyBlocks() {
+    if(!allocSelect) return;
     const alloc = parseInt(allocSelect.value);
     pBlocks.forEach(block => {
       const idx = parseInt(block.getAttribute('data-index'));
@@ -432,7 +456,9 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
     });
   }
 
-  allocSelect.addEventListener('change', updatePartyBlocks);
+  if (allocSelect) {
+    allocSelect.addEventListener('change', updatePartyBlocks);
+  }
 
   document.querySelectorAll('.trigger-edit-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -452,16 +478,23 @@ const emailsAll = allGuests.map(g => g.email).join(', ');
       document.getElementById('edit-song').value = el.getAttribute('data-song');
       
       document.getElementById('edit-p1name').value = el.getAttribute('data-p1name');
+      document.getElementById('edit-p1email').value = el.getAttribute('data-p1email');
+      document.getElementById('edit-p1phone').value = el.getAttribute('data-p1phone');
       document.getElementById('edit-p1attending').value = el.getAttribute('data-p1att');
 
       document.getElementById('edit-p2name').value = el.getAttribute('data-p2name');
+      document.getElementById('edit-p2email').value = el.getAttribute('data-p2email');
+      document.getElementById('edit-p2phone').value = el.getAttribute('data-p2phone');
       document.getElementById('edit-p2attending').value = el.getAttribute('data-p2att');
 
       document.getElementById('edit-p3name').value = el.getAttribute('data-p3name');
+      document.getElementById('edit-p3email').value = el.getAttribute('data-p3email');
+      document.getElementById('edit-p3phone').value = el.getAttribute('data-p3phone');
       document.getElementById('edit-p3attending').value = el.getAttribute('data-p3att');
       
       updatePartyBlocks();
       window.scrollTo(0, 0);
     });
   });
+})();
 </script>

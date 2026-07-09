@@ -5,7 +5,8 @@ import { db } from '../db';
 import { guests, settings } from '../db/schema';
 import { eq, or } from 'drizzle-orm';
 
-let guestRecord = null;
+// Explicitly type as 'any' so TypeScript doesn't throw "never" errors
+let guestRecord: any = null;
 let lookupError = null;
 const isSuccess = Astro.url.searchParams.get('success');
 
@@ -49,9 +50,15 @@ if (Astro.request.method === 'POST' && canRsvp) {
     
     if (searchValue.includes('@')) {
       conditions.push(eq(guests.email, searchValue));
+      conditions.push(eq(guests.p1Email, searchValue));
+      conditions.push(eq(guests.p2Email, searchValue));
+      conditions.push(eq(guests.p3Email, searchValue));
     }
     if (phoneSearch.length >= 7) {
       conditions.push(eq(guests.phoneNumber, phoneSearch));
+      conditions.push(eq(guests.p1PhoneNumber, phoneSearch));
+      conditions.push(eq(guests.p2PhoneNumber, phoneSearch));
+      conditions.push(eq(guests.p3PhoneNumber, phoneSearch));
     }
     // Fallback search just in case
     if (conditions.length === 0) {
@@ -62,7 +69,7 @@ if (Astro.request.method === 'POST' && canRsvp) {
     if (found.length > 0) {
       guestRecord = found[0];
     } else {
-      lookupError = "We couldn't find those details on the VIP list. Please reach out to Trent or Shy.";
+      lookupError = "We couldn't find those details on the VIP list. Please try again or reach out to Trent or Shy.";
     }
   }
 }
@@ -91,6 +98,13 @@ if (Astro.request.method === 'POST' && canRsvp) {
     )}
 
     {canRsvp && !guestRecord && (
+      <>
+      <div class="bg-zinc-900 border border-zinc-800 p-6 mb-8 border-l-4 border-l-amber-600 shadow-xl">
+        <h2 class="text-2xl text-zinc-100 font-display mb-2 uppercase tracking-widest">How to get past the bouncer:</h2>
+        <p class="text-zinc-300 leading-relaxed text-sm">
+          You can RSVP for your entire party by entering <strong>any</strong> email address or phone number belonging to <strong>anyone</strong> listed on your invitation (that Trent or Shy happens to know). So drop a valid email or phone number below to unlock the guest list.
+        </p>
+      </div>
       <div class="bg-zinc-900 border border-zinc-800 p-5 sm:p-8 shadow-2xl flex flex-col items-center">
         <h1 class="text-4xl md:text-6xl text-zinc-100 font-display mb-2 uppercase text-center w-full">Box Office (RSVP)</h1>
         
@@ -113,12 +127,12 @@ if (Astro.request.method === 'POST' && canRsvp) {
             name="searchValue" 
             required 
             placeholder="EMAIL OR PHONE NUMBER" 
-            oninput="this.value = this.value.toLowerCase().replace(/ /g, '')"
-            class="w-full bg-zinc-950 border border-zinc-700 text-zinc-100 px-4 py-4 text-center tracking-widest focus:outline-none focus:border-amber-600 transition-colors" 
+            class="w-full bg-zinc-950 border border-zinc-700 text-zinc-100 px-4 py-4 text-center tracking-widest focus:outline-none focus:border-amber-600 transition-colors lowercase" 
           />      
           <button type="submit" class="w-full bg-amber-700 hover:bg-amber-600 text-zinc-950 font-bold text-lg uppercase tracking-widest py-4 transition-colors">Find My Ticket</button>
         </form>
       </div>
+      </>
     )}
 
     {guestRecord && (
@@ -177,14 +191,22 @@ if (Astro.request.method === 'POST' && canRsvp) {
               <h3 class="text-xl font-display text-emerald-500 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">
                 {guestRecord.p1Name || 'Plus One'}
               </h3>
-              <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
-                <div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
                   <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Attending?</label>
                   <select name="p1Attending" id="p1-attending" required class="w-full bg-zinc-900 border-2 border-zinc-700 hover:border-zinc-500 text-zinc-100 px-4 py-4 focus:outline-none focus:border-emerald-500 uppercase text-base font-bold tracking-widest cursor-pointer transition-colors">
                     <option value="" disabled selected={guestRecord.p1Attending === 'pending'}>-- Make a Selection --</option>
                     <option value="true" selected={guestRecord.p1Attending === 'true'}>Hell Yes</option>
                     <option value="false" selected={guestRecord.p1Attending === 'false'}>Can't Make It</option>
                   </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Their Email (Optional)</label>
+                  <input type="email" name="p1Email" value={guestRecord.p1Email || ''} class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Their Phone (Optional)</label>
+                  <input type="text" name="p1PhoneNumber" value={guestRecord.p1PhoneNumber || ''} class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm" />
                 </div>
               </div>
             </div>
@@ -195,14 +217,22 @@ if (Astro.request.method === 'POST' && canRsvp) {
               <h3 class="text-xl font-display text-emerald-500 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">
                 {guestRecord.p2Name || 'Plus Two'}
               </h3>
-              <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
-                <div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
                   <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Attending?</label>
                   <select name="p2Attending" id="p2-attending" required class="w-full bg-zinc-900 border-2 border-zinc-700 hover:border-zinc-500 text-zinc-100 px-4 py-4 focus:outline-none focus:border-emerald-500 uppercase text-base font-bold tracking-widest cursor-pointer transition-colors">
                     <option value="" disabled selected={guestRecord.p2Attending === 'pending'}>-- Make a Selection --</option>
                     <option value="true" selected={guestRecord.p2Attending === 'true'}>Hell Yes</option>
                     <option value="false" selected={guestRecord.p2Attending === 'false'}>Can't Make It</option>
                   </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Their Email (Optional)</label>
+                  <input type="email" name="p2Email" value={guestRecord.p2Email || ''} class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Their Phone (Optional)</label>
+                  <input type="text" name="p2PhoneNumber" value={guestRecord.p2PhoneNumber || ''} class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm" />
                 </div>
               </div>
             </div>
@@ -213,14 +243,22 @@ if (Astro.request.method === 'POST' && canRsvp) {
               <h3 class="text-xl font-display text-emerald-500 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">
                 {guestRecord.p3Name || 'Plus Three'}
               </h3>
-              <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
-                <div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
                   <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Attending?</label>
                   <select name="p3Attending" id="p3-attending" required class="w-full bg-zinc-900 border-2 border-zinc-700 hover:border-zinc-500 text-zinc-100 px-4 py-4 focus:outline-none focus:border-emerald-500 uppercase text-base font-bold tracking-widest cursor-pointer transition-colors">
                     <option value="" disabled selected={guestRecord.p3Attending === 'pending'}>-- Make a Selection --</option>
                     <option value="true" selected={guestRecord.p3Attending === 'true'}>Hell Yes</option>
                     <option value="false" selected={guestRecord.p3Attending === 'false'}>Can't Make It</option>
                   </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Their Email (Optional)</label>
+                  <input type="email" name="p3Email" value={guestRecord.p3Email || ''} class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Their Phone (Optional)</label>
+                  <input type="text" name="p3PhoneNumber" value={guestRecord.p3PhoneNumber || ''} class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm" />
                 </div>
               </div>
             </div>
@@ -246,6 +284,7 @@ if (Astro.request.method === 'POST' && canRsvp) {
 </Layout>
 
 <script is:inline>
+;(() => {
   let isDirty = false;
   const rsvpForm = document.getElementById('rsvp-form');
 
@@ -258,7 +297,7 @@ if (Astro.request.method === 'POST' && canRsvp) {
   window.addEventListener('beforeunload', (e) => {
     if (isDirty) {
       e.preventDefault();
-      e.returnValue = '';
+      e.returnValue = true;
     }
   });
 
@@ -286,4 +325,5 @@ if (Astro.request.method === 'POST' && canRsvp) {
       }
     });
   }
+})();
 </script>

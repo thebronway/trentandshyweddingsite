@@ -1,0 +1,85 @@
+---
+import Layout from '../../components/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import { db } from '../../db';
+import { faqs } from '../../db/schema';
+import { asc } from 'drizzle-orm';
+
+const allFaqs = await db.select().from(faqs).orderBy(asc(faqs.sortOrder));
+---
+<Layout title="Manage FAQs">
+  <Nav />
+  <main class="max-w-4xl mx-auto p-6 w-full mt-8">
+    <div class="flex justify-between items-end border-b border-zinc-800 pb-4 mb-6">
+      <h1 class="text-4xl text-zinc-100 font-display uppercase tracking-widest">Manage FAQs</h1>
+      <a href="/admin" class="text-amber-600 text-xs font-bold uppercase tracking-widest">&larr; Back to Control</a>
+    </div>
+
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@2.0.8/dist/trix.css">
+    <script type="text/javascript" src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js" is:inline></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js" is:inline></script>
+
+    <div class="bg-zinc-900 border border-zinc-800 p-6 shadow-xl mb-8 border-l-4 border-l-emerald-600">
+      <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-4">Add New FAQ</h2>
+      <form action="/api/admin/faqs" method="POST" class="space-y-4">
+        <input type="hidden" name="action" value="add" />
+        <div>
+          <label class="block text-xs font-bold uppercase text-zinc-500 mb-1">Question</label>
+          <input type="text" name="question" required class="w-full bg-zinc-950 border border-zinc-700 text-zinc-100 px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase text-zinc-500 mb-1">Answer (Rich Text)</label>
+          <input id="answer-input" type="hidden" name="answer">
+          <trix-editor input="answer-input" class="bg-zinc-950 border border-zinc-700 text-zinc-100 min-h-[150px]"></trix-editor>
+        </div>
+        <button type="submit" class="bg-emerald-700 hover:bg-emerald-600 text-zinc-100 font-bold uppercase px-8 py-2">Save FAQ</button>
+      </form>
+    </div>
+
+    <div class="bg-zinc-900 border border-zinc-800 p-6 shadow-xl">
+      <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-4">Current FAQs (Drag to Sort)</h2>
+      <ul id="faq-list" class="space-y-4">
+        {allFaqs.map((faq) => (
+          <li data-id={faq.id} class="bg-zinc-950 border border-zinc-700 p-4 flex flex-col cursor-move hover:border-amber-600 transition-colors">
+            <div class="flex justify-between items-start mb-2">
+              <strong class="text-zinc-100 text-lg uppercase tracking-wider">{faq.question}</strong>
+              <form action="/api/admin/faqs" method="POST" onsubmit="return confirm('Delete this FAQ?');">
+                <input type="hidden" name="action" value="delete" />
+                <input type="hidden" name="id" value={faq.id} />
+                <button type="submit" class="text-red-600 font-bold px-2 hover:text-red-400">X</button>
+              </form>
+            </div>
+            <div class="text-sm text-zinc-400 prose prose-invert max-w-none" set:html={faq.answer}></div>
+          </li>
+        ))}
+      </ul>
+      <button id="save-order-btn" class="mt-6 bg-amber-700 hover:bg-amber-600 text-zinc-950 font-bold uppercase px-8 py-2 w-full hidden">Save New Order</button>
+    </div>
+  </main>
+</Layout>
+
+<script is:inline>
+;(() => {
+  const el = document.getElementById('faq-list');
+  const saveBtn = document.getElementById('save-order-btn');
+  
+  if (el) {
+    Sortable.create(el, {
+      animation: 150,
+      onEnd: function () {
+        saveBtn.classList.remove('hidden');
+      },
+    });
+
+    saveBtn.addEventListener('click', async () => {
+      const items = [...el.children].map(li => li.getAttribute('data-id'));
+      await fetch('/api/admin/faqs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reorder', order: items })
+      });
+      window.location.reload();
+    });
+  }
+})();
+</script>
