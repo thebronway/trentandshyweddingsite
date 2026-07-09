@@ -11,7 +11,17 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 
   const firstName = formData.get('firstName')?.toString().trim() || '';
   const lastName = formData.get('lastName')?.toString().trim() || null;
-  const email = formData.get('email')?.toString().trim().toLowerCase() || '';
+  
+  const rawEmail = formData.get('email')?.toString().trim().toLowerCase();
+  const email = rawEmail ? rawEmail : null; 
+
+  const rawPhone = formData.get('phoneNumber')?.toString() || null;
+  const phoneNumber = rawPhone ? rawPhone.replace(/\D/g, '').replace(/^1/, '') : null;
+
+  if (!email && !phoneNumber && action !== 'delete') {
+    return redirect('/admin/?error=duplicate'); 
+  }
+
   const role = formData.get('role')?.toString() || 'guest';
   const allocatedPlusOnes = Number(formData.get('allocatedPlusOnes')) || 0;
 
@@ -19,8 +29,6 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const hasRsvpd = rsvpStatus !== 'pending';
   const isAttending = rsvpStatus === 'attending';
   
-  // FORCE meal to null if not attending
-  const mealChoice = isAttending ? (formData.get('mealChoice')?.toString() || null) : null;
   const sanitizeText = (str: string | undefined) => str ? str.replace(/[\r\n]+/g, ' ').trim() : null;
   const dietaryNotes = sanitizeText(formData.get('dietaryNotes')?.toString());
   const songRequest = sanitizeText(formData.get('songRequest')?.toString());
@@ -28,17 +36,14 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   // +1 Data
   const p1Name = allocatedPlusOnes >= 1 ? (formData.get('p1Name')?.toString().trim() || null) : null;
   const p1Attending = allocatedPlusOnes >= 1 ? (formData.get('p1Attending')?.toString() || 'pending') : 'pending';
-  const p1MealChoice = p1Attending === 'true' ? (formData.get('p1MealChoice')?.toString() || null) : null;
 
   // +2 Data
   const p2Name = allocatedPlusOnes >= 2 ? (formData.get('p2Name')?.toString().trim() || null) : null;
   const p2Attending = allocatedPlusOnes >= 2 ? (formData.get('p2Attending')?.toString() || 'pending') : 'pending';
-  const p2MealChoice = p2Attending === 'true' ? (formData.get('p2MealChoice')?.toString() || null) : null;
 
   // +3 Data
   const p3Name = allocatedPlusOnes >= 3 ? (formData.get('p3Name')?.toString().trim() || null) : null;
   const p3Attending = allocatedPlusOnes >= 3 ? (formData.get('p3Attending')?.toString() || 'pending') : 'pending';
-  const p3MealChoice = p3Attending === 'true' ? (formData.get('p3MealChoice')?.toString() || null) : null;
 
   if (action === 'delete' && id) {
     // Grab the name before deleting so we can put it in the email subject line
@@ -55,8 +60,8 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   if (action === 'edit' && id) {
     try {
       await db.update(guests).set({ 
-        firstName, lastName, email, role, allocatedPlusOnes, hasRsvpd, isAttending, mealChoice, dietaryNotes, songRequest,
-        p1Name, p1Attending, p1MealChoice, p2Name, p2Attending, p2MealChoice, p3Name, p3Attending, p3MealChoice
+        firstName, lastName, email, phoneNumber, role, allocatedPlusOnes, hasRsvpd, isAttending, dietaryNotes, songRequest,
+        p1Name, p1Attending, p2Name, p2Attending, p3Name, p3Attending
       }).where(eq(guests.id, id));
       
       const editedGuest = await db.select().from(guests).where(eq(guests.id, id));
@@ -73,10 +78,13 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   if (action === 'add') {
     try {
       await db.insert(guests).values({
-        firstName, lastName, email, role, allocatedPlusOnes, hasRsvpd: false, isAttending: false
+        firstName, lastName, email, phoneNumber, role, allocatedPlusOnes, hasRsvpd: false, isAttending: false
       });
       
-      const newGuest = await db.select().from(guests).where(eq(guests.email, email));
+      const conditions = [];
+      if (email) conditions.push(eq(guests.email, email));
+      if (phoneNumber) conditions.push(eq(guests.phoneNumber, phoneNumber));
+      const newGuest = await db.select().from(guests).where(conditions[0]);
       const allGuests = await db.select().from(guests);
       if (newGuest.length > 0) {
         await sendAdminNotification(newGuest[0], allGuests, 'Admin Added Guest');

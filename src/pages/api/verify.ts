@@ -2,14 +2,13 @@ import type { APIRoute } from 'astro';
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   const data = await request.formData();
-  // We grab 'code' now instead of 'password' to avoid triggering phishing filters
-  const presaleCode = data.get('code')?.toString().trim();
+  
+  const presaleCode = data.get('code')?.toString().toLowerCase().replace(/ /g, '');
   const redirectTo = data.get('redirectTo')?.toString() || '/about';
 
-  // Keep checking against your existing environment variables
-  const adminPass = process.env.ADMIN_PASSWORD?.trim();
-  const vipPass = process.env.VIP_PASSWORD?.trim();
-  const guestPass = process.env.GUEST_PASSWORD?.trim();
+  const adminPass = process.env.ADMIN_PASSWORD?.toLowerCase().replace(/ /g, '');
+  const vipPass = process.env.VIP_PASSWORD?.toLowerCase().replace(/ /g, '');
+  const guestPass = process.env.GUEST_PASSWORD?.toLowerCase().replace(/ /g, '');
 
   const cookieOptions = { path: '/', maxAge: 60 * 60 * 24 * 30, httpOnly: true, secure: false };
 

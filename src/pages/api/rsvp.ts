@@ -1,17 +1,30 @@
 import type { APIRoute } from 'astro';
 import { db } from '../../db';
-import { guests } from '../../db/schema';
+import { guests, settings } from '../../db/schema';
 import { eq } from 'drizzle-orm';
 import { sendGuestConfirmation, sendAdminNotification } from '../../utils/email';
 
 export const POST: APIRoute = async ({ request, redirect }) => {
   const formData = await request.formData();
-  const email = formData.get('email')?.toString().toLowerCase();
+  const idStr = formData.get('id')?.toString();
   
-  if (!email) return new Response('Email required', { status: 400 });
+  if (!idStr) return new Response('Guest ID required', { status: 400 });
+  const id = parseInt(idStr, 10);
 
-  const existingGuest = await db.select().from(guests).where(eq(guests.email, email));
-  const isUpdate = existingGuest.length > 0 && existingGuest[0].hasRsvpd;
+  const existingGuest = await db.select().from(guests).where(eq(guests.id, id));
+  if (existingGuest.length === 0) return new Response('Guest not found', { status: 404 });
+  
+  const isUpdate = existingGuest[0].hasRsvpd;
+
+  const rawEmail = formData.get('email')?.toString().trim().toLowerCase();
+  const email = rawEmail ? rawEmail : null;
+  
+  const rawPhone = formData.get('phoneNumber')?.toString() || null;
+  const phoneNumber = rawPhone ? rawPhone.replace(/\D/g, '').replace(/^1/, '') : null;
+  
+  if (!email && !phoneNumber) {
+      return redirect('/tickets?error=duplicate');
+  }
 
   const isAttending = formData.get('isAttending') === 'true';
   const p1Attending = formData.get('p1Attending')?.toString() || 'pending';
@@ -21,29 +34,36 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   // Strip line breaks so they don't mess up simple CSV viewers
   const sanitizeText = (str: string | undefined) => str ? str.replace(/[\r\n]+/g, ' ').trim() : null;
 
-  await db.update(guests)
-    .set({ 
-      isAttending, 
-      mealChoice: isAttending ? (formData.get('mealChoice')?.toString() || null) : null, 
-      dietaryNotes: sanitizeText(formData.get('dietaryNotes')?.toString()),
-      songRequest: sanitizeText(formData.get('songRequest')?.toString()),
-      p1Attending,
-      p1MealChoice: p1Attending === 'true' ? (formData.get('p1MealChoice')?.toString() || null) : null,
-      p2Attending,
-      p2MealChoice: p2Attending === 'true' ? (formData.get('p2MealChoice')?.toString() || null) : null,
-      p3Attending,
-      p3MealChoice: p3Attending === 'true' ? (formData.get('p3MealChoice')?.toString() || null) : null,
-      hasRsvpd: true 
-    })
-    .where(eq(guests.email, email));
+  try {
+    await db.update(guests)
+      .set({ 
+        email,
+        phoneNumber,
+        isAttending,
+        dietaryNotes: sanitizeText(formData.get('dietaryNotes')?.toString()),
+        songRequest: sanitizeText(formData.get('songRequest')?.toString()),
+        p1Attending,
+        p2Attending,
+        p3Attending,
+        hasRsvpd: true 
+      })
+      .where(eq(guests.id, id));
+  } catch (e) {
+    return redirect('/tickets?error=duplicate');
+  }
 
   // Fetch the fresh records to send in the emails
-  const updatedGuestQuery = await db.select().from(guests).where(eq(guests.email, email));
+  const updatedGuestQuery = await db.select().from(guests).where(eq(guests.id, id));
   const allGuests = await db.select().from(guests);
+  
+  const siteSettingsQuery = await db.select().from(settings).limit(1);
+  const closeDate = siteSettingsQuery.length > 0 ? siteSettingsQuery[0].rsvpCloseDate : null;
 
-  // Send the guest email, then send the admin the updated CSV
+  // Send the guest email (only if they have an email!), then send the admin the updated CSV
   if (updatedGuestQuery.length > 0) {
-    await sendGuestConfirmation(updatedGuestQuery[0], isUpdate);
+    if (updatedGuestQuery[0].email) {
+      await sendGuestConfirmation(updatedGuestQuery[0], isUpdate, closeDate);
+    }
     await sendAdminNotification(updatedGuestQuery[0], allGuests, isUpdate ? 'Updated RSVP' : 'Initial RSVP');
   }
 

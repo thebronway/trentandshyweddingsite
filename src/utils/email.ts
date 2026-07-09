@@ -17,22 +17,25 @@ const transporter = nodemailer.createTransport({
 
 // Helper: Generate the CSV string identical to your export route
 function generateCSV(guests: any[]) {
-  const header = "ID,FirstName,LastName,Email,Role,PartyAlloc,HasRSVPD,MainAttending,MainMeal,P1Name,P1Attending,P1Meal,P2Name,P2Attending,P2Meal,P3Name,P3Attending,P3Meal,DietaryNotes,SongRequest\n";
+  const header = "ID,FirstName,LastName,Email,Phone,Role,PartyAlloc,HasRSVPD,MainAttending,P1Name,P1Attending,P2Name,P2Attending,P3Name,P3Attending,DietaryNotes,SongRequest\n";
   const escapeCSV = (str: string | null) => str ? `"${str.replace(/"/g, '""')}"` : '""';
   
   const rows = guests.map(g => {
-    // Only output the attending status if they were actually allocated that slot
     const p1Att = g.allocatedPlusOnes >= 1 ? g.p1Attending : '';
     const p2Att = g.allocatedPlusOnes >= 2 ? g.p2Attending : '';
     const p3Att = g.allocatedPlusOnes >= 3 ? g.p3Attending : '';
     
-    return `${g.id},${escapeCSV(g.firstName)},${escapeCSV(g.lastName)},${escapeCSV(g.email)},${g.role},${g.allocatedPlusOnes},${g.hasRsvpd},${g.isAttending},${escapeCSV(g.mealChoice)},${escapeCSV(g.p1Name)},${p1Att},${escapeCSV(g.p1MealChoice)},${escapeCSV(g.p2Name)},${p2Att},${escapeCSV(g.p2MealChoice)},${escapeCSV(g.p3Name)},${p3Att},${escapeCSV(g.p3MealChoice)},${escapeCSV(g.dietaryNotes)},${escapeCSV(g.songRequest)}`;
+    return `${g.id},${escapeCSV(g.firstName)},${escapeCSV(g.lastName)},${escapeCSV(g.email)},${escapeCSV(g.phoneNumber)},${g.role},${g.allocatedPlusOnes},${g.hasRsvpd},${g.isAttending},${escapeCSV(g.p1Name)},${p1Att},${escapeCSV(g.p2Name)},${p2Att},${escapeCSV(g.p3Name)},${p3Att},${escapeCSV(g.dietaryNotes)},${escapeCSV(g.songRequest)}`;
   }).join('\n');
   return header + rows;
 }
 
 // Helper: Build the dark/metal themed HTML for the guest
-function buildGuestEmailHtml(guest: any, isUpdate: boolean) {
+function buildGuestEmailHtml(guest: any, isUpdate: boolean, closeDate: Date | null) {
+  const formattedCloseDate = closeDate 
+    ? new Date(closeDate).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })
+    : "the deadline";
+
   const title = isUpdate ? "Your RSVP Has Been Updated" : "You're on the Guest List";
   const status = guest.isAttending ? "Hell Yes (Attending)" : "Can't Make It (Declined)";
   
@@ -52,23 +55,19 @@ function buildGuestEmailHtml(guest: any, isUpdate: boolean) {
       
       <h3 style="color: #10b981; text-transform: uppercase;">Main Guest: ${guest.firstName} ${guest.lastName || ''}</h3>
       <p><strong>Status:</strong> ${status}</p>
-      ${guest.isAttending ? `<p><strong>Meal:</strong> ${guest.mealChoice || 'None'}</p>` : ''}
   `;
 
   if (guest.allocatedPlusOnes >= 1) {
       html += `<h3 style="color: #10b981; text-transform: uppercase; margin-top: 20px;">Plus One: ${guest.p1Name || 'Guest'}</h3>
-               <p><strong>Status:</strong> ${guest.p1Attending === 'true' ? 'Yes' : guest.p1Attending === 'false' ? 'No' : 'Pending'}</p>
-               ${guest.p1Attending === 'true' ? `<p><strong>Meal:</strong> ${guest.p1MealChoice || 'None'}</p>` : ''}`;
+               <p><strong>Status:</strong> ${guest.p1Attending === 'true' ? 'Yes' : guest.p1Attending === 'false' ? 'No' : 'Pending'}</p>`;
   }
   if (guest.allocatedPlusOnes >= 2) {
       html += `<h3 style="color: #10b981; text-transform: uppercase; margin-top: 20px;">Plus Two: ${guest.p2Name || 'Guest'}</h3>
-               <p><strong>Status:</strong> ${guest.p2Attending === 'true' ? 'Yes' : guest.p2Attending === 'false' ? 'No' : 'Pending'}</p>
-               ${guest.p2Attending === 'true' ? `<p><strong>Meal:</strong> ${guest.p2MealChoice || 'None'}</p>` : ''}`;
+               <p><strong>Status:</strong> ${guest.p2Attending === 'true' ? 'Yes' : guest.p2Attending === 'false' ? 'No' : 'Pending'}</p>`;
   }
   if (guest.allocatedPlusOnes >= 3) {
       html += `<h3 style="color: #10b981; text-transform: uppercase; margin-top: 20px;">Plus Three: ${guest.p3Name || 'Guest'}</h3>
-               <p><strong>Status:</strong> ${guest.p3Attending === 'true' ? 'Yes' : guest.p3Attending === 'false' ? 'No' : 'Pending'}</p>
-               ${guest.p3Attending === 'true' ? `<p><strong>Meal:</strong> ${guest.p3MealChoice || 'None'}</p>` : ''}`;
+               <p><strong>Status:</strong> ${guest.p3Attending === 'true' ? 'Yes' : guest.p3Attending === 'false' ? 'No' : 'Pending'}</p>`;
   }
 
   if (guest.dietaryNotes) {
@@ -87,7 +86,7 @@ function buildGuestEmailHtml(guest: any, isUpdate: boolean) {
         <p style="color: #a1a1aa; font-size: 14px; margin: 0 0 25px 0;">Please do not reply to this automated email. Instead, email <a href="mailto:shrentshredding@gmail.com" style="color: #b45309; font-weight: bold;">shrentshredding@gmail.com</a>.</p>
 
         <h4 style="color: #f4f4f5; text-transform: uppercase; margin-top: 0; margin-bottom: 10px;">Need to update your RSVP?</h4>
-        <p style="color: #a1a1aa; font-size: 14px; margin-bottom: 10px;">You can log back into the Box Office anytime before the deadline (August 1, 2026) to change RSVP.</p>
+        <p style="color: #a1a1aa; font-size: 14px; margin-bottom: 10px;">You can log back into the Box Office anytime before ${formattedCloseDate} to change your RSVP.</p>
         <div style="background-color: #09090b; padding: 15px; border: 1px solid #27272a;">
           <p style="color: #a1a1aa; font-size: 14px; margin: 0 0 5px 0;"><strong>Site Password:</strong> <span style="color: #f4f4f5;">frontrow2026</span></p>
           <p style="color: #a1a1aa; font-size: 14px; margin: 0;"><strong>Box Office (Update RSVP) Link:</strong> <a href="https://trentandshy.com/tickets" style="color: #b45309; text-decoration: none; font-weight: bold;">https://trentandshy.com/tickets</a></p>
@@ -102,7 +101,7 @@ function buildGuestEmailHtml(guest: any, isUpdate: boolean) {
 // EXPORTED FUNCTIONS
 // ---------------------------------------------------------
 
-export async function sendGuestConfirmation(guest: any, isUpdate: boolean) {
+export async function sendGuestConfirmation(guest: any, isUpdate: boolean, closeDate: Date | null) {
   if (!process.env.SENDER_NO_REPLY) return;
   
   try {
@@ -110,7 +109,7 @@ export async function sendGuestConfirmation(guest: any, isUpdate: boolean) {
       from: `"Trent & Shy Box Office" <${process.env.SENDER_NO_REPLY}>`,
       to: guest.email,
       subject: isUpdate ? "Your Trent & Shy RSVP is Updated" : "Trent & Shy RSVP Confirmed",
-      html: buildGuestEmailHtml(guest, isUpdate)
+      html: buildGuestEmailHtml(guest, isUpdate, closeDate)
     });
   } catch (error) {
     console.error("Error sending guest email:", error);
