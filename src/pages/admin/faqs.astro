@@ -10,9 +10,9 @@ const allFaqs = await db.select().from(faqs).orderBy(asc(faqs.sortOrder));
 <Layout title="Manage FAQs">
   <Nav />
   <main class="max-w-4xl mx-auto p-6 w-full mt-8">
-    <div class="flex justify-between items-end border-b border-zinc-800 pb-4 mb-6">
-      <h1 class="text-4xl text-zinc-100 font-display uppercase tracking-widest">Manage FAQs</h1>
-      <a href="/admin" class="text-amber-600 text-xs font-bold uppercase tracking-widest">&larr; Back to Control</a>
+    <div class="flex justify-between items-end border-b border-zinc-700 pb-4 mb-6">
+      <h1 class="text-4xl text-white font-display uppercase tracking-widest">Manage FAQs</h1>
+      <a href="/admin" class="text-pink-400 text-xs font-bold uppercase tracking-widest">&larr; Back to Control</a>
     </div>
 
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@2.0.8/dist/trix.css">

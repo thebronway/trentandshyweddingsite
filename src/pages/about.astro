@@ -18,22 +18,22 @@ const openers = [
 ---
 <Layout title="Meet the Band">
   <Nav />
-  <main class="max-w-4xl mx-auto p-6 w-full mt-8 text-center">
-    <h1 class="text-4xl md:text-6xl text-zinc-100 font-display mb-4 uppercase tracking-wider">Meet The Band</h1>
-    <p class="text-amber-600 font-bold tracking-widest uppercase text-sm mb-12">Trent & Shy • Est. 2022</p>
+  <main class="max-w-4xl mx-auto p-6 w-full mt-8 text-center text-zinc-100">
+    <h1 class="text-4xl md:text-6xl text-white font-display mb-4 uppercase tracking-wider">Meet The Band</h1>
+    <p class="text-pink-300 font-bold tracking-widest uppercase text-sm mb-12">Trent & Shy • Est. 2022</p>
 
-    <div class="w-full h-64 sm:h-96 mb-12 border border-zinc-800 relative overflow-hidden group">
+    <div class="w-full h-64 sm:h-96 mb-12 border border-zinc-700 relative overflow-hidden group shadow-2xl">
       <img 
         src="/images/about.webp" 
         alt="Trent and Shy" 
         class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
       />
-      <div class="absolute inset-0 border-[12px] border-zinc-950/20 pointer-events-none"></div>
+      <div class="absolute inset-0 border-[12px] border-zinc-800/40 pointer-events-none"></div>
     </div>
 
-    <div class="bg-zinc-900 border border-zinc-800 p-8 shadow-2xl mb-12 text-left">
-      <h2 class="text-3xl text-zinc-100 font-display mb-4 uppercase">How It Started</h2>
-      <p class="text-zinc-300 leading-relaxed mb-6">
+    <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 p-8 shadow-2xl mb-12 text-left rounded-sm">
+      <h2 class="text-3xl text-pink-400 font-display mb-4 uppercase">How It Started</h2>
+      <p class="text-zinc-200 leading-relaxed mb-6">
         It was 2022, and the energy at the Baltimore Soundstage was electric. Somewhere in the middle of the Knocked Loose pit, Trent and Shy collided. They spent the rest of the set shouting lyrics at each other, and by the time the house lights came up, they knew they’d found their permanent stage-dive partner.
       </p>
 
@@ -47,14 +47,14 @@ const openers = [
     </div>
 
     <div class="text-center mb-12 mt-20">
-      <h2 class="text-4xl md:text-5xl text-zinc-100 font-display mb-4 uppercase tracking-wider border-b border-zinc-800 pb-4 inline-block">The Openers</h2>
-      <p class="text-amber-600 font-bold tracking-widest uppercase text-sm mt-4">The wedding party warming up the stage for the main act</p>
+      <h2 class="text-4xl md:text-5xl text-white font-display mb-4 uppercase tracking-wider border-b border-zinc-700 pb-4 inline-block">The Openers</h2>
+      <p class="text-pink-300 font-bold tracking-widest uppercase text-sm mt-4">The wedding party warming up the stage for the main act</p>
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {openers.map(person => (
-        <div class="group relative bg-zinc-900 border border-zinc-800 overflow-hidden hover:border-amber-600 transition-colors">
-          <div class="aspect-square bg-zinc-950 relative">
+        <div class="group relative bg-zinc-800/60 backdrop-blur-md border border-zinc-700 overflow-hidden hover:border-pink-400 transition-colors rounded-sm shadow-lg">
+          <div class="aspect-square bg-zinc-900 relative">
             <img 
               src={person.img} 
               alt={person.name} 
@@ -67,8 +67,8 @@ const openers = [
             <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent"></div>
           </div>
           <div class="p-4 absolute bottom-0 w-full text-center">
-            <h3 class="text-2xl font-display text-zinc-100 uppercase tracking-widest leading-none">{person.name}</h3>
-            <p class="text-amber-500 text-[10px] font-bold uppercase tracking-widest mt-2">{person.role}</p>
+            <h3 class="text-2xl font-display text-white uppercase tracking-widest leading-none">{person.name}</h3>
+            <p class="text-pink-300 text-[10px] font-bold uppercase tracking-widest mt-2">{person.role}</p>
           </div>
         </div>
       ))}

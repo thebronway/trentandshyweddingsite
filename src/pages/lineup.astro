@@ -6,11 +6,11 @@ import TicketCard from '../components/TicketCard.astro';
 <Layout title="The Lineup">
   <Nav />
   <main class="max-w-4xl mx-auto p-6 w-full mt-8">
-    <h1 class="text-4xl md:text-6xl text-zinc-100 font-display mb-8">Set Times</h1>
+    <h1 class="text-4xl md:text-6xl text-white font-display mb-8">Set Times</h1>
     
     <div class="grid md:grid-cols-2 gap-8 mb-12">
-      <div class="p-6 border-l-4 border-zinc-100 bg-zinc-900/50">
-        <h2 class="text-2xl font-display text-zinc-100 uppercase tracking-widest">The Venue</h2>
+      <div class="p-6 border-l-4 border-zinc-500 bg-zinc-800/60 backdrop-blur-md rounded-sm shadow-lg">
+        <h2 class="text-2xl font-display text-white uppercase tracking-widest">The Venue</h2>
         <p class="text-zinc-400 mt-2 text-lg">
           Baltimore Soundstage<br />
           124 Market Pl<br />
@@ -18,8 +18,8 @@ import TicketCard from '../components/TicketCard.astro';
         </p>
       </div>
 
-      <div class="p-6 border-l-4 border-zinc-100 bg-zinc-900/50">
-        <h2 class="text-2xl font-display text-zinc-100 uppercase tracking-widest">Dress Code</h2>
+      <div class="p-6 border-l-4 border-zinc-500 bg-zinc-800/60 backdrop-blur-md rounded-sm shadow-lg">
+        <h2 class="text-2xl font-display text-white uppercase tracking-widest">Dress Code</h2>
         <p class="text-zinc-400 mt-2 text-lg italic">"Show-Ready Casual"</p>
         <p class="text-zinc-400 mt-2">
           Leave the ties and gowns at home. Wear what makes you feel like a VIP, but remember: <strong>strictly no outshining the headliners</strong> (the Bride & Groom). 
@@ -30,16 +30,49 @@ import TicketCard from '../components/TicketCard.astro';
       </div>
     </div>
     
-    <TicketCard title="Doors Open" subtitle="4:30 PM - The Lobby">
-      <p>Check your coat, grab a drink, and find your spot in the crowd. The pre-show bar is open.</p>
-    </TicketCard>
+    <div class="relative flex flex-col sm:flex-row bg-zinc-800/60 backdrop-blur-md border border-zinc-700 rounded-sm overflow-hidden shadow-2xl my-6">
+      <div class="bg-zinc-900/60 px-6 py-8 flex flex-col justify-center items-center border-b sm:border-b-0 sm:border-r border-dashed border-zinc-700">
+        <span class="text-center text-pink-400 text-xs font-bold uppercase tracking-widest rotate-0 sm:-rotate-90 whitespace-nowrap">
+          Trent & Shy<br /><br />Baltimore<br />Soundstage<br /><br />Oct 10, 2026
+        </span>
+      </div>
+      <div class="p-8 flex-1">
+        <h3 class="text-4xl text-white mb-1">Doors Open</h3>
+        <p class="text-pink-300 font-bold uppercase tracking-wider text-sm mb-4">4:30 PM - The Lobby</p>
+        <div class="text-zinc-300 leading-relaxed space-y-4">
+          <p>Check your coat, grab a drink, and find your spot in the crowd. The pre-show bar is open.</p>
+        </div>
+      </div>
+    </div>
 
-    <TicketCard title="The Main Act" subtitle="5:00 PM - Main Stage">
-      <p>The ceremony. Short, sweet, and heavy. Please silence your phones so you don't ruin the recording.</p>
-    </TicketCard>
+    <div class="relative flex flex-col sm:flex-row bg-zinc-800/60 backdrop-blur-md border border-zinc-700 rounded-sm overflow-hidden shadow-2xl my-6">
+      <div class="bg-zinc-900/60 px-6 py-8 flex flex-col justify-center items-center border-b sm:border-b-0 sm:border-r border-dashed border-zinc-700">
+        <span class="text-center text-pink-400 text-xs font-bold uppercase tracking-widest rotate-0 sm:-rotate-90 whitespace-nowrap">
+          Trent & Shy<br /><br />Baltimore<br />Soundstage<br /><br />Oct 10, 2026
+        </span>
+      </div>
+      <div class="p-8 flex-1">
+        <h3 class="text-4xl text-white mb-1">The Main Act</h3>
+        <p class="text-pink-300 font-bold uppercase tracking-wider text-sm mb-4">5:00 PM - Main Stage</p>
+        <div class="text-zinc-300 leading-relaxed space-y-4">
+          <p>The ceremony. Short, sweet, and heavy. Please silence your phones so you don't ruin the recording.</p>
+        </div>
+      </div>
+    </div>
 
-    <TicketCard title="The Afterparty" subtitle="6:00 PM - Midnight">
-      <p>Dinner, drinks, and a very loud playlist. Bring your earplugs if you're sensitive to punching music—we’re turning it up to eleven.</p>
-    </TicketCard>
+    <div class="relative flex flex-col sm:flex-row bg-zinc-800/60 backdrop-blur-md border border-zinc-700 rounded-sm overflow-hidden shadow-2xl my-6">
+      <div class="bg-zinc-900/60 px-6 py-8 flex flex-col justify-center items-center border-b sm:border-b-0 sm:border-r border-dashed border-zinc-700">
+        <span class="text-center text-pink-400 text-xs font-bold uppercase tracking-widest rotate-0 sm:-rotate-90 whitespace-nowrap">
+          Trent & Shy<br /><br />Baltimore<br />Soundstage<br /><br />Oct 10, 2026
+        </span>
+      </div>
+      <div class="p-8 flex-1">
+        <h3 class="text-4xl text-white mb-1">The Afterparty</h3>
+        <p class="text-pink-300 font-bold uppercase tracking-wider text-sm mb-4">6:00 PM - Midnight</p>
+        <div class="text-zinc-300 leading-relaxed space-y-4">
+          <p>Dinner, drinks, and a very loud playlist. Bring your earplugs if you're sensitive to punching music—we’re turning it up to eleven.</p>
+        </div>
+      </div>
+    </div>
   </main>
 </Layout>
