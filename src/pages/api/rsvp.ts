@@ -32,12 +32,40 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const p3Attending = formData.get('p3Attending')?.toString() || 'pending';
   
   const extractPhone = (val: string | undefined) => val ? val.replace(/\D/g, '').replace(/^1/, '') : null;
-  const p1Email = formData.get('p1Email')?.toString().trim().toLowerCase() || null;
-  const p1PhoneNumber = extractPhone(formData.get('p1PhoneNumber')?.toString());
-  const p2Email = formData.get('p2Email')?.toString().trim().toLowerCase() || null;
-  const p2PhoneNumber = extractPhone(formData.get('p2PhoneNumber')?.toString());
-  const p3Email = formData.get('p3Email')?.toString().trim().toLowerCase() || null;
-  const p3PhoneNumber = extractPhone(formData.get('p3PhoneNumber')?.toString());
+  let p1Email = formData.get('p1Email')?.toString().trim().toLowerCase() || null;
+  let p1PhoneNumber = extractPhone(formData.get('p1PhoneNumber')?.toString());
+  let p2Email = formData.get('p2Email')?.toString().trim().toLowerCase() || null;
+  let p2PhoneNumber = extractPhone(formData.get('p2PhoneNumber')?.toString());
+  let p3Email = formData.get('p3Email')?.toString().trim().toLowerCase() || null;
+  let p3PhoneNumber = extractPhone(formData.get('p3PhoneNumber')?.toString());
+
+  // 1. SILENTLY DEDUPLICATE INTRA-PARTY INFO
+  if (p1Email === email) p1Email = null;
+  if (p2Email === email || p2Email === p1Email) p2Email = null;
+  if (p3Email === email || p3Email === p1Email || p3Email === p2Email) p3Email = null;
+
+  if (p1PhoneNumber === phoneNumber) p1PhoneNumber = null;
+  if (p2PhoneNumber === phoneNumber || p2PhoneNumber === p1PhoneNumber) p2PhoneNumber = null;
+  if (p3PhoneNumber === phoneNumber || p3PhoneNumber === p1PhoneNumber || p3PhoneNumber === p2PhoneNumber) p3PhoneNumber = null;
+
+  // 2. CHECK FOR CROSS-PARTY DUPLICATES
+  const submittedEmails = [email, p1Email, p2Email, p3Email].filter(e => e !== null && e !== '');
+  const submittedPhones = [phoneNumber, p1PhoneNumber, p2PhoneNumber, p3PhoneNumber].filter(p => p !== null && p !== '');
+  
+  const allExisting = await db.select().from(guests);
+  for (const g of allExisting) {
+    if (g.id === id) continue; // Skip checking against themselves
+    
+    const existingEmails = [g.email, g.p1Email, g.p2Email, g.p3Email].filter(e => e !== null && e !== '');
+    const existingPhones = [g.phoneNumber, g.p1PhoneNumber, g.p2PhoneNumber, g.p3PhoneNumber].filter(p => p !== null && p !== '');
+
+    const hasDupEmail = submittedEmails.some(e => existingEmails.includes(e));
+    const hasDupPhone = submittedPhones.some(p => existingPhones.includes(p));
+
+    if (hasDupEmail || hasDupPhone) {
+      return redirect('/tickets?error=duplicate');
+    }
+  }
 
   // Strip line breaks so they don't mess up simple CSV viewers
   const sanitizeText = (str: string | undefined) => str ? str.replace(/[\r\n]+/g, ' ').trim() : null;
@@ -56,8 +84,12 @@ export const POST: APIRoute = async ({ request, redirect }) => {
         hasRsvpd: true
       })
       .where(eq(guests.id, id));
-  } catch (e) {
-    return redirect('/tickets?error=duplicate');
+  } catch (e: any) {
+    if (e.code === '23505') { // Postgres Unique Violation
+      return redirect('/tickets?error=duplicate');
+    }
+    console.error("Database update error:", e);
+    return new Response('Internal Server Error while saving RSVP', { status: 500 });
   }
 
   // Fetch the fresh records to send in the emails

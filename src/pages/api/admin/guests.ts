@@ -37,21 +37,30 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 
   // +1 Data
   const p1Name = allocatedPlusOnes >= 1 ? (formData.get('p1Name')?.toString().trim() || null) : null;
-  const p1Email = allocatedPlusOnes >= 1 ? (formData.get('p1Email')?.toString().trim().toLowerCase() || null) : null;
-  const p1PhoneNumber = allocatedPlusOnes >= 1 ? extractPhone(formData.get('p1PhoneNumber')?.toString()) : null;
+  let p1Email = allocatedPlusOnes >= 1 ? (formData.get('p1Email')?.toString().trim().toLowerCase() || null) : null;
+  let p1PhoneNumber = allocatedPlusOnes >= 1 ? extractPhone(formData.get('p1PhoneNumber')?.toString()) : null;
   const p1Attending = allocatedPlusOnes >= 1 ? (formData.get('p1Attending')?.toString() || 'pending') : 'pending';
 
   // +2 Data
   const p2Name = allocatedPlusOnes >= 2 ? (formData.get('p2Name')?.toString().trim() || null) : null;
-  const p2Email = allocatedPlusOnes >= 2 ? (formData.get('p2Email')?.toString().trim().toLowerCase() || null) : null;
-  const p2PhoneNumber = allocatedPlusOnes >= 2 ? extractPhone(formData.get('p2PhoneNumber')?.toString()) : null;
+  let p2Email = allocatedPlusOnes >= 2 ? (formData.get('p2Email')?.toString().trim().toLowerCase() || null) : null;
+  let p2PhoneNumber = allocatedPlusOnes >= 2 ? extractPhone(formData.get('p2PhoneNumber')?.toString()) : null;
   const p2Attending = allocatedPlusOnes >= 2 ? (formData.get('p2Attending')?.toString() || 'pending') : 'pending';
 
   // +3 Data
   const p3Name = allocatedPlusOnes >= 3 ? (formData.get('p3Name')?.toString().trim() || null) : null;
-  const p3Email = allocatedPlusOnes >= 3 ? (formData.get('p3Email')?.toString().trim().toLowerCase() || null) : null;
-  const p3PhoneNumber = allocatedPlusOnes >= 3 ? extractPhone(formData.get('p3PhoneNumber')?.toString()) : null;
+  let p3Email = allocatedPlusOnes >= 3 ? (formData.get('p3Email')?.toString().trim().toLowerCase() || null) : null;
+  let p3PhoneNumber = allocatedPlusOnes >= 3 ? extractPhone(formData.get('p3PhoneNumber')?.toString()) : null;
   const p3Attending = allocatedPlusOnes >= 3 ? (formData.get('p3Attending')?.toString() || 'pending') : 'pending';
+
+  // SILENTLY DEDUPLICATE INTRA-PARTY INFO
+  if (p1Email === email) p1Email = null;
+  if (p2Email === email || p2Email === p1Email) p2Email = null;
+  if (p3Email === email || p3Email === p1Email || p3Email === p2Email) p3Email = null;
+
+  if (p1PhoneNumber === phoneNumber) p1PhoneNumber = null;
+  if (p2PhoneNumber === phoneNumber || p2PhoneNumber === p1PhoneNumber) p2PhoneNumber = null;
+  if (p3PhoneNumber === phoneNumber || p3PhoneNumber === p1PhoneNumber || p3PhoneNumber === p2PhoneNumber) p3PhoneNumber = null;
 
   const isAjax = request.headers.get('accept')?.includes('application/json');
 

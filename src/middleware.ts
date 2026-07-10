@@ -1,7 +1,7 @@
 import { defineMiddleware } from 'astro:middleware';
 
 export const onRequest = defineMiddleware((context, next) => {
-  const { url, cookies, redirect } = context;
+  const { url, cookies, redirect, request } = context;
   const roleCookie = cookies.get('role');
   const role = roleCookie ? roleCookie.value : null;
 
@@ -28,6 +28,15 @@ export const onRequest = defineMiddleware((context, next) => {
   if (url.pathname.startsWith('/backstage')) {
     if (role !== 'party' && role !== 'admin') {
       return redirect('/'); 
+    }
+  }
+
+  // 4. Global CSRF Protection for state-changing requests
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    const origin = request.headers.get('origin');
+    const host = request.headers.get('host');
+    if (origin && host && new URL(origin).host !== host) {
+      return new Response('CSRF Validation Failed', { status: 403 });
     }
   }
 

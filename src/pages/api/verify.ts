@@ -10,7 +10,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   const vipPass = process.env.VIP_PASSWORD?.toLowerCase().replace(/ /g, '');
   const guestPass = process.env.GUEST_PASSWORD?.toLowerCase().replace(/ /g, '');
 
-  const cookieOptions = { path: '/', maxAge: 60 * 60 * 24 * 30, httpOnly: true, secure: false };
+  const cookieOptions = { path: '/', maxAge: 60 * 60 * 24 * 30, httpOnly: true, secure: import.meta.env.PROD, sameSite: 'strict' as const };
 
   if (presaleCode === adminPass) {
     cookies.set('role', 'admin', cookieOptions);

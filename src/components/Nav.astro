@@ -3,13 +3,13 @@
 const roleCookie = Astro.cookies.get('role');
 const role = roleCookie ? roleCookie.value : null;
 ---
-<nav class="flex flex-wrap items-center justify-between p-6 border-b border-zinc-800 bg-zinc-950/80 relative z-50">
+<nav class="flex flex-wrap items-center justify-between p-6 border-b border-zinc-700 bg-zinc-800/60 backdrop-blur-md relative z-50">
   <div class="flex items-center justify-between w-full sm:w-auto">
-    <a href="/about" class="text-3xl tracking-widest text-amber-600 hover:text-amber-500 transition-colors">
-      Trent&Shy
+    <a href="/about" class="text-3xl tracking-widest transition-colors hover:opacity-80">
+      <span class="text-pink-300">Trent</span><span class="text-pink-600">&</span><span class="text-pink-300">Shy</span>
     </a>
     
-    <button id="mobile-menu-btn" class="sm:hidden text-zinc-400 hover:text-amber-500 focus:outline-none">
+    <button id="mobile-menu-btn" class="sm:hidden text-zinc-400 hover:text-pink-500 focus:outline-none">
       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
       </svg>
@@ -17,11 +17,11 @@ const role = roleCookie ? roleCookie.value : null;
   </div>
   
   <ul id="nav-links" class="hidden w-full sm:w-auto sm:flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6 text-sm font-semibold tracking-wider uppercase text-zinc-400 mt-6 sm:mt-0">
-    <li class="w-full sm:w-auto"><a href="/about" class="block hover:text-zinc-100 transition-colors">Meet the Band</a></li>
-    <li class="w-full sm:w-auto"><a href="/lineup" class="block hover:text-zinc-100 transition-colors">Set Times</a></li>
-    <li class="w-full sm:w-auto"><a href="/tickets" class="block hover:text-amber-500 transition-colors">Box Office (RSVP)</a></li>
-    <li class="w-full sm:w-auto"><a href="/faq" class="block hover:text-zinc-100 transition-colors">Tour FAQ</a></li>
-    <li class="w-full sm:w-auto"><a href="/merch" class="block hover:text-zinc-100 transition-colors">Merch Table</a></li>
+    <li class="w-full sm:w-auto"><a href="/about" class="block hover:text-pink-300 transition-colors">Meet the Band</a></li>
+    <li class="w-full sm:w-auto"><a href="/lineup" class="block hover:text-pink-300 transition-colors">Set Times</a></li>
+    <li class="w-full sm:w-auto"><a href="/tickets" class="block hover:text-pink-500 transition-colors">Box Office (RSVP)</a></li>
+    <li class="w-full sm:w-auto"><a href="/faq" class="block hover:text-pink-300 transition-colors">Tour FAQ</a></li>
+    <li class="w-full sm:w-auto"><a href="/merch" class="block hover:text-pink-300 transition-colors">Merch Table</a></li>
     
     { (role === 'party' || role === 'admin') && (
       <li class="w-full sm:w-auto"><a href="/backstage/" class="block hover:text-emerald-600 transition-colors">Backstage</a></li>
