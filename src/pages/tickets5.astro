@@ -1,0 +1,37 @@
+---
+import Layout from '../components/Layout.astro';
+import Nav from '../components/Nav.astro';
+---
+<Layout title="Box Office - Theme 4">
+  <div class="bg-zinc-900 min-h-screen pb-12">
+    <Nav />
+    <main class="max-w-3xl mx-auto p-6 w-full mt-8">
+      
+      <div class="bg-black border border-red-800 p-6 mb-8 border-l-4 border-l-red-600 shadow-xl">
+        <h2 class="text-2xl text-white font-display mb-2 uppercase tracking-widest">How to get past the bouncer:</h2>
+        <p class="text-zinc-400 leading-relaxed text-sm">
+          You can RSVP for your entire party by entering <strong>any</strong> email address or phone number belonging to <strong>anyone</strong> listed on your invitation. So drop a valid email or phone number below to unlock the guest list.
+        </p>
+      </div>
+      
+      <div class="bg-black border border-red-800 p-5 sm:p-8 shadow-2xl flex flex-col items-center">
+        <h1 class="text-4xl md:text-6xl text-white font-display mb-2 uppercase text-center w-full">Box Office (RSVP)</h1>
+        
+        <div class="text-center mb-8 mt-4">
+          <h2 class="text-xl md:text-2xl text-pink-600 font-display uppercase tracking-widest mb-2">Flash your ID at the Door</h2>
+          <p class="text-zinc-500 uppercase tracking-widest text-xs sm:text-sm">Enter your Email or Phone Number to RSVP</p>
+        </div>
+        
+        <form class="flex flex-col gap-4 w-full max-w-md" onsubmit="event.preventDefault();">
+          <input 
+            type="text" 
+            placeholder="EMAIL OR PHONE NUMBER" 
+            class="w-full bg-zinc-900 border border-red-900 text-zinc-100 px-4 py-4 text-center tracking-widest focus:outline-none focus:border-red-600 transition-colors lowercase" 
+          />      
+          <button type="button" class="w-full bg-red-800 hover:bg-red-700 text-white font-bold text-lg uppercase tracking-widest py-4 transition-colors">Find My Ticket</button>
+        </form>
+      </div>
+
+    </main>
+  </div>
+</Layout>
