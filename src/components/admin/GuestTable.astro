@@ -4,9 +4,9 @@ interface Props {
 }
 const { allGuests } = Astro.props;
 ---
-<div class="overflow-x-auto bg-zinc-900 border border-zinc-800 shadow-2xl">
+<div class="overflow-x-auto bg-zinc-800/60 backdrop-blur-md border border-zinc-700 rounded-sm shadow-2xl">
   <table class="w-full text-left text-sm text-zinc-300">
-    <thead class="text-xs uppercase bg-zinc-950 text-amber-700 border-b border-zinc-800">
+    <thead class="text-xs uppercase bg-zinc-900/60 text-pink-400 border-b border-zinc-700">
       <tr>
         <th class="px-6 py-4">Name</th>
         <th class="px-6 py-4">Contact</th>
@@ -20,7 +20,7 @@ const { allGuests } = Astro.props;
         const statusStr = guest.hasRsvpd ? (guest.isAttending ? 'attending' : 'declined') : 'pending';
         const searchableText = `${guest.firstName} ${guest.lastName || ''} ${guest.email} ${guest.p1Name || ''} ${guest.p2Name || ''} ${guest.p3Name || ''}`.toLowerCase();
         return (
-          <tr class="guest-row border-b border-zinc-800 hover:bg-zinc-800/50 transition-colors" data-search={searchableText}>
+          <tr class="guest-row border-b border-zinc-700 hover:bg-zinc-700/30 transition-colors" data-search={searchableText}>
             <td class="px-6 py-4 font-medium text-zinc-100">
               <div class="text-base">{guest.firstName} {guest.lastName || ''}</div>
               {guest.allocatedPlusOnes >= 1 && guest.p1Name && (
@@ -67,7 +67,7 @@ const { allGuests } = Astro.props;
               {guest.hasRsvpd ? (guest.isAttending ? <span class="text-emerald-500 font-bold">YES</span> : <span class="text-red-500 font-bold">NO</span>) : <span class="text-zinc-500">Pending</span>}
             </td>
             <td class="px-6 py-4 text-right flex justify-end gap-3">
-              <button type="button" class="trigger-edit-btn text-amber-600 hover:text-amber-400 font-bold uppercase tracking-widest text-xs" 
+              <button type="button" class="trigger-edit-btn text-pink-400 hover:text-pink-300 font-bold uppercase tracking-widest text-xs"
                 data-id={guest.id} data-first={guest.firstName} data-last={guest.lastName || ''} data-email={guest.email || ''} data-phone={guest.phoneNumber || ''}
                 data-role={guest.role} data-alloc={guest.allocatedPlusOnes} data-rsvp={statusStr} data-notes={guest.dietaryNotes || ''} data-song={guest.songRequest || ''}
                 data-p1name={guest.p1Name || ''} data-p1email={guest.p1Email || ''} data-p1phone={guest.p1PhoneNumber || ''} data-p1att={guest.p1Attending} 
