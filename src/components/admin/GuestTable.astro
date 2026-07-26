@@ -8,11 +8,10 @@ const { allGuests } = Astro.props;
   <table class="w-full text-left text-sm text-zinc-300">
     <thead class="text-xs uppercase bg-zinc-900/60 text-pink-400 border-b border-zinc-700">
       <tr>
-        <th class="px-6 py-4">Name</th>
+        <th class="px-6 py-4">Name & RSVP</th>
         <th class="px-6 py-4">Code</th>
         <th class="px-6 py-4">Contact</th>
         <th class="px-6 py-4">Role & Party</th>
-        <th class="px-6 py-4">Main RSVP</th>
         <th class="px-6 py-4 text-right">Actions</th>
       </tr>
     </thead>
@@ -23,26 +22,31 @@ const { allGuests } = Astro.props;
         return (
           <tr class="guest-row border-b border-zinc-700 hover:bg-zinc-700/30 transition-colors" data-search={searchableText}>
             <td class="px-6 py-4 font-medium text-zinc-100">
-              <div class="text-base">{guest.firstName} {guest.lastName || ''}</div>
+              <div class="flex items-center gap-2 text-base">
+                <span>{guest.firstName} {guest.lastName || ''}</span>
+                {guest.hasRsvpd ? 
+                  (guest.isAttending ? <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-1.5 py-0.5 rounded-sm text-[10px] font-bold leading-none">Y</span> : <span class="bg-red-500/20 text-red-400 border border-red-500/50 px-1.5 py-0.5 rounded-sm text-[10px] font-bold leading-none">N</span>) 
+                  : <span class="bg-zinc-700/50 text-zinc-400 border border-zinc-600 px-1.5 py-0.5 rounded-sm text-[10px] font-bold leading-none">P</span>}
+              </div>
               {guest.allocatedPlusOnes >= 1 && guest.p1Name && (
-                <div class="text-xs text-zinc-500 mt-1 uppercase tracking-widest">+1: {guest.p1Name} 
-                  {guest.p1Attending === 'true' ? <span class="text-emerald-500 font-bold ml-1">(Y)</span> : 
-                   guest.p1Attending === 'false' ? <span class="text-red-500 font-bold ml-1">(N)</span> : 
-                   <span class="text-amber-500 font-bold ml-1">(P)</span>}
+                <div class="text-xs text-zinc-500 mt-1.5 uppercase tracking-widest flex items-center gap-2">+1: {guest.p1Name} 
+                  {guest.p1Attending === 'true' ? <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">Y</span> : 
+                   guest.p1Attending === 'false' ? <span class="bg-red-500/20 text-red-400 border border-red-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">N</span> : 
+                  <span class="bg-zinc-700/50 text-zinc-400 border border-zinc-600 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">P</span>}
                 </div>
               )}
               {guest.allocatedPlusOnes >= 2 && guest.p2Name && (
-                <div class="text-xs text-zinc-500 mt-1 uppercase tracking-widest">+2: {guest.p2Name}
-                  {guest.p2Attending === 'true' ? <span class="text-emerald-500 font-bold ml-1">(Y)</span> : 
-                   guest.p2Attending === 'false' ? <span class="text-red-500 font-bold ml-1">(N)</span> : 
-                   <span class="text-amber-500 font-bold ml-1">(P)</span>}
+                <div class="text-xs text-zinc-500 mt-1.5 uppercase tracking-widest flex items-center gap-2">+2: {guest.p2Name}
+                   {guest.p2Attending === 'true' ? <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">Y</span> : 
+                   guest.p2Attending === 'false' ? <span class="bg-red-500/20 text-red-400 border border-red-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">N</span> : 
+                   <span class="bg-zinc-700/50 text-zinc-400 border border-zinc-600 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">P</span>}
                 </div>
               )}
               {guest.allocatedPlusOnes >= 3 && guest.p3Name && (
-                <div class="text-xs text-zinc-500 mt-1 uppercase tracking-widest">+3: {guest.p3Name}
-                  {guest.p3Attending === 'true' ? <span class="text-emerald-500 font-bold ml-1">(Y)</span> : 
-                   guest.p3Attending === 'false' ? <span class="text-red-500 font-bold ml-1">(N)</span> : 
-                   <span class="text-amber-500 font-bold ml-1">(P)</span>}
+                <div class="text-xs text-zinc-500 mt-1.5 uppercase tracking-widest flex items-center gap-2">+3: {guest.p3Name}
+                  {guest.p3Attending === 'true' ? <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">Y</span> : 
+                   guest.p3Attending === 'false' ? <span class="bg-red-500/20 text-red-400 border border-red-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">N</span> : 
+                   <span class="bg-zinc-700/50 text-zinc-400 border border-zinc-600 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">P</span>}
                 </div>
               )}
             </td>
@@ -66,9 +70,6 @@ const { allGuests } = Astro.props;
             <td class="px-6 py-4 uppercase text-xs">
               {guest.role === 'admin' ? <span class="text-amber-500 font-bold">Main Act</span> : guest.role} 
               <br/><span class="text-emerald-500 font-bold">+{guest.allocatedPlusOnes}</span>
-            </td>
-            <td class="px-6 py-4">
-              {guest.hasRsvpd ? (guest.isAttending ? <span class="text-emerald-500 font-bold">YES</span> : <span class="text-red-500 font-bold">NO</span>) : <span class="text-zinc-500">Pending</span>}
             </td>
             <td class="px-6 py-4 text-right flex justify-end gap-3">
               <button type="button" class="trigger-edit-btn text-pink-400 hover:text-pink-300 font-bold uppercase tracking-widest text-xs"

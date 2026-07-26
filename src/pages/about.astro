@@ -50,9 +50,9 @@ const openers = [
       <p class="text-pink-300 font-bold tracking-widest uppercase text-sm mt-4">The wedding party warming up the stage for the main act</p>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div class="flex flex-wrap justify-center gap-6">
       {openers.map(person => (
-        <div class="group relative bg-zinc-800/60 backdrop-blur-md border border-zinc-700 overflow-hidden hover:border-pink-400 transition-colors rounded-sm shadow-lg">
+        <div class="w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] flex-none group relative bg-zinc-800/60 backdrop-blur-md border border-zinc-700 overflow-hidden hover:border-pink-400 transition-colors rounded-sm shadow-lg">
           <div class="aspect-square bg-zinc-900 relative">
             <img 
               src={person.img} 

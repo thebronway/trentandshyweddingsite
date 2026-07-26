@@ -1,44 +1,192 @@
 ---
 import Layout from '../../components/Layout.astro';
 import Nav from '../../components/Nav.astro';
+import { db } from '../../db';
+import { guests } from '../../db/schema';
+
+const formatTime = (date: Date | null) => {
+  if (!date) return '';
+  return new Date(date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+};
+
+const allGuests = await db.select().from(guests);
+
+// Calculate Initial Stats Server-Side
+let expectedTotal = 0;
+let checkedInTotal = 0;
+
+allGuests.forEach(g => {
+  if (g.hasRsvpd && g.isAttending) {
+    expectedTotal++;
+    if (g.isCheckedIn) checkedInTotal++;
+  }
+  if (g.allocatedPlusOnes >= 1 && g.p1Attending === 'true') {
+    expectedTotal++;
+    if (g.p1CheckedIn) checkedInTotal++;
+  }
+  if (g.allocatedPlusOnes >= 2 && g.p2Attending === 'true') {
+    expectedTotal++;
+    if (g.p2CheckedIn) checkedInTotal++;
+  }
+  if (g.allocatedPlusOnes >= 3 && g.p3Attending === 'true') {
+    expectedTotal++;
+    if (g.p3CheckedIn) checkedInTotal++;
+  }
+});
 ---
-<Layout title="Backstage Access">
+<Layout title="Guest Check-In">
   <Nav />
-  <main class="max-w-4xl mx-auto p-6 w-full mt-8">
+  <main class="max-w-5xl mx-auto p-4 sm:p-6 w-full mt-8">
     
-    <h1 class="text-4xl md:text-6xl text-zinc-100 font-display mb-2 uppercase text-center">Backstage Access</h1>
-    <p class="text-zinc-500 uppercase tracking-widest text-sm font-bold mb-12 text-center">Wedding Party Eyes Only</p>
-    
-    <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 p-8 mb-8 border-l-4 border-l-pink-400 shadow-xl rounded-sm">
-      <h2 class="text-3xl text-white font-display mb-2 uppercase tracking-widest">The Pre-Party (Bachelor Weekend)</h2>
-      <p class="text-pink-300 font-bold uppercase tracking-wider text-xs mb-4">Dates TBD • Cabin in the Woods</p>
-      <div class="text-zinc-300 leading-relaxed space-y-4">
-        <p>We're doing a combined camping trip in the middle of nowhere. Expect cheap beer, a fire pit, and extremely loud music. We are handling the Airbnb booking, so just be ready to venmo when we text the group thread.</p>
+    <div class="flex flex-col sm:flex-row justify-between items-end border-b border-zinc-700 pb-4 mb-6">
+      <div>
+        <h1 class="text-4xl md:text-5xl text-zinc-100 font-display mb-1 uppercase">Door Check-In</h1>
+        <p class="text-zinc-500 uppercase tracking-widest text-xs font-bold">Backstage Access Only</p>
+      </div>
+      <div class="flex gap-4 mt-4 sm:mt-0 text-right">
+        <div class="bg-zinc-900/80 border border-zinc-700 p-3 rounded-sm min-w-[100px]">
+          <div class="text-3xl font-display text-emerald-400 leading-none" id="checked-in-counter">{checkedInTotal}</div>
+          <div class="text-[9px] uppercase tracking-widest text-zinc-500 mt-1">Checked In</div>
+        </div>
+        <div class="bg-zinc-900/80 border border-zinc-700 p-3 rounded-sm min-w-[100px]">
+          <div class="text-3xl font-display text-zinc-300 leading-none" id="remaining-counter">{expectedTotal - checkedInTotal}</div>
+          <div class="text-[9px] uppercase tracking-widest text-zinc-500 mt-1">Remaining</div>
+        </div>
       </div>
     </div>
 
-    <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 p-8 mb-8 border-l-4 border-l-pink-500 shadow-xl rounded-sm">
-      <h2 class="text-3xl text-white font-display mb-2 uppercase tracking-widest">Rehearsal & Dinner</h2>
-      <p class="text-pink-400 font-bold uppercase tracking-wider text-xs mb-4">Call Time: 6:00 PM • TUI Demo Stairs</p>
-      <div class="text-zinc-300 leading-relaxed space-y-4">
-        <p>Rehearsal kicks off at 6:00 PM. After that, we are dragging the entire wedding party to the Trapped Under Ice Demo stairs to get photos, because that's sick as hell. Dinner to follow immediately after.</p>
+    <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 p-4 shadow-xl rounded-sm mb-6 flex flex-col md:flex-row gap-4 items-center">
+      <input type="text" id="guest-search" placeholder="Search by name..." class="flex-1 w-full bg-zinc-900 border border-zinc-700 text-zinc-100 px-4 py-3 focus:outline-none focus:border-pink-400 uppercase text-sm tracking-widest rounded-sm" />
+      
+      <div class="flex flex-wrap gap-2 w-full md:w-auto">
+        <button class="filter-btn active bg-pink-600 text-white font-bold uppercase tracking-widest text-xs px-4 py-3 rounded-sm transition-colors" data-filter="all">All</button>
+        <button class="filter-btn bg-zinc-900 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 font-bold uppercase tracking-widest text-xs px-4 py-3 rounded-sm transition-colors" data-filter="expected">Expected</button>
+        <button class="filter-btn bg-zinc-900 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 font-bold uppercase tracking-widest text-xs px-4 py-3 rounded-sm transition-colors" data-filter="checked-in">Checked In</button>
+        <button class="filter-btn bg-zinc-900 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 font-bold uppercase tracking-widest text-xs px-4 py-3 rounded-sm transition-colors" data-filter="needs-approval">Issues / Pending</button>
       </div>
     </div>
 
-    <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 p-8 mb-8 border-l-4 border-l-zinc-300 shadow-xl rounded-sm">
-      <h2 class="text-3xl text-zinc-100 font-display mb-2 uppercase tracking-widest">Day-Of Logistics & Photos</h2>
-      <p class="text-zinc-500 font-bold uppercase tracking-wider text-xs mb-4">Call Time: TBD</p>
-      <div class="text-zinc-300 leading-relaxed space-y-4">
-        <p>We are still sorting out exactly where the wedding party is staying, but expect to be getting ready together. We will update this page with exact call times for hair, makeup, and pre-show photos as we get closer to the date.</p>
-      </div>
-    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="guest-list">
+      {allGuests.sort((a, b) => a.lastName?.localeCompare(b.lastName || '') || 0).map(guest => {
+        // Determine Party Expectations
+        const mainExpected = guest.hasRsvpd && guest.isAttending;
+        const p1Expected = guest.allocatedPlusOnes >= 1 && guest.p1Attending === 'true';
+        const p2Expected = guest.allocatedPlusOnes >= 2 && guest.p2Attending === 'true';
+        const p3Expected = guest.allocatedPlusOnes >= 3 && guest.p3Attending === 'true';
+        
+        const anyExpected = mainExpected || p1Expected || p2Expected || p3Expected;
+        const totalInParty = (mainExpected ? 1 : 0) + (p1Expected ? 1 : 0) + (p2Expected ? 1 : 0) + (p3Expected ? 1 : 0);
+        
+        const filterClass = anyExpected ? 'guest-card-expected' : 'guest-card-needs-approval';
+        const searchString = `${guest.firstName} ${guest.lastName || ''} ${guest.p1Name || ''} ${guest.p2Name || ''} ${guest.p3Name || ''}`.toLowerCase();
 
-    <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 p-8 mb-8 border-l-4 border-l-emerald-500 shadow-xl rounded-sm">
-      <h2 class="text-3xl text-zinc-100 font-display mb-2 uppercase tracking-widest">Day-Of Load-In</h2>
-      <p class="text-emerald-500 font-bold uppercase tracking-wider text-xs mb-4">Call Time: 1:00 PM Sharp</p>
-      <div class="text-zinc-300 leading-relaxed space-y-4">
-        <p>Do not be late. Show up to the venue completely ready. We are doing wedding party photos first so we can hit the bar before the ceremony starts.</p>
-      </div>
+        return (
+          <div class={`guest-card ${filterClass} bg-zinc-800/60 backdrop-blur-md border ${anyExpected ? 'border-zinc-700' : 'border-red-900/50 bg-red-950/20'} p-5 shadow-xl rounded-sm flex flex-col`} data-search={searchString}>
+            
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                  <h3 class="text-xl font-display text-white uppercase tracking-wider leading-none">{guest.lastName ? `${guest.lastName}, ` : ''}{guest.firstName}</h3>
+                  <span class={`text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-sm ${guest.role === 'admin' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : guest.role === 'party' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' : 'bg-zinc-700/50 text-zinc-400 border border-zinc-600'}`}>
+                    {guest.role === 'admin' ? 'Main Act' : guest.role}
+                  </span>
+                </div>
+                {guest.email && <p class="text-zinc-500 text-xs">{guest.email}</p>}
+              </div>
+            </div>
+
+            {guest.dietaryNotes && (
+              <div class="mb-4 bg-amber-950/50 border border-amber-500/50 text-amber-300 p-2 text-xs uppercase tracking-wider font-bold rounded-sm flex items-center gap-2">
+                <span class="text-lg">⚠️</span> {guest.dietaryNotes}
+              </div>
+            )}
+
+            <div class="flex-1 space-y-2 mb-4">
+              {/* Main Guest */}
+              <div class={`flex justify-between items-center p-2 rounded-sm border ${mainExpected ? 'border-zinc-700 bg-zinc-900/50' : 'border-red-900/30 bg-red-950/30 opacity-50'}`}>
+                <div class="flex flex-col">
+                  <span class="text-sm text-zinc-200 uppercase font-bold tracking-widest">{guest.firstName} {guest.lastName || ''} (Main)</span>
+                  {!mainExpected && <span class="text-[9px] text-red-400 font-bold uppercase tracking-widest">{guest.hasRsvpd ? 'Declined' : 'Pending'}</span>}
+                  {mainExpected && <span class="checkin-time text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{guest.isCheckedIn ? formatTime(guest.checkInTime) : ''}</span>}
+                </div>
+                {mainExpected ? (
+                  <button class="checkin-toggle text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-sm transition-colors data-[status=true]:bg-emerald-600 data-[status=true]:text-white data-[status=false]:bg-zinc-700 data-[status=false]:text-zinc-300 hover:opacity-80" data-id={guest.id} data-target="main" data-status={guest.isCheckedIn ? 'true' : 'false'}>
+                    {guest.isCheckedIn ? 'Undo' : 'Check In'}
+                  </button>
+                ) : (
+                  <div class="text-[10px] text-red-400 font-bold uppercase tracking-widest px-3 py-2 border border-red-500/30 bg-red-950/20 rounded-sm text-center cursor-not-allowed">
+                    See Officiant
+                  </div>
+                )}
+              </div>
+
+              {/* Plus Ones */}
+              {guest.allocatedPlusOnes >= 1 && (
+                 <div class={`flex justify-between items-center p-2 rounded-sm border ${p1Expected ? 'border-zinc-700 bg-zinc-900/50' : 'border-red-900/30 bg-red-950/30 opacity-50'}`}>
+                  <div class="flex flex-col">
+                    <span class="text-sm text-zinc-300 uppercase font-bold tracking-widest">+1: {guest.p1Name || 'Guest'}</span>
+                    {!p1Expected && <span class="text-[9px] text-red-400 font-bold uppercase tracking-widest">{guest.p1Attending === 'false' ? 'Declined' : 'Pending'}</span>}
+                    {p1Expected && <span class="checkin-time text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{guest.p1CheckedIn ? formatTime(guest.p1CheckInTime) : ''}</span>}
+                  </div>
+                  {p1Expected ? (
+                    <button class="checkin-toggle text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-sm transition-colors data-[status=true]:bg-emerald-600 data-[status=true]:text-white data-[status=false]:bg-zinc-700 data-[status=false]:text-zinc-300 hover:opacity-80" data-id={guest.id} data-target="p1" data-status={guest.p1CheckedIn ? 'true' : 'false'}>
+                      {guest.p1CheckedIn ? 'Undo' : 'Check In'}
+                    </button>
+                  ) : (
+                    <div class="text-[10px] text-red-400 font-bold uppercase tracking-widest px-3 py-2 border border-red-500/30 bg-red-950/20 rounded-sm text-center cursor-not-allowed">
+                      See Officiant
+                    </div>
+                  )}
+                </div>
+              )}
+              {guest.allocatedPlusOnes >= 2 && (
+                 <div class={`flex justify-between items-center p-2 rounded-sm border ${p2Expected ? 'border-zinc-700 bg-zinc-900/50' : 'border-red-900/30 bg-red-950/30 opacity-50'}`}>
+                  <div class="flex flex-col">
+                    <span class="text-sm text-zinc-300 uppercase font-bold tracking-widest">+2: {guest.p2Name || 'Guest'}</span>
+                    {!p2Expected && <span class="text-[9px] text-red-400 font-bold uppercase tracking-widest">{guest.p2Attending === 'false' ? 'Declined' : 'Pending'}</span>}
+                    {p2Expected && <span class="checkin-time text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{guest.p2CheckedIn ? formatTime(guest.p2CheckInTime) : ''}</span>}
+                  </div>
+                  {p2Expected ? (
+                    <button class="checkin-toggle text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-sm transition-colors data-[status=true]:bg-emerald-600 data-[status=true]:text-white data-[status=false]:bg-zinc-700 data-[status=false]:text-zinc-300 hover:opacity-80" data-id={guest.id} data-target="p2" data-status={guest.p2CheckedIn ? 'true' : 'false'}>
+                      {guest.p2CheckedIn ? 'Undo' : 'Check In'}
+                    </button>
+                  ) : (
+                    <div class="text-[10px] text-red-400 font-bold uppercase tracking-widest px-3 py-2 border border-red-500/30 bg-red-950/20 rounded-sm text-center cursor-not-allowed">
+                      See Officiant
+                    </div>
+                  )}
+                </div>
+              )}
+              {guest.allocatedPlusOnes >= 3 && (
+                 <div class={`flex justify-between items-center p-2 rounded-sm border ${p3Expected ? 'border-zinc-700 bg-zinc-900/50' : 'border-red-900/30 bg-red-950/30 opacity-50'}`}>
+                  <div class="flex flex-col">
+                    <span class="text-sm text-zinc-300 uppercase font-bold tracking-widest">+3: {guest.p3Name || 'Guest'}</span>
+                    {!p3Expected && <span class="text-[9px] text-red-400 font-bold uppercase tracking-widest">{guest.p3Attending === 'false' ? 'Declined' : 'Pending'}</span>}
+                    {p3Expected && <span class="checkin-time text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{guest.p3CheckedIn ? formatTime(guest.p3CheckInTime) : ''}</span>}
+                  </div>
+                  {p3Expected ? (
+                    <button class="checkin-toggle text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-sm transition-colors data-[status=true]:bg-emerald-600 data-[status=true]:text-white data-[status=false]:bg-zinc-700 data-[status=false]:text-zinc-300 hover:opacity-80" data-id={guest.id} data-target="p3" data-status={guest.p3CheckedIn ? 'true' : 'false'}>
+                      {guest.p3CheckedIn ? 'Undo' : 'Check In'}
+                    </button>
+                  ) : (
+                    <div class="text-[10px] text-red-400 font-bold uppercase tracking-widest px-3 py-2 border border-red-500/30 bg-red-950/20 rounded-sm text-center cursor-not-allowed">
+                      See Officiant
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {totalInParty > 1 && anyExpected && (
+              <button class="check-in-all-btn w-full bg-zinc-200 hover:bg-white text-zinc-900 font-bold uppercase tracking-widest py-2 rounded-sm text-xs mt-auto transition-colors">
+                Check In Entire Party ({totalInParty})
+              </button>
+            )}
+          </div>
+        )
+      })}
     </div>
   </main>
 </Layout>
+
+<script src="../../scripts/backstage.js"></script>
