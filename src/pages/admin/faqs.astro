@@ -43,17 +43,48 @@ const allFaqs = await db.select().from(faqs).orderBy(asc(faqs.sortOrder));
           <li data-id={faq.id} class="bg-zinc-900/60 border border-zinc-700 rounded-sm p-4 flex flex-col cursor-move hover:border-pink-400 transition-colors">
             <div class="flex justify-between items-start mb-2">
               <strong class="text-zinc-100 text-lg uppercase tracking-wider">{faq.question}</strong>
-              <form action="/api/admin/faqs" method="POST" onsubmit="return confirm('Delete this FAQ?');">
-                <input type="hidden" name="action" value="delete" />
-                <input type="hidden" name="id" value={faq.id} />
-                <button type="submit" class="text-red-600 font-bold px-2 hover:text-red-400">X</button>
-              </form>
+              <div class="flex items-center gap-4">
+                <button type="button" class="trigger-edit-faq text-pink-400 hover:text-pink-300 font-bold uppercase tracking-widest text-xs" data-id={faq.id} data-question={faq.question} data-answer={faq.answer}>
+                  Edit
+                </button>
+                <form action="/api/admin/faqs" method="POST" onsubmit="return confirm('Delete this FAQ?');">
+                  <input type="hidden" name="action" value="delete" />
+                  <input type="hidden" name="id" value={faq.id} />
+                  <button type="submit" class="text-red-600 font-bold px-2 hover:text-red-400">X</button>
+                </form>
+              </div>
             </div>
             <div class="text-sm text-zinc-400 prose prose-invert max-w-none" set:html={faq.answer}></div>
           </li>
         ))}
       </ul>
       <button id="save-order-btn" class="mt-6 bg-zinc-200 hover:bg-white text-zinc-900 font-bold uppercase px-8 py-2 w-full hidden rounded-sm transition-colors">Save New Order</button>
+    </div>
+
+    <div id="edit-faq-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+      <div class="bg-zinc-800/90 backdrop-blur-xl border border-zinc-700 p-6 shadow-2xl border-l-4 border-l-pink-400 w-full max-w-2xl rounded-sm">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest">Edit FAQ</h2>
+          <button type="button" class="close-edit-faq text-zinc-500 hover:text-zinc-300 font-bold">X</button>
+        </div>
+        <form action="/api/admin/faqs" method="POST" class="space-y-4">
+          <input type="hidden" name="action" value="edit" />
+          <input type="hidden" name="id" id="edit-faq-id" />
+          <div>
+            <label class="block text-xs font-bold uppercase text-zinc-500 mb-1">Question</label>
+            <input type="text" name="question" id="edit-faq-question" required class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-3 py-2 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-zinc-500 mb-1">Answer (Rich Text)</label>
+            <input id="edit-faq-answer-input" type="hidden" name="answer">
+            <trix-editor id="edit-faq-trix" input="edit-faq-answer-input" class="bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 min-h-[150px] focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors"></trix-editor>
+          </div>
+          <div class="flex justify-end gap-4 mt-4 border-t border-zinc-800 pt-4">
+            <button type="button" class="close-edit-faq bg-zinc-700 hover:bg-zinc-600 text-zinc-200 font-bold uppercase px-6 py-2 rounded-sm transition-colors">Cancel</button>
+            <button type="submit" class="bg-zinc-200 hover:bg-white text-zinc-900 font-bold uppercase px-8 py-2 rounded-sm transition-colors">Save Changes</button>
+          </div>
+        </form>
+      </div>
     </div>
   </main>
 </Layout>
@@ -81,5 +112,27 @@ const allFaqs = await db.select().from(faqs).orderBy(asc(faqs.sortOrder));
       window.location.reload();
     });
   }
+
+  // Edit FAQ Modal Logic
+  document.querySelectorAll('.trigger-edit-faq').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const el = e.currentTarget;
+      document.getElementById('edit-faq-id').value = el.getAttribute('data-id') || '';
+      document.getElementById('edit-faq-question').value = el.getAttribute('data-question') || '';
+      
+      const answer = el.getAttribute('data-answer') || '';
+      document.getElementById('edit-faq-answer-input').value = answer;
+      document.getElementById('edit-faq-trix').editor.loadHTML(answer);
+      
+      document.getElementById('edit-faq-modal').classList.remove('hidden');
+    });
+  });
+
+  document.querySelectorAll('.close-edit-faq').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('edit-faq-modal').classList.add('hidden');
+    });
+  });
+
 })();
 </script>

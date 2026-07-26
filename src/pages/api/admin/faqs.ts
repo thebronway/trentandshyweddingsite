@@ -30,6 +30,12 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     const maxOrder = all.length > 0 ? Math.max(...all.map(f => f.sortOrder)) : -1;
 
     await db.insert(faqs).values({ question, answer, sortOrder: maxOrder + 1 });
+  } else if (action === 'edit') {
+    const id = parseInt(formData.get('id')?.toString() || '0');
+    const question = formData.get('question')?.toString() || '';
+    const answer = formData.get('answer')?.toString() || '';
+    
+    if (id) await db.update(faqs).set({ question, answer }).where(eq(faqs.id, id));
   } else if (action === 'delete') {
     const id = parseInt(formData.get('id')?.toString() || '0');
     if (id) await db.delete(faqs).where(eq(faqs.id, id));
