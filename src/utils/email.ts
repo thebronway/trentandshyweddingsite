@@ -33,7 +33,7 @@ function generateCSV(guests: any[]) {
 // Helper: Build the dark/metal themed HTML for the guest
 function buildGuestEmailHtml(guest: any, isUpdate: boolean, closeDate: Date | null) {
   const formattedCloseDate = closeDate 
-    ? new Date(closeDate).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })
+    ? new Date(closeDate).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })
     : "the deadline";
 
   const title = isUpdate ? "Your RSVP Has Been Updated" : "You're on the Guest List";

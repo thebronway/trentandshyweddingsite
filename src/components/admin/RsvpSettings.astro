@@ -7,9 +7,8 @@ const { siteSettings, success } = Astro.props;
 
 const formatDateForInput = (dateObj: Date) => {
   if (!dateObj) return '';
-  const d = new Date(dateObj.getTime());
-  d.setTime(d.getTime() - (4 * 60 * 60 * 1000));
-  return d.toISOString().slice(0, 16);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}T${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
 };
 ---
 <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 rounded-sm p-4 sm:p-6 shadow-2xl">
@@ -18,11 +17,11 @@ const formatDateForInput = (dateObj: Date) => {
   <form action="/api/admin/settings" method="POST" class="space-y-4">
     <div class="grid grid-cols-2 gap-4">
       <div>
-        <label class="block text-[9px] font-bold uppercase tracking-widest text-pink-400 mb-1">Open Date (EDT)</label>
+        <label class="block text-[9px] font-bold uppercase tracking-widest text-pink-400 mb-1">Open Date</label>
         <input type="datetime-local" name="rsvpOpenDate" value={formatDateForInput(siteSettings.rsvpOpenDate)} required class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-2 py-1 text-xs focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors" />
       </div>
       <div>
-        <label class="block text-[9px] font-bold uppercase tracking-widest text-pink-400 mb-1">Close Date (EDT)</label>
+        <label class="block text-[9px] font-bold uppercase tracking-widest text-pink-400 mb-1">Close Date</label>
         <input type="datetime-local" name="rsvpCloseDate" value={formatDateForInput(siteSettings.rsvpCloseDate)} required class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-2 py-1 text-xs focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors" />
       </div>
     </div>

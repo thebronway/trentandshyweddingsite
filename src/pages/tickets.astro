@@ -13,7 +13,6 @@ const isSuccess = Astro.url.searchParams.get('success');
 // Date Formatter
 const formatDateTime = (dateObj: Date) => {
   return new Date(dateObj).toLocaleString('en-US', {
-    timeZone: 'America/New_York',
     month: 'long',
     day: 'numeric',
     year: 'numeric',
@@ -110,7 +109,7 @@ if (searchValue.includes('@')) {
           Please use the <strong>four-digit code</strong> provided on the back of your invitation to RSVP for your party. 
         </p>
         <p class="text-zinc-500 text-xs italic">
-          If you're having difficulties, you can also search using a valid email address or phone number belonging to anyone listed on your invitation (or reach out to Trent and Shy at shrentshredding@gmail.com).
+          If you're having difficulties, you can also search using a email address or phone number (that Trent or Shy knows) belonging to anyone listed on your invitation (or reach out to Trent and Shy at shrentshredding@gmail.com).
         </p>
       </div>
       <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 rounded-sm p-5 sm:p-8 shadow-2xl flex flex-col items-center">
@@ -133,7 +132,7 @@ if (searchValue.includes('@')) {
             type="text" 
             name="searchValue" 
             required 
-            placeholder="4-DIGIT CODE, EMAIL, OR PHONE" 
+            placeholder="1 2 3 4" 
             class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 px-4 py-4 text-center tracking-widest focus:outline-none focus:border-pink-400 transition-colors uppercase rounded-sm"
           />     
           <button type="submit" class="w-full bg-zinc-200 hover:bg-white text-zinc-900 font-bold text-lg uppercase tracking-widest py-4 transition-colors rounded-sm">Find My Ticket</button>

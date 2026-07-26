@@ -8,9 +8,8 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const openDateStr = formData.get('rsvpOpenDate')?.toString() || '';
   const closeDateStr = formData.get('rsvpCloseDate')?.toString() || '';
 
-  // Append explicit EDT timezone (-04:00) so the server doesn't save it as UTC
-  const rsvpOpenDate = new Date(`${openDateStr}-04:00`);
-  const rsvpCloseDate = new Date(`${closeDateStr}-04:00`);
+  const rsvpOpenDate = new Date(openDateStr);
+  const rsvpCloseDate = new Date(closeDateStr);
   
   const earlyMessage = formData.get('earlyMessage')?.toString() || '';
   const lateMessage = formData.get('lateMessage')?.toString() || '';
