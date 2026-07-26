@@ -19,6 +19,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
         lastName: row.LastName || null,
         email: row.Email || null,
         phoneNumber: row.Phone || null,
+        partyCode: row.PartyCode || null,
         role: row.Role || 'guest',
         allocatedPlusOnes: parseInt(row.PartyAlloc) || 0,
         hasRsvpd: false,

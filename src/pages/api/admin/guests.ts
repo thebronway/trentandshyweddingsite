@@ -18,10 +18,12 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const rawPhone = formData.get('phoneNumber')?.toString() || null;
   const phoneNumber = rawPhone ? rawPhone.replace(/\D/g, '').replace(/^1/, '') : null;
 
+  Replace:
   if (!email && !phoneNumber && action !== 'delete') {
     return redirect('/admin/?error=duplicate'); 
   }
 
+  const partyCode = formData.get('partyCode')?.toString().trim().toUpperCase() || null;
   const role = formData.get('role')?.toString() || 'guest';
   const allocatedPlusOnes = Number(formData.get('allocatedPlusOnes')) || 0;
 
@@ -102,7 +104,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   if (action === 'edit' && id) {
     try {
       await db.update(guests).set({ 
-        firstName, lastName, email, phoneNumber, role, allocatedPlusOnes, hasRsvpd, isAttending, dietaryNotes, songRequest,
+        firstName, lastName, email, phoneNumber, partyCode, role, allocatedPlusOnes, hasRsvpd, isAttending, dietaryNotes, songRequest,
         p1Name, p1Email, p1PhoneNumber, p1Attending, 
         p2Name, p2Email, p2PhoneNumber, p2Attending, 
         p3Name, p3Email, p3PhoneNumber, p3Attending
@@ -124,7 +126,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   if (action === 'add') {
     try {
       await db.insert(guests).values({
-        firstName, lastName, email, phoneNumber, role, allocatedPlusOnes, hasRsvpd: false, isAttending: false
+        firstName, lastName, email, phoneNumber, partyCode, role, allocatedPlusOnes, hasRsvpd: false, isAttending: false
       });
       
       const conditions = [];

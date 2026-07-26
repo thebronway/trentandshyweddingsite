@@ -9,6 +9,7 @@ const { allGuests } = Astro.props;
     <thead class="text-xs uppercase bg-zinc-900/60 text-pink-400 border-b border-zinc-700">
       <tr>
         <th class="px-6 py-4">Name</th>
+        <th class="px-6 py-4">Code</th>
         <th class="px-6 py-4">Contact</th>
         <th class="px-6 py-4">Role & Party</th>
         <th class="px-6 py-4">Main RSVP</th>
@@ -45,6 +46,9 @@ const { allGuests } = Astro.props;
                 </div>
               )}
             </td>
+            <td class="px-6 py-4 font-mono text-pink-400 font-bold tracking-widest">
+              {guest.partyCode || 'NONE'}
+            </td>
             <td class="px-6 py-4">
               {guest.email && <div>{guest.email}</div>}
               {guest.phoneNumber && <div class="text-zinc-400">{guest.phoneNumber}</div>}
@@ -68,7 +72,7 @@ const { allGuests } = Astro.props;
             </td>
             <td class="px-6 py-4 text-right flex justify-end gap-3">
               <button type="button" class="trigger-edit-btn text-pink-400 hover:text-pink-300 font-bold uppercase tracking-widest text-xs"
-                data-id={guest.id} data-first={guest.firstName} data-last={guest.lastName || ''} data-email={guest.email || ''} data-phone={guest.phoneNumber || ''}
+                data-id={guest.id} data-code={guest.partyCode || ''} data-first={guest.firstName} data-last={guest.lastName || ''} data-email={guest.email || ''} data-phone={guest.phoneNumber || ''}
                 data-role={guest.role} data-alloc={guest.allocatedPlusOnes} data-rsvp={statusStr} data-notes={guest.dietaryNotes || ''} data-song={guest.songRequest || ''}
                 data-p1name={guest.p1Name || ''} data-p1email={guest.p1Email || ''} data-p1phone={guest.p1PhoneNumber || ''} data-p1att={guest.p1Attending} 
                 data-p2name={guest.p2Name || ''} data-p2email={guest.p2Email || ''} data-p2phone={guest.p2PhoneNumber || ''} data-p2att={guest.p2Attending} 
@@ -97,6 +101,7 @@ const { allGuests } = Astro.props;
       document.getElementById('edit-error')?.classList.add('hidden');
 
       (document.getElementById('edit-id') as HTMLInputElement).value = el.getAttribute('data-id') || '';
+      (document.getElementById('edit-code') as HTMLInputElement).value = el.getAttribute('data-code') || '';
       (document.getElementById('edit-first') as HTMLInputElement).value = el.getAttribute('data-first') || '';
       (document.getElementById('edit-last') as HTMLInputElement).value = el.getAttribute('data-last') || '';
       (document.getElementById('edit-email') as HTMLInputElement).value = el.getAttribute('data-email') || '';

@@ -6,6 +6,7 @@ export const guests = pgTable('guests', {
   lastName: text('last_name'),
  email: text('email').unique(),
   phoneNumber: text('phone_number').unique(),
+  partyCode: text('party_code').unique(),
   role: text('role').notNull(),
   
   allocatedPlusOnes: integer('allocated_plus_ones').default(0).notNull(),

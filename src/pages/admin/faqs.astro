@@ -54,7 +54,7 @@ const allFaqs = await db.select().from(faqs).orderBy(asc(faqs.sortOrder));
                 </form>
               </div>
             </div>
-            <div class="text-sm text-zinc-400 prose prose-invert max-w-none" set:html={faq.answer}></div>
+            <div class="text-sm text-zinc-400 prose prose-invert max-w-none [&_a]:text-pink-400 [&_a]:font-bold [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-pink-300 transition-colors" set:html={faq.answer}></div>
           </li>
         ))}
       </ul>
