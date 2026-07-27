@@ -8,6 +8,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const formData = await request.formData();
   const action = formData.get('action')?.toString();
   const id = Number(formData.get('id'));
+  const suppressEmail = formData.get('suppressEmail') === 'true';
 
   const firstName = formData.get('firstName')?.toString().trim() || '';
   const lastName = formData.get('lastName')?.toString().trim() || null;
@@ -95,7 +96,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     await db.delete(guests).where(eq(guests.id, id));
     
     const allGuests = await db.select().from(guests);
-    if (deletedGuest.length > 0) {
+    if (deletedGuest.length > 0 && !suppressEmail) {
       await sendAdminNotification(deletedGuest[0], allGuests, 'Admin Deleted Guest');
     }
     return redirect('/admin/');
@@ -112,7 +113,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
       
       const editedGuest = await db.select().from(guests).where(eq(guests.id, id));
       const allGuests = await db.select().from(guests);
-      if (editedGuest.length > 0) {
+      if (editedGuest.length > 0 && !suppressEmail) {
         await sendAdminNotification(editedGuest[0], allGuests, 'Admin Edited Guest');
       }
       if (isAjax) return new Response(JSON.stringify({ success: true }), { status: 200, headers: { 'Content-Type': 'application/json' }});
@@ -134,7 +135,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
       if (phoneNumber) conditions.push(eq(guests.phoneNumber, phoneNumber));
       const newGuest = await db.select().from(guests).where(conditions[0]);
       const allGuests = await db.select().from(guests);
-      if (newGuest.length > 0) {
+      if (newGuest.length > 0 && !suppressEmail) {
         await sendAdminNotification(newGuest[0], allGuests, 'Admin Added Guest');
       }
       if (isAjax) return new Response(JSON.stringify({ success: true }), { status: 200, headers: { 'Content-Type': 'application/json' }});

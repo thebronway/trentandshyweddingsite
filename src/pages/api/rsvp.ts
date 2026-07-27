@@ -4,7 +4,7 @@ import { guests, settings } from '../../db/schema';
 import { eq } from 'drizzle-orm';
 import { sendGuestConfirmation, sendAdminNotification } from '../../utils/email';
 
-export const POST: APIRoute = async ({ request, redirect }) => {
+export const POST: APIRoute = async ({ request, redirect, cookies }) => {
   const formData = await request.formData();
   const idStr = formData.get('id')?.toString();
   
@@ -23,13 +23,21 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const phoneNumber = rawPhone ? rawPhone.replace(/\D/g, '').replace(/^1/, '') : null;
   
   if (!email && !phoneNumber) {
+      cookies.set('rsvp_session', id.toString(), { path: '/', httpOnly: true, secure: import.meta.env.PROD, sameSite: 'lax', maxAge: 60 * 60 });
       return redirect('/tickets?error=duplicate');
   }
 
   const isAttending = formData.get('isAttending') === 'true';
-  const p1Attending = formData.get('p1Attending')?.toString() || 'pending';
-  const p2Attending = formData.get('p2Attending')?.toString() || 'pending';
-  const p3Attending = formData.get('p3Attending')?.toString() || 'pending';
+  let p1Attending = formData.get('p1Attending')?.toString() || 'pending';
+  let p2Attending = formData.get('p2Attending')?.toString() || 'pending';
+  let p3Attending = formData.get('p3Attending')?.toString() || 'pending';
+
+  // BACKEND GUARD: Enforce Cascading "No"
+  if (!isAttending) {
+    p1Attending = 'false';
+    p2Attending = 'false';
+    p3Attending = 'false';
+  }
   
   const extractPhone = (val: string | undefined) => val ? val.replace(/\D/g, '').replace(/^1/, '') : null;
   let p1Email = formData.get('p1Email')?.toString().trim().toLowerCase() || null;
@@ -63,6 +71,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     const hasDupPhone = submittedPhones.some(p => existingPhones.includes(p));
 
     if (hasDupEmail || hasDupPhone) {
+      cookies.set('rsvp_session', id.toString(), { path: '/', httpOnly: true, secure: import.meta.env.PROD, sameSite: 'lax', maxAge: 60 * 60 });
       return redirect('/tickets?error=duplicate');
     }
   }
@@ -86,6 +95,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
       .where(eq(guests.id, id));
   } catch (e: any) {
     if (e.code === '23505') { // Postgres Unique Violation
+      cookies.set('rsvp_session', id.toString(), { path: '/', httpOnly: true, secure: import.meta.env.PROD, sameSite: 'lax', maxAge: 60 * 60 });
       return redirect('/tickets?error=duplicate');
     }
     console.error("Database update error:", e);
@@ -110,5 +120,6 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     await sendAdminNotification(party, allGuests, isUpdate ? 'Updated RSVP' : 'Initial RSVP');
   }
 
+  cookies.delete('rsvp_session', { path: '/' });
   return redirect('/tickets?success=true');
 };

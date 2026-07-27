@@ -24,9 +24,12 @@ export const onRequest = defineMiddleware((context, next) => {
     }
   }
 
-  // 3. Protect the /backstage pages (Wedding Party & Admins)
-  if (url.pathname.startsWith('/backstage')) {
+  // 3. Protect the /backstage pages AND APIs (Wedding Party & Admins)
+  if (url.pathname.startsWith('/backstage') || url.pathname.startsWith('/api/backstage')) {
     if (role !== 'party' && role !== 'admin') {
+      if (url.pathname.startsWith('/api/')) {
+        return new Response('Unauthorized', { status: 401 });
+      }
       return redirect('/'); 
     }
   }

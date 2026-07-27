@@ -26,6 +26,15 @@ const formatDateTime = (dateObj: Date) => {
 const siteSettingsQuery = await db.select().from(settings).limit(1);
 const siteSettings = siteSettingsQuery[0];
 const now = new Date();
+
+if (Astro.url.searchParams.get('action') === 'logout') {
+  Astro.cookies.delete('rsvp_session', { path: '/' });
+  return Astro.redirect('/tickets');
+}
+
+if (Astro.request.method === 'GET' && !Astro.url.searchParams.has('error')) {
+  Astro.cookies.delete('rsvp_session', { path: '/' });
+}
 let canRsvp = true;
 let customMessage = null;
 
@@ -39,7 +48,13 @@ if (siteSettings) {
   }
 }
 
-if (Astro.request.method === 'POST' && canRsvp) {
+const sessionCookie = Astro.cookies.get('rsvp_session');
+if (sessionCookie && canRsvp) {
+  const found = await db.select().from(guests).where(eq(guests.id, parseInt(sessionCookie.value, 10)));
+  if (found.length > 0) guestRecord = found[0];
+}
+
+if (Astro.request.method === 'POST' && canRsvp && !guestRecord) {
   const data = await Astro.request.formData();
   const searchValue = data.get('searchValue')?.toString().trim().toLowerCase() || '';
 
@@ -72,6 +87,8 @@ if (searchValue.includes('@')) {
     const found = await db.select().from(guests).where(or(...conditions));
     if (found.length > 0) {
       guestRecord = found[0];
+      // Hand out the invisible wristband upon successful search
+      Astro.cookies.set('rsvp_session', guestRecord.id.toString(), { path: '/', httpOnly: true, secure: import.meta.env.PROD, sameSite: 'lax', maxAge: 60 * 60 });
     } else {
       lookupError = "We couldn't find those details on the VIP list. Please try again or reach out to Trent or Shy.";
     }
@@ -85,7 +102,7 @@ if (searchValue.includes('@')) {
     {isSuccess && !guestRecord && (
       <div class="bg-emerald-900/50 border border-emerald-500 text-emerald-200 p-6 mb-8 text-center shadow-xl">
         <h2 class="font-display text-3xl mb-2 uppercase tracking-widest">Ticket Confirmed</h2>
-        <p>Your choices have been logged. Need to change something? Enter your email or phone number below to update your RSVP.</p>
+        <p>Your choices have been logged. Need to change something? Enter your 4-digit access code below to update your RSVP {siteSettings ? `anytime before ${formatDateTime(siteSettings.rsvpCloseDate)}` : 'before the deadline'}.</p>
       </div>
     )}
 
@@ -109,7 +126,7 @@ if (searchValue.includes('@')) {
           Please use the <strong>four-digit code</strong> provided on the back of your invitation to RSVP for your party. 
         </p>
         <p class="text-zinc-500 text-xs italic">
-          If you're having difficulties, you can also search using a email address or phone number (that Trent or Shy knows) belonging to anyone listed on your invitation (or reach out to Trent and Shy at shrentshredding@gmail.com).
+          If you're having difficulties, you can also RSVP using a email address or phone number (that Trent or Shy knows) belonging to anyone listed on your invitation or reach out to Trent and Shy at shrentshredding@gmail.com for help.
         </p>
       </div>
       <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 rounded-sm p-5 sm:p-8 shadow-2xl flex flex-col items-center">
@@ -122,7 +139,7 @@ if (searchValue.includes('@')) {
         )}
 
         <p class="text-zinc-300 uppercase tracking-widest text-xs sm:text-sm mb-8 text-center">
-          Enter your 4-Digit Code to RSVP (or Email/Phone)
+          Enter your 4-Digit Code to RSVP
         </p>
         
         {lookupError && <p class="text-red-500 mb-6 font-bold uppercase tracking-wider bg-red-950/50 border border-red-900 px-4 py-2 w-full text-center rounded-sm">{lookupError}</p>}
@@ -130,10 +147,11 @@ if (searchValue.includes('@')) {
         <form method="POST" class="flex flex-col gap-4 w-full max-w-md">
           <input 
             type="text" 
+            id="ticket-search-input"
             name="searchValue" 
             required 
-            placeholder="1 2 3 4" 
-            class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 px-4 py-4 text-center tracking-widest focus:outline-none focus:border-pink-400 transition-colors uppercase rounded-sm"
+            placeholder="0000" 
+            class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 px-4 py-6 text-3xl font-bold text-center tracking-[1em] focus:outline-none focus:border-pink-400 transition-all duration-300 uppercase rounded-sm"
           />     
           <button type="submit" class="w-full bg-zinc-200 hover:bg-white text-zinc-900 font-bold text-lg uppercase tracking-widest py-4 transition-colors rounded-sm">Find My Ticket</button>
         </form>
@@ -148,7 +166,7 @@ if (searchValue.includes('@')) {
             <h1 class="text-3xl sm:text-4xl text-zinc-100 font-display uppercase tracking-widest truncate">Update Ticket</h1>
             <p class="text-pink-400 uppercase tracking-widest text-xs sm:text-sm font-bold mt-1 truncate">Party under: {guestRecord.firstName} {guestRecord.lastName || ''}</p>
           </div>
-          <a href="/tickets" class="text-zinc-500 hover:text-zinc-300 text-sm font-bold uppercase tracking-wider whitespace-nowrap">&larr; Back</a>
+          <a href="/tickets?action=logout" class="text-zinc-500 hover:text-zinc-300 text-sm font-bold uppercase tracking-wider whitespace-nowrap">&larr; Cancel</a>
         </div>
 
         {Astro.url.searchParams.get('error') === 'duplicate' && (
@@ -178,7 +196,7 @@ if (searchValue.includes('@')) {
 
           <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
             <h3 class="text-xl font-display text-pink-400 uppercase tracking-widest mb-4 border-b border-zinc-700 pb-2">
-              {guestRecord.firstName} {guestRecord.lastName || ''} (Main)
+              {guestRecord.firstName} {guestRecord.lastName || ''}
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
               <div>
@@ -194,8 +212,8 @@ if (searchValue.includes('@')) {
 
           {guestRecord.allocatedPlusOnes >= 1 && (
             <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
-              <h3 class="text-xl font-display text-emerald-400 uppercase tracking-widest mb-4 border-b border-zinc-700 pb-2">
-                {guestRecord.p1Name || 'Plus One'}
+              <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest mb-4 border-b border-zinc-700 pb-2">
+                {guestRecord.p1Name ? `${guestRecord.p1Name} (Guest)` : 'Guest'}
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="md:col-span-2">
@@ -220,8 +238,8 @@ if (searchValue.includes('@')) {
 
          {guestRecord.allocatedPlusOnes >= 2 && (
             <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
-              <h3 class="text-xl font-display text-emerald-400 uppercase tracking-widest mb-4 border-b border-zinc-700 pb-2">
-                {guestRecord.p2Name || 'Plus Two'}
+              <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest mb-4 border-b border-zinc-700 pb-2">
+                {guestRecord.p2Name ? `${guestRecord.p2Name} (Guest)` : 'Guest'}
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="md:col-span-2">
@@ -246,8 +264,8 @@ if (searchValue.includes('@')) {
 
           {guestRecord.allocatedPlusOnes >= 3 && (
             <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
-              <h3 class="text-xl font-display text-emerald-400 uppercase tracking-widest mb-4 border-b border-zinc-700 pb-2">
-                {guestRecord.p3Name || 'Plus Three'}
+              <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest mb-4 border-b border-zinc-700 pb-2">
+                {guestRecord.p3Name ? `${guestRecord.p3Name} (Guest)` : 'Guest'}
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="md:col-span-2">
@@ -307,29 +325,59 @@ if (searchValue.includes('@')) {
     }
   });
 
+  // Dynamic Search Input Styling
+  const searchInput = document.getElementById('ticket-search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      if (e.target.value.length > 4) {
+        // Shrink for emails and phone numbers
+        e.target.classList.remove('text-3xl', 'tracking-[1em]', 'py-6');
+        e.target.classList.add('text-lg', 'tracking-widest', 'py-4');
+      } else {
+        // Grow for 4-digit codes
+        e.target.classList.remove('text-lg', 'tracking-widest', 'py-4');
+        e.target.classList.add('text-3xl', 'tracking-[1em]', 'py-6');
+      }
+    });
+  }
+
   // Cascading "No" Logic
   const mainAttending = document.getElementById('main-attending');
   if (mainAttending) {
-    mainAttending.addEventListener('change', (e) => {
-      if (e.target.value === 'false') {
-        let partyChanged = false;
-        
-        ['p1-attending', 'p2-attending', 'p3-attending'].forEach(id => {
-          const pSelect = document.getElementById(id);
-          // If the plus one isn't already 'false', change them to 'false'
-          if (pSelect && pSelect.value !== 'false') {
-            pSelect.value = 'false';
-            pSelect.dispatchEvent(new Event('change'));
-            partyChanged = true;
+    const handleCascadingNo = (isNotAttending, showWarning) => {
+      let partyChanged = false;
+      
+      ['p1-attending', 'p2-attending', 'p3-attending'].forEach(id => {
+        const pSelect = document.getElementById(id);
+        if (pSelect) {
+          if (isNotAttending) {
+            // Force it to 'false'
+            if (pSelect.value !== 'false') {
+              pSelect.value = 'false';
+              pSelect.dispatchEvent(new Event('change'));
+              partyChanged = true;
+            }
+            // Visually lock the dropdown so they can't change it back
+            pSelect.classList.add('opacity-50', 'pointer-events-none');
+          } else {
+            // Unlock if main guest is attending
+            pSelect.classList.remove('opacity-50', 'pointer-events-none');
           }
-        });
-        
-        // Only show the alert if we actually changed someone else's RSVP
-        if (partyChanged) {
-          alert("Since you can't make it, we've updated your party's RSVP to match. We'll miss you guys!");
         }
+      });
+      
+      if (isNotAttending && partyChanged && showWarning) {
+        alert("Since you can't make it, we've updated your party's RSVP to match. We'll miss you guys!");
       }
+    };
+
+    // Listen for changes
+    mainAttending.addEventListener('change', (e) => {
+      handleCascadingNo(e.target.value === 'false', true);
     });
+
+    // Run once on load just in case they are editing an existing "No" ticket
+    handleCascadingNo(mainAttending.value === 'false', false);
   }
 })();
 </script>

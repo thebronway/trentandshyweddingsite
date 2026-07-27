@@ -145,6 +145,9 @@
     if (editError) editError.classList.add('hidden');
     
     const formData = new FormData(editForm as HTMLFormElement);
+    if ((document.getElementById('mute-admin-emails') as HTMLInputElement)?.checked) {
+      formData.append('suppressEmail', 'true');
+    }
     const email = formData.get('email');
     const phone = formData.get('phoneNumber');
     

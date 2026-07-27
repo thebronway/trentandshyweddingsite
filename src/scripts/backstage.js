@@ -123,6 +123,78 @@
       btn.addEventListener('click', () => toggleCheckIn(btn));
     });
 
+    // Handle Walk-Up Override Reveals
+    document.querySelectorAll('.trigger-override').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const container = e.target.closest('.override-container');
+        e.target.classList.add('hidden');
+        const form = container.querySelector('.override-form');
+        form.classList.remove('hidden');
+        // Auto-focus the input so they can start typing immediately
+        form.querySelector('.override-pw').focus(); 
+      });
+    });
+
+    // Handle Walk-Up Override Cancels
+    document.querySelectorAll('.cancel-override').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const container = e.target.closest('.override-container');
+        container.querySelector('.override-form').classList.add('hidden');
+        container.querySelector('.trigger-override').classList.remove('hidden');
+        container.querySelector('.override-pw').value = ''; // Clear the input
+      });
+    });
+
+    // Handle "Enter" Key Submissions
+    document.querySelectorAll('.override-pw').forEach(input => {
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const container = e.target.closest('.override-container');
+          container.querySelector('.submit-override').click();
+        }
+      });
+    });
+
+    // Handle Walk-Up Override Submissions
+    document.querySelectorAll('.submit-override').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const container = e.target.closest('.override-container');
+        const pwInput = container.querySelector('.override-pw');
+        const password = pwInput.value;
+        const guestId = btn.getAttribute('data-id');
+        const target = btn.getAttribute('data-target');
+
+        if (!password) return;
+        
+        btn.disabled = true;
+        btn.innerText = '...';
+
+        try {
+          const res = await fetch('/api/backstage/override', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ guestId, target, password })
+          });
+
+          if (!res.ok) {
+            pwInput.value = '';
+            pwInput.placeholder = 'INVALID';
+            pwInput.classList.add('border-red-500');
+            setTimeout(() => pwInput.classList.remove('border-red-500'), 2000);
+            throw new Error('Invalid code');
+          }
+          
+          // Force a hard reload so the DOM cleanly rebuilds with the new Expectations
+          window.location.reload();
+          
+        } catch (error) {
+          btn.innerText = '➔';
+          btn.disabled = false;
+        }
+      });
+    });
+
     // Attach "Check In All" events
     document.querySelectorAll('.check-in-all-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {

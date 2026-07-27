@@ -80,7 +80,7 @@ const { allGuests } = Astro.props;
                 data-p3name={guest.p3Name || ''} data-p3email={guest.p3Email || ''} data-p3phone={guest.p3PhoneNumber || ''} data-p3att={guest.p3Attending}>
                 Edit
               </button>
-              <form action="/api/admin/guests" method="POST" onsubmit="return confirm('Delete this guest?');">
+              <form action="/api/admin/guests" method="POST" onsubmit="if(!confirm('Delete this guest?')) return false; if(document.getElementById('mute-admin-emails')?.checked) { const el = document.createElement('input'); el.type='hidden'; el.name='suppressEmail'; el.value='true'; this.appendChild(el); } return true;">
                 <input type="hidden" name="action" value="delete" />
                 <input type="hidden" name="id" value={guest.id} />
                 <button type="submit" class="text-red-600 font-bold px-2">X</button>
