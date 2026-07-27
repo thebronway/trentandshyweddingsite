@@ -8,6 +8,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
   const adminPass = process.env.ADMIN_PASSWORD?.toLowerCase().replace(/ /g, '');
   const vipPass = process.env.VIP_PASSWORD?.toLowerCase().replace(/ /g, '');
+  const openersPass = process.env.OPENERS_PASSWORD?.toLowerCase().replace(/ /g, '');
   const guestPass = process.env.GUEST_PASSWORD?.toLowerCase().replace(/ /g, '');
 
   const cookieOptions = { path: '/', maxAge: 60 * 60 * 24 * 30, httpOnly: true, secure: import.meta.env.PROD, sameSite: 'strict' as const };
@@ -17,8 +18,13 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     return redirect(redirectTo);
   } 
   
+  if (presaleCode === openersPass) {
+    cookies.set('role', 'openers', cookieOptions);
+    return redirect(redirectTo);
+  }
+
   if (presaleCode === vipPass) {
-    cookies.set('role', 'party', cookieOptions);
+    cookies.set('role', 'vip', cookieOptions);
     return redirect(redirectTo);
   } 
   

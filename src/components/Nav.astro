@@ -23,7 +23,7 @@ const role = roleCookie ? roleCookie.value : null;
     <li class="w-full sm:w-auto"><a href="/faq" class="block hover:text-pink-300 transition-colors">Tour FAQ</a></li>
     <li class="w-full sm:w-auto"><a href="/merch" class="block hover:text-pink-300 transition-colors">Merch Table</a></li>
     
-    { (role === 'party' || role === 'admin') && (
+    { (role === 'openers' || role === 'vip' || role === 'admin') && (
       <li class="w-full sm:w-auto"><a href="/backstage/" class="block hover:text-emerald-600 transition-colors">Backstage</a></li>
     )}
     

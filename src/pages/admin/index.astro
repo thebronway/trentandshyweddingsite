@@ -103,9 +103,28 @@ const emailsAll = [...new Set(arrAll)].join(', ');
           <input type="checkbox" id="mute-admin-emails" class="accent-pink-600 w-4 h-4 cursor-pointer" />
           <label for="mute-admin-emails" class="text-xs font-bold uppercase tracking-widest text-zinc-400 cursor-pointer">Mute Email Alerts</label>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2 items-center justify-end relative">
           <a href="/admin/faqs" class="bg-zinc-800/60 backdrop-blur-md hover:bg-zinc-700 text-zinc-100 font-bold px-6 py-2 uppercase tracking-wider transition-colors text-sm border border-zinc-700 rounded-sm">Manage FAQs</a>
-          <a href="/api/admin/export.csv" class="bg-zinc-200 hover:bg-white text-zinc-900 font-bold px-6 py-2 uppercase tracking-wider transition-colors text-sm rounded-sm">Export CSV</a>
+          
+          <div class="relative inline-block text-left">
+            <button type="button" id="data-tools-btn" class="bg-zinc-200 hover:bg-white text-zinc-900 font-bold px-6 py-2 uppercase tracking-wider transition-colors text-sm rounded-sm flex items-center gap-2">
+              Data Tools <span class="text-[10px]">▼</span>
+            </button>
+            
+            <div id="data-tools-menu" class="hidden absolute right-0 mt-2 w-[340px] rounded-sm shadow-2xl bg-zinc-800 border border-zinc-700 ring-1 ring-black ring-opacity-5 focus:outline-none z-50 p-4">
+              <div class="flex flex-col gap-4">
+                <a href="/api/admin/export.csv" class="w-full text-center bg-zinc-900 hover:bg-zinc-700 border border-zinc-700 text-zinc-100 font-bold px-4 py-3 uppercase tracking-wider transition-colors text-sm rounded-sm">Export CSV</a>
+                
+                <div class="border-t border-zinc-700 pt-4">
+                  <p class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Import CSV</p>
+                  <form action="/api/admin/import-guests" method="POST" enctype="multipart/form-data" class="flex flex-col gap-2">
+                    <input type="file" name="csv" accept=".csv" required class="w-full text-xs text-zinc-400 file:mr-2 file:py-2 file:px-3 file:border-0 file:text-xs file:font-bold file:uppercase file:bg-zinc-700 file:text-zinc-100 hover:file:bg-zinc-600 cursor-pointer file:rounded-sm rounded-sm"/>
+                    <button type="submit" class="w-full bg-zinc-200 hover:bg-white text-zinc-900 font-bold uppercase tracking-widest px-4 py-2 text-xs transition-colors rounded-sm">Import</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -128,12 +147,8 @@ const emailsAll = [...new Set(arrAll)].join(', ');
     )}
 
     <div class="flex flex-col md:flex-row gap-4 mb-8 bg-zinc-800/60 backdrop-blur-md border border-zinc-700 rounded-sm p-4 shadow-2xl">
-      <input type="text" id="search-bar" placeholder="SEARCH NAME OR EMAIL..." class="flex-1 bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-4 py-2 focus:border-pink-400 focus:outline-none focus:ring-1 focus:ring-pink-400 transition-colors uppercase text-sm tracking-wider" />
+      <input type="text" id="search-bar" placeholder="SEARCH..." class="flex-1 bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-4 py-2 focus:border-pink-400 focus:outline-none focus:ring-1 focus:ring-pink-400 transition-colors uppercase text-sm tracking-wider" />
       <button id="toggle-add-btn" class="bg-zinc-200 hover:bg-white text-zinc-900 font-bold uppercase tracking-widest px-6 py-2 transition-colors rounded-sm">+ Add Guest</button>
-      <form action="/api/admin/import-guests" method="POST" enctype="multipart/form-data" class="flex gap-2 items-center border-l border-zinc-700 pl-4">
-        <input type="file" name="csv" accept=".csv" required class="text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-xs file:font-bold file:uppercase file:bg-zinc-700 file:text-zinc-100 hover:file:bg-zinc-600 cursor-pointer file:rounded-sm rounded-sm"/>
-        <button type="submit" class="bg-zinc-200 hover:bg-white text-zinc-900 font-bold uppercase tracking-widest px-4 py-2 text-xs transition-colors rounded-sm">Import CSV</button>
-      </form>
     </div>
 
     <AddGuestModal />
@@ -160,6 +175,22 @@ const emailsAll = [...new Set(arrAll)].join(', ');
       rows.forEach(row => {
         row.style.display = row.dataset.search.includes(term) ? '' : 'none';
       });
+    });
+  }
+
+  const dataToolsBtn = document.getElementById('data-tools-btn');
+  const dataToolsMenu = document.getElementById('data-tools-menu');
+  
+  if (dataToolsBtn && dataToolsMenu) {
+    dataToolsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dataToolsMenu.classList.toggle('hidden');
+    });
+    
+    document.addEventListener('click', (e) => {
+      if (!dataToolsMenu.contains(e.target)) {
+        dataToolsMenu.classList.add('hidden');
+      }
     });
   }
 

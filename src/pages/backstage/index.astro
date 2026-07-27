@@ -63,6 +63,7 @@ allGuests.forEach(g => {
         <button class="filter-btn bg-zinc-900 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 font-bold uppercase tracking-widest text-xs px-4 py-3 rounded-sm transition-colors" data-filter="expected">Expected</button>
         <button class="filter-btn bg-zinc-900 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 font-bold uppercase tracking-widest text-xs px-4 py-3 rounded-sm transition-colors" data-filter="checked-in">Checked In</button>
         <button class="filter-btn bg-zinc-900 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 font-bold uppercase tracking-widest text-xs px-4 py-3 rounded-sm transition-colors" data-filter="needs-approval">Issues / Pending</button>
+        <button class="filter-btn bg-zinc-900 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 font-bold uppercase tracking-widest text-xs px-4 py-3 rounded-sm transition-colors" data-filter="vip-list">VIP List</button>
       </div>
     </div>
 
@@ -81,13 +82,13 @@ allGuests.forEach(g => {
         const searchString = `${guest.firstName} ${guest.lastName || ''} ${guest.p1Name || ''} ${guest.p2Name || ''} ${guest.p3Name || ''} ${guest.partyCode || ''} ${guest.email || ''} ${guest.phoneNumber || ''} ${guest.p1Email || ''} ${guest.p1PhoneNumber || ''} ${guest.p2Email || ''} ${guest.p2PhoneNumber || ''} ${guest.p3Email || ''} ${guest.p3PhoneNumber || ''}`.toLowerCase();
 
         return (
-          <div class={`guest-card ${filterClass} bg-zinc-800/60 backdrop-blur-md border ${anyExpected ? 'border-zinc-700' : 'border-red-900/50 bg-red-950/20'} p-5 shadow-xl rounded-sm flex flex-col`} data-search={searchString}>
+          <div class={`guest-card ${filterClass} bg-zinc-800/60 backdrop-blur-md border ${anyExpected ? 'border-zinc-700' : 'border-red-900/50 bg-red-950/20'} p-5 shadow-xl rounded-sm flex flex-col`} data-search={searchString} data-role={guest.role}>
             
             <div class="flex justify-between items-start mb-4">
               <div>
                 <div class="flex flex-wrap items-center gap-2 mb-1">
                   <h3 class="text-xl font-display text-white uppercase tracking-wider leading-none">{guest.lastName ? `${guest.lastName}, ` : ''}{guest.firstName}</h3>
-                  <span class={`text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-sm ${guest.role === 'admin' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : guest.role === 'party' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' : 'bg-zinc-700/50 text-zinc-400 border border-zinc-600'}`}>
+                  <span class={`text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-sm ${guest.role === 'admin' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : guest.role === 'openers' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' : guest.role === 'vip' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/50' : 'bg-zinc-700/50 text-zinc-400 border border-zinc-600'}`}>
                     {guest.role === 'admin' ? 'Main Act' : guest.role}
                   </span>
                 </div>
@@ -97,7 +98,7 @@ allGuests.forEach(g => {
 
             {guest.dietaryNotes && (
               <div class="mb-4 bg-amber-950/50 border border-amber-500/50 text-amber-300 p-2 text-xs uppercase tracking-wider font-bold rounded-sm flex items-center gap-2">
-                <span class="text-lg">⚠️ Allergies:</span> {guest.dietaryNotes}
+                <span>⚠️ Allergies:</span> {guest.dietaryNotes}
               </div>
             )}
 

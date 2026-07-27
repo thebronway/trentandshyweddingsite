@@ -21,11 +21,6 @@ export const POST: APIRoute = async ({ request, redirect, cookies }) => {
   
   const rawPhone = formData.get('phoneNumber')?.toString() || null;
   const phoneNumber = rawPhone ? rawPhone.replace(/\D/g, '').replace(/^1/, '') : null;
-  
-  if (!email && !phoneNumber) {
-      cookies.set('rsvp_session', id.toString(), { path: '/', httpOnly: true, secure: import.meta.env.PROD, sameSite: 'lax', maxAge: 60 * 60 });
-      return redirect('/tickets?error=duplicate');
-  }
 
   const isAttending = formData.get('isAttending') === 'true';
   let p1Attending = formData.get('p1Attending')?.toString() || 'pending';

@@ -7,6 +7,7 @@ interface ImportMetaEnv {
   readonly AWS_REGION: string;
   readonly GUEST_PASSWORD: string;
   readonly VIP_PASSWORD: string;
+  readonly OPENERS_PASSWORD: string;
   readonly ADMIN_PASSWORD: string;
   readonly OVERRIDE_PASSWORD: string;
   readonly ADMIN_NOTIFY_EMAIL: string;

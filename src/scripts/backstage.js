@@ -28,6 +28,10 @@
           matchesType = hasCheckedIn;
         } else if (currentFilter === 'needs-approval') {
           matchesType = isNeedsApproval;
+        } else if (currentFilter === 'vip-list') {
+          const role = card.getAttribute('data-role');
+          const isVipTier = role === 'admin' || role === 'openers' || role === 'vip';
+          matchesType = isVipTier && hasRemainingExpected;
         }
 
         card.style.display = (matchesSearch && matchesType) ? 'flex' : 'none';

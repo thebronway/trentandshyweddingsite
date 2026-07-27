@@ -19,12 +19,16 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   const rawPhone = formData.get('phoneNumber')?.toString() || null;
   const phoneNumber = rawPhone ? rawPhone.replace(/\D/g, '').replace(/^1/, '') : null;
 
-  Replace:
-  if (!email && !phoneNumber && action !== 'delete') {
-    return redirect('/admin/?error=duplicate'); 
-  }
-
   const partyCode = formData.get('partyCode')?.toString().trim().toUpperCase() || null;
+
+  const isAjax = request.headers.get('accept')?.includes('application/json');
+
+  if ((!firstName || !lastName || !partyCode) && action !== 'delete') {
+    if (isAjax) {
+      return new Response(JSON.stringify({ error: "First Name, Last Name, and Party Code are required." }), { status: 400, headers: { 'Content-Type': 'application/json' }});
+    }
+    return redirect('/admin/?error=missingfields'); 
+  }
   const role = formData.get('role')?.toString() || 'guest';
   const allocatedPlusOnes = Number(formData.get('allocatedPlusOnes')) || 0;
 
@@ -65,8 +69,6 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   if (p2PhoneNumber === phoneNumber || p2PhoneNumber === p1PhoneNumber) p2PhoneNumber = null;
   if (p3PhoneNumber === phoneNumber || p3PhoneNumber === p1PhoneNumber || p3PhoneNumber === p2PhoneNumber) p3PhoneNumber = null;
 
-  const isAjax = request.headers.get('accept')?.includes('application/json');
-
   if (action === 'add' || action === 'edit') {
     const submittedEmails = [email, p1Email, p2Email, p3Email].filter(e => e !== null && e !== '');
     const submittedPhones = [phoneNumber, p1PhoneNumber, p2PhoneNumber, p3PhoneNumber].filter(p => p !== null && p !== '');
@@ -80,6 +82,14 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 
       const hasDupEmail = submittedEmails.some(e => existingEmails.includes(e));
       const hasDupPhone = submittedPhones.some(p => existingPhones.includes(p));
+      const hasDupCode = partyCode && g.partyCode === partyCode;
+
+      if (hasDupCode) {
+        if (isAjax) {
+          return new Response(JSON.stringify({ error: "That 4-Digit Code is already in use by another party." }), { status: 400, headers: { 'Content-Type': 'application/json' }});
+        }
+        return redirect('/admin/?error=duplicate_code');
+      }
 
       if (hasDupEmail || hasDupPhone) {
         if (isAjax) {
