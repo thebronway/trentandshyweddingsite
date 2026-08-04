@@ -17,13 +17,11 @@ const canViewCamping = role === 'admin' || role === 'openers' || role === 'vip';
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <a href="/gallery/engagement" class="group block bg-zinc-800/60 backdrop-blur-md border border-zinc-700 p-8 shadow-2xl hover:border-pink-400 transition-colors rounded-sm text-center">
-        <h2 class="text-3xl text-white font-display uppercase tracking-widest mb-2 group-hover:text-pink-300 transition-colors">Engagement</h2>
-        <p class="text-zinc-400 text-xs font-bold uppercase tracking-widest">Public Gallery</p>
+        <h2 class="text-3xl text-white font-display uppercase tracking-widest mb-2 group-hover:text-pink-300 transition-colors">The Engagement</h2>
       </a>
 
       <a href="/gallery/wedding" class="group block bg-zinc-800/60 backdrop-blur-md border border-zinc-700 p-8 shadow-2xl hover:border-pink-400 transition-colors rounded-sm text-center">
         <h2 class="text-3xl text-white font-display uppercase tracking-widest mb-2 group-hover:text-pink-300 transition-colors">The Wedding</h2>
-        <p class="text-zinc-400 text-xs font-bold uppercase tracking-widest">Public Gallery</p>
       </a>
 
       {canViewCamping && (
