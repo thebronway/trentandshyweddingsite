@@ -1,0 +1,124 @@
+---
+interface Props {
+  images: { thumbSrc: string; fullSrc: string; alt: string }[];
+}
+const { images } = Astro.props;
+---
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="gallery-grid">
+  {images.map((img) => (
+    <button type="button" class="gallery-item aspect-square bg-zinc-900 relative overflow-hidden border border-zinc-700 rounded-sm shadow-lg group cursor-pointer focus:outline-none focus:border-pink-400" data-full={img.fullSrc} data-alt={img.alt}>
+      <img 
+        src={img.thumbSrc} 
+        alt={img.alt} 
+        loading="lazy"
+        decoding="async"
+        class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 pointer-events-none" 
+      />
+    </button>
+  ))}
+  
+  {images.length === 0 && (
+    <div class="col-span-full text-center py-20 border border-dashed border-zinc-700 bg-zinc-900/30">
+      <p class="text-zinc-500 text-sm uppercase tracking-widest font-bold">Photos coming soon.</p>
+    </div>
+  )}
+</div>
+
+<div id="lightbox-modal" class="hidden fixed inset-0 z-[100] bg-zinc-950/95 backdrop-blur-sm flex flex-col items-center justify-center p-4 sm:p-8 opacity-0 transition-opacity duration-300">
+  
+  <div class="absolute top-4 right-4 flex gap-4 z-30">
+    <a id="lightbox-download" href="#" download class="bg-zinc-800 hover:bg-zinc-700 text-white p-3 rounded-full transition-colors border border-zinc-700" title="Download">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+    </a>
+    <button id="lightbox-close" class="bg-zinc-800 hover:bg-zinc-700 text-white p-3 rounded-full transition-colors border border-zinc-700" title="Close">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
+  </div>
+
+  <button id="lightbox-prev" class="absolute left-2 sm:left-8 top-1/2 -translate-y-1/2 bg-zinc-800/80 hover:bg-zinc-700 text-white p-3 sm:p-4 rounded-full transition-colors border border-zinc-700 z-30" title="Previous">
+    <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+  </button>
+  <button id="lightbox-next" class="absolute right-2 sm:right-8 top-1/2 -translate-y-1/2 bg-zinc-800/80 hover:bg-zinc-700 text-white p-3 sm:p-4 rounded-full transition-colors border border-zinc-700 z-30" title="Next">
+    <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+  </button>
+
+  <div id="lightbox-backdrop" class="absolute inset-0 z-10 cursor-pointer"></div>
+  
+  <div class="relative z-20 flex flex-col items-center justify-center pointer-events-none">
+    <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[80vh] object-contain shadow-2xl rounded-sm pointer-events-auto" />
+    <p id="lightbox-caption" class="text-zinc-400 mt-6 text-sm uppercase tracking-widest font-bold text-center pointer-events-auto"></p>
+  </div>
+</div>
+
+<script>
+  const items = Array.from(document.querySelectorAll('.gallery-item'));
+  const modal = document.getElementById('lightbox-modal');
+  const backdrop = document.getElementById('lightbox-backdrop');
+  const img = document.getElementById('lightbox-img') as HTMLImageElement | null;
+  const caption = document.getElementById('lightbox-caption');
+  const downloadBtn = document.getElementById('lightbox-download') as HTMLAnchorElement | null;
+  const closeBtn = document.getElementById('lightbox-close');
+  const prevBtn = document.getElementById('lightbox-prev');
+  const nextBtn = document.getElementById('lightbox-next');
+
+  let currentIndex = 0;
+
+  if (modal && img && caption && downloadBtn && closeBtn && prevBtn && nextBtn && backdrop) {
+    
+    const updateLightbox = (index: number) => {
+      if (items.length === 0) return;
+      currentIndex = index;
+      const btn = items[currentIndex] as HTMLButtonElement | null;
+      if (!btn) return;
+      
+      img.src = btn.getAttribute('data-full') || '';
+      img.alt = btn.getAttribute('data-alt') || '';
+      caption.textContent = btn.getAttribute('data-alt') || '';
+      downloadBtn.href = btn.getAttribute('data-full') || '#';
+    };
+
+    const showNext = () => {
+      updateLightbox((currentIndex + 1) % items.length);
+    };
+
+    const showPrev = () => {
+      updateLightbox((currentIndex - 1 + items.length) % items.length);
+    };
+
+    items.forEach((item, index) => {
+      item.addEventListener('click', () => {
+        updateLightbox(index);
+        
+        modal.classList.remove('hidden');
+        // Trigger reflow for transition
+        void modal.offsetWidth;
+        modal.classList.remove('opacity-0');
+        modal.classList.add('opacity-100');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      });
+    });
+
+    const closeModal = () => {
+      modal.classList.remove('opacity-100');
+      modal.classList.add('opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        if (img) img.src = '';
+        document.body.style.overflow = '';
+      }, 300);
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+    
+    prevBtn.addEventListener('click', showPrev);
+    nextBtn.addEventListener('click', showNext);
+    
+    document.addEventListener('keydown', (e) => {
+      if (modal.classList.contains('hidden')) return;
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowRight') showNext();
+      if (e.key === 'ArrowLeft') showPrev();
+    });
+  }
+</script>

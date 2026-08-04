@@ -1,0 +1,37 @@
+---
+import Layout from '../../components/Layout.astro';
+import Nav from '../../components/Nav.astro';
+
+const roleCookie = Astro.cookies.get('role');
+const role = roleCookie ? roleCookie.value : null;
+
+const canViewCamping = role === 'admin' || role === 'openers' || role === 'vip';
+---
+<Layout title="Photo Galleries">
+  <Nav />
+  <main class="max-w-5xl mx-auto p-6 w-full mt-8">
+    <div class="text-center mb-12">
+      <h1 class="text-4xl md:text-6xl text-white font-display mb-4 uppercase tracking-wider">Tour Footage</h1>
+      <p class="text-pink-300 font-bold tracking-widest uppercase text-sm">Select a gallery to view</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <a href="/gallery/engagement" class="group block bg-zinc-800/60 backdrop-blur-md border border-zinc-700 p-8 shadow-2xl hover:border-pink-400 transition-colors rounded-sm text-center">
+        <h2 class="text-3xl text-white font-display uppercase tracking-widest mb-2 group-hover:text-pink-300 transition-colors">Engagement</h2>
+        <p class="text-zinc-400 text-xs font-bold uppercase tracking-widest">Public Gallery</p>
+      </a>
+
+      <a href="/gallery/wedding" class="group block bg-zinc-800/60 backdrop-blur-md border border-zinc-700 p-8 shadow-2xl hover:border-pink-400 transition-colors rounded-sm text-center">
+        <h2 class="text-3xl text-white font-display uppercase tracking-widest mb-2 group-hover:text-pink-300 transition-colors">The Wedding</h2>
+        <p class="text-zinc-400 text-xs font-bold uppercase tracking-widest">Public Gallery</p>
+      </a>
+
+      {canViewCamping && (
+        <a href="/gallery/camping" class="md:col-span-2 group block bg-zinc-900/80 backdrop-blur-md border border-emerald-900/50 border-l-4 border-l-emerald-500 p-8 shadow-2xl hover:border-emerald-500 transition-colors rounded-sm text-center">
+          <h2 class="text-3xl text-emerald-400 font-display uppercase tracking-widest mb-2 group-hover:text-emerald-300 transition-colors">Camping Weekend</h2>
+          <p class="text-emerald-600 text-xs font-bold uppercase tracking-widest">VIP Access Only</p>
+        </a>
+      )}
+    </div>
+  </main>
+</Layout>

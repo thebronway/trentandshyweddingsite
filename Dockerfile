@@ -4,6 +4,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install
 COPY . .
+RUN npm run thumbs
 RUN npm run build
 
 # Stage 2: Serve with Node AND Nginx

@@ -34,7 +34,14 @@ export const onRequest = defineMiddleware((context, next) => {
     }
   }
 
-  // 4. Global CSRF Protection for state-changing requests
+  // 4. Protect the VIP-only Camping Gallery
+  if (url.pathname.startsWith('/gallery/camping')) {
+    if (role !== 'openers' && role !== 'vip' && role !== 'admin') {
+      return redirect('/gallery');
+    }
+  }
+
+  // 5. Global CSRF Protection for state-changing requests
   if (request.method !== 'GET' && request.method !== 'HEAD') {
     const origin = request.headers.get('origin');
     const host = request.headers.get('host');

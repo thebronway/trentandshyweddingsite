@@ -1,0 +1,48 @@
+---
+import Layout from '../../components/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import GalleryGrid from '../../components/GalleryGrid.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const isProd = import.meta.env.PROD;
+const baseDir = isProd ? 'dist/client/images/camping' : 'public/images/camping';
+const galleryDir = path.join(process.cwd(), baseDir);
+let photos: {thumbSrc: string, fullSrc: string, alt: string}[] = [];
+
+try {
+  if (fs.existsSync(galleryDir)) {
+    const files = fs.readdirSync(galleryDir);
+    photos = files
+      .filter(file => /\.(jpg|jpeg|png|webp|gif)$/i.test(file))
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
+      .map(file => {
+        const nameWithoutExt = path.parse(file).name;
+        const formattedName = nameWithoutExt.replace(/[-_]/g, ' ');
+        const altText = formattedName.charAt(0).toUpperCase() + formattedName.slice(1);
+        
+        return {
+          thumbSrc: `/images/camping/thumbs/${file}`,
+          fullSrc: `/images/camping/${file}`,
+          alt: altText
+        };
+      });
+  }
+} catch (err) {
+  console.error("Error reading camping images directory:", err);
+}
+---
+<Layout title="Camping Weekend Photos">
+  <Nav />
+  <main class="max-w-5xl mx-auto p-6 w-full mt-8">
+    <div class="flex justify-between items-end border-b border-zinc-700 pb-4 mb-8">
+      <div>
+        <h1 class="text-4xl md:text-5xl text-emerald-400 font-display uppercase tracking-wider mb-1">Camping Weekend</h1>
+        <p class="text-emerald-600 font-bold uppercase tracking-widest text-xs">VIP Access Only</p>
+      </div>
+      <a href="/gallery" class="text-zinc-500 hover:text-zinc-300 text-xs font-bold uppercase tracking-widest transition-colors">&larr; Back to Galleries</a>
+    </div>
+
+    <GalleryGrid images={photos} />
+  </main>
+</Layout>
