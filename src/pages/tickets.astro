@@ -99,10 +99,10 @@ if (searchValue.includes('@')) {
   <Nav />
   <main class="max-w-3xl mx-auto p-6 w-full mt-8">
     
-    {isSuccess && !guestRecord && (
-      <div class="bg-emerald-900/50 border border-emerald-500 text-emerald-200 p-6 mb-8 text-center shadow-xl">
+    {isSuccess && (
+      <div class="bg-emerald-900/50 border border-emerald-500 text-emerald-200 p-6 mb-8 text-center shadow-xl rounded-sm">
         <h2 class="font-display text-3xl mb-2 uppercase tracking-widest">Ticket Confirmed</h2>
-        <p>Your choices have been logged. Need to change something? Enter your 4-digit access code below to update your RSVP {siteSettings ? `anytime before ${formatDateTime(siteSettings.rsvpCloseDate)}` : 'before the deadline'}.</p>
+        <p>Your choices have been logged. You can update your RSVP {siteSettings ? `anytime before ${formatDateTime(siteSettings.rsvpCloseDate)}` : 'before the deadline'}.</p>
       </div>
     )}
 
@@ -163,7 +163,16 @@ if (searchValue.includes('@')) {
       <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 rounded-sm p-4 sm:p-8 shadow-2xl">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-zinc-700 pb-4 mb-8">
           <div class="w-full sm:w-auto overflow-hidden">
-            <h1 class="text-3xl sm:text-4xl text-zinc-100 font-display uppercase tracking-widest truncate">Update Ticket</h1>
+            {guestRecord.role && ['vip', 'opener', 'openers'].includes(guestRecord.role.toLowerCase()) && (
+              <div class="mb-3">
+                <span class="inline-block bg-pink-600 text-white px-4 py-1.5 text-sm sm:text-base font-display uppercase tracking-widest rounded-sm shadow-[0_0_15px_rgba(219,39,119,0.5)] border border-pink-400">
+                  ★ {guestRecord.role} ★
+                </span>
+              </div>
+            )}
+            <h1 class="text-3xl sm:text-4xl text-zinc-100 font-display uppercase tracking-widest truncate">
+              {guestRecord.hasRsvpd ? 'Update Ticket' : 'Your Ticket'}
+            </h1>
             <p class="text-pink-400 uppercase tracking-widest text-xs sm:text-sm font-bold mt-1 truncate">Party under: {guestRecord.firstName} {guestRecord.lastName || ''}</p>
           </div>
           <a href="/tickets?action=logout" class="text-zinc-500 hover:text-zinc-300 text-sm font-bold uppercase tracking-wider whitespace-nowrap">&larr; Cancel</a>

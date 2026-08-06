@@ -72,10 +72,39 @@ const { images, emptyMessage = "Photos coming soon." } = Astro.props;
       const btn = items[currentIndex] as HTMLButtonElement | null;
       if (!btn) return;
       
+      // Clear any existing onload to prevent ghost preloads if clicked rapidly
+      img.onload = null;
+      
       img.src = btn.getAttribute('data-full') || '';
       img.alt = btn.getAttribute('data-alt') || '';
       caption.textContent = btn.getAttribute('data-alt') || '';
       downloadBtn.href = btn.getAttribute('data-full') || '#';
+
+      // Sequential Preloading: Wait for the main image to fully load first
+      img.onload = () => {
+        const nextIndex = (currentIndex + 1) % items.length;
+        const prevIndex = (currentIndex - 1 + items.length) % items.length;
+        
+        const nextUrl = items[nextIndex]?.getAttribute('data-full');
+        const prevUrl = items[prevIndex]?.getAttribute('data-full');
+
+        // Preload NEXT
+        if (nextUrl) {
+          const nextPreload = new Image();
+          nextPreload.onload = () => {
+             // Preload PREVIOUS only after NEXT finishes
+             if (prevUrl) {
+               const prevPreload = new Image();
+               prevPreload.src = prevUrl;
+             }
+          };
+          nextPreload.src = nextUrl;
+        } else if (prevUrl) {
+          // If no next URL for some reason, just preload previous
+          const prevPreload = new Image();
+          prevPreload.src = prevUrl;
+        }
+      };
     };
 
     const showNext = () => {
