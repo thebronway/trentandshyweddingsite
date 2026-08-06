@@ -1,0 +1,29 @@
+---
+interface Props {
+  isSuccess: boolean;
+  canRsvp: boolean;
+  customMessage: string | null;
+  closeDateFormatted?: string;
+  openDateFormatted?: string;
+}
+
+const { isSuccess, canRsvp, customMessage, closeDateFormatted, openDateFormatted } = Astro.props;
+---
+{isSuccess && (
+  <div class="bg-emerald-900/50 border border-emerald-500 text-emerald-200 p-6 mb-8 text-center shadow-xl rounded-sm">
+    <h2 class="font-display text-3xl mb-2 uppercase tracking-widest">Ticket Confirmed</h2>
+    <p>Your choices have been logged. You can update your RSVP {closeDateFormatted ? `anytime before ${closeDateFormatted}` : 'before the deadline'}.</p>
+  </div>
+)}
+
+{!canRsvp && (
+  <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 p-8 shadow-2xl text-center rounded-sm">
+    <h1 class="text-4xl md:text-6xl text-white font-display mb-4 uppercase">Box Office</h1>
+    <p class="text-pink-400 text-xl font-bold uppercase tracking-widest">{customMessage}</p>
+    {(openDateFormatted && closeDateFormatted) && (
+      <p class="text-zinc-400 text-xs uppercase tracking-widest mt-8">
+        RSVP Window: {openDateFormatted} - {closeDateFormatted}
+      </p>
+    )}
+  </div>
+)}

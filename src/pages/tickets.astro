@@ -1,6 +1,9 @@
 ---
 import Layout from '../components/Layout.astro';
 import Nav from '../components/Nav.astro';
+import BoxOfficeStatus from '../components/rsvp/BoxOfficeStatus.astro';
+import TicketSearch from '../components/rsvp/TicketSearch.astro';
+import RsvpEditForm from '../components/rsvp/RsvpEditForm.astro';
 import { db } from '../db';
 import { guests, settings } from '../db/schema';
 import { eq, or } from 'drizzle-orm';
@@ -99,295 +102,26 @@ if (searchValue.includes('@')) {
   <Nav />
   <main class="max-w-3xl mx-auto p-6 w-full mt-8">
     
-    {isSuccess && (
-      <div class="bg-emerald-900/50 border border-emerald-500 text-emerald-200 p-6 mb-8 text-center shadow-xl rounded-sm">
-        <h2 class="font-display text-3xl mb-2 uppercase tracking-widest">Ticket Confirmed</h2>
-        <p>Your choices have been logged. You can update your RSVP {siteSettings ? `anytime before ${formatDateTime(siteSettings.rsvpCloseDate)}` : 'before the deadline'}.</p>
-      </div>
-    )}
-
-    {!canRsvp && (
-      <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 p-8 shadow-2xl text-center rounded-sm">
-        <h1 class="text-4xl md:text-6xl text-white font-display mb-4 uppercase">Box Office</h1>
-        <p class="text-pink-400 text-xl font-bold uppercase tracking-widest">{customMessage}</p>
-        {siteSettings && (
-          <p class="text-zinc-400 text-xs uppercase tracking-widest mt-8">
-            RSVP Window: {formatDateTime(siteSettings.rsvpOpenDate)} - {formatDateTime(siteSettings.rsvpCloseDate)}
-          </p>
-        )}
-      </div>
-    )}
+    <BoxOfficeStatus 
+      isSuccess={!!isSuccess} 
+      canRsvp={canRsvp} 
+      customMessage={customMessage} 
+      closeDateFormatted={siteSettings ? formatDateTime(siteSettings.rsvpCloseDate) : undefined}
+      openDateFormatted={siteSettings ? formatDateTime(siteSettings.rsvpOpenDate) : undefined} 
+    />
 
     {canRsvp && !guestRecord && (
-      <>
-      <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 p-6 mb-8 border-l-4 border-l-pink-400 shadow-xl rounded-sm">
-        <h2 class="text-2xl text-white font-display mb-2 uppercase tracking-widest">How to get past the bouncer:</h2>
-        <p class="text-zinc-300 leading-relaxed text-sm mb-4">
-          Please use the <strong>four-digit code</strong> provided on the back of your invitation to RSVP for your party. 
-        </p>
-        <p class="text-zinc-500 text-xs italic">
-          If you're having difficulties, you can also RSVP using a email address or phone number (that Trent or Shy knows) belonging to anyone listed on your invitation or reach out to Trent and Shy at shrentshredding@gmail.com for help.
-        </p>
-      </div>
-      <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 rounded-sm p-5 sm:p-8 shadow-2xl flex flex-col items-center">
-        <h1 class="text-4xl md:text-6xl text-white font-display mb-2 uppercase text-center w-full">Box Office (RSVP)</h1>
-        
-        {siteSettings && (
-          <p class="text-pink-400 font-bold uppercase tracking-widest text-xs sm:text-sm mb-4 text-center">
-            Open until {formatDateTime(siteSettings.rsvpCloseDate)}
-          </p>
-        )}
-
-        <p class="text-zinc-300 uppercase tracking-widest text-xs sm:text-sm mb-8 text-center">
-          Enter your 4-Digit Code to RSVP
-        </p>
-        
-        {lookupError && <p class="text-red-500 mb-6 font-bold uppercase tracking-wider bg-red-950/50 border border-red-900 px-4 py-2 w-full text-center rounded-sm">{lookupError}</p>}
-        
-        <form method="POST" class="flex flex-col gap-4 w-full max-w-md">
-          <input 
-            type="text" 
-            id="ticket-search-input"
-            name="searchValue" 
-            required 
-            placeholder="0000" 
-            class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 px-4 py-6 text-3xl font-bold text-center tracking-[1em] focus:outline-none focus:border-pink-400 transition-all duration-300 uppercase rounded-sm"
-          />     
-          <button type="submit" class="w-full bg-zinc-200 hover:bg-white text-zinc-900 font-bold text-lg uppercase tracking-widest py-4 transition-colors rounded-sm">Find My Ticket</button>
-        </form>
-      </div>
-      </>
+      <TicketSearch 
+        lookupError={lookupError} 
+        closeDateFormatted={siteSettings ? formatDateTime(siteSettings.rsvpCloseDate) : undefined} 
+      />
     )}
 
     {guestRecord && (
-      <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 rounded-sm p-4 sm:p-8 shadow-2xl">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-zinc-700 pb-4 mb-8">
-          <div class="w-full sm:w-auto overflow-hidden">
-            {guestRecord.role && ['vip', 'opener', 'openers'].includes(guestRecord.role.toLowerCase()) && (
-              <div class="mb-3">
-                <span class="inline-block bg-pink-600 text-white px-4 py-1.5 text-sm sm:text-base font-display uppercase tracking-widest rounded-sm shadow-[0_0_15px_rgba(219,39,119,0.5)] border border-pink-400">
-                  ★ {guestRecord.role} ★
-                </span>
-              </div>
-            )}
-            <h1 class="text-3xl sm:text-4xl text-zinc-100 font-display uppercase tracking-widest truncate">
-              {guestRecord.hasRsvpd ? 'Update Ticket' : 'Your Ticket'}
-            </h1>
-            <p class="text-pink-400 uppercase tracking-widest text-xs sm:text-sm font-bold mt-1 truncate">Party under: {guestRecord.firstName} {guestRecord.lastName || ''}</p>
-          </div>
-          <a href="/tickets?action=logout" class="text-zinc-500 hover:text-zinc-300 text-sm font-bold uppercase tracking-wider whitespace-nowrap">&larr; Cancel</a>
-        </div>
-
-        {Astro.url.searchParams.get('error') === 'duplicate' && (
-          <div class="bg-red-950/50 border border-red-900 text-red-500 px-4 py-3 mb-6 text-xs font-bold uppercase tracking-widest text-center">
-            That email or phone number is already registered to another guest.
-          </div>
-        )}
-
-        <form action="/api/rsvp" method="POST" id="rsvp-form" class="flex flex-col gap-8">
-          <input type="hidden" name="id" value={guestRecord.id} />
-
-          <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
-            <h3 class="text-xl font-display text-zinc-400 uppercase tracking-widest mb-1 border-b border-zinc-700 pb-2">
-              Contact Info
-            </h3>
-            <p class="text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-4">Add optional contact info to get updates about the event</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Email</label>
-                <input type="email" name="email" value={guestRecord.email || ''} class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-4 py-3 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors text-sm" />
-              </div>
-              <div>
-                <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Phone Number</label>
-                <input type="text" name="phoneNumber" value={guestRecord.phoneNumber || ''} class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-4 py-3 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors text-sm" />
-              </div>
-            </div>
-          </div>
-
-          <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
-            <h3 class="text-xl font-display text-pink-400 uppercase tracking-widest mb-4 border-b border-zinc-700 pb-2">
-              {guestRecord.firstName} {guestRecord.lastName || ''}
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
-              <div>
-                <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Attending?</label>
-                <select name="isAttending" id="main-attending" required class="w-full bg-zinc-900 border border-zinc-700 hover:border-zinc-500 rounded-sm text-zinc-100 px-4 py-4 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 uppercase text-base font-bold tracking-widest cursor-pointer transition-colors">
-                  <option value="" disabled selected={!guestRecord.hasRsvpd}>-- Make a Selection --</option>
-                  <option value="true" selected={guestRecord.hasRsvpd && guestRecord.isAttending === true}>Hell Yes</option>
-                  <option value="false" selected={guestRecord.hasRsvpd && guestRecord.isAttending === false}>Can't Make It</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {guestRecord.allocatedPlusOnes >= 1 && (
-            <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
-              <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest mb-4 border-b border-zinc-700 pb-2">
-                {guestRecord.p1Name ? `${guestRecord.p1Name} (Guest)` : 'Guest'}
-              </h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="md:col-span-2">
-                  <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Attending?</label>
-                  <select name="p1Attending" id="p1-attending" required class="w-full bg-zinc-900 border border-zinc-700 hover:border-zinc-500 rounded-sm text-zinc-100 px-4 py-4 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 uppercase text-base font-bold tracking-widest cursor-pointer transition-colors">
-                    <option value="" disabled selected={guestRecord.p1Attending === 'pending'}>-- Make a Selection --</option>
-                    <option value="true" selected={guestRecord.p1Attending === 'true'}>Hell Yes</option>
-                    <option value="false" selected={guestRecord.p1Attending === 'false'}>Can't Make It</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Their Email (Optional)</label>
-                  <input type="email" name="p1Email" value={guestRecord.p1Email || ''} class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors" />
-                </div>
-                <div>
-                  <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Their Phone (Optional)</label>
-                  <input type="text" name="p1PhoneNumber" value={guestRecord.p1PhoneNumber || ''} class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors" />
-                </div>
-              </div>
-            </div>
-          )}
-
-         {guestRecord.allocatedPlusOnes >= 2 && (
-            <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
-              <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest mb-4 border-b border-zinc-700 pb-2">
-                {guestRecord.p2Name ? `${guestRecord.p2Name} (Guest)` : 'Guest'}
-              </h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="md:col-span-2">
-                  <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Attending?</label>
-                  <select name="p2Attending" id="p2-attending" required class="w-full bg-zinc-900 border border-zinc-700 hover:border-zinc-500 rounded-sm text-zinc-100 px-4 py-4 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 uppercase text-base font-bold tracking-widest cursor-pointer transition-colors">
-                    <option value="" disabled selected={guestRecord.p2Attending === 'pending'}>-- Make a Selection --</option>
-                    <option value="true" selected={guestRecord.p2Attending === 'true'}>Hell Yes</option>
-                    <option value="false" selected={guestRecord.p2Attending === 'false'}>Can't Make It</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Their Email (Optional)</label>
-                  <input type="email" name="p2Email" value={guestRecord.p2Email || ''} class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors" />
-                </div>
-                <div>
-                  <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Their Phone (Optional)</label>
-                  <input type="text" name="p2PhoneNumber" value={guestRecord.p2PhoneNumber || ''} class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors" />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {guestRecord.allocatedPlusOnes >= 3 && (
-            <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
-              <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest mb-4 border-b border-zinc-700 pb-2">
-                {guestRecord.p3Name ? `${guestRecord.p3Name} (Guest)` : 'Guest'}
-              </h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="md:col-span-2">
-                  <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Attending?</label>
-                  <select name="p3Attending" id="p3-attending" required class="w-full bg-zinc-900 border border-zinc-700 hover:border-zinc-500 rounded-sm text-zinc-100 px-4 py-4 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 uppercase text-base font-bold tracking-widest cursor-pointer transition-colors">
-                    <option value="" disabled selected={guestRecord.p3Attending === 'pending'}>-- Make a Selection --</option>
-                    <option value="true" selected={guestRecord.p3Attending === 'true'}>Hell Yes</option>
-                    <option value="false" selected={guestRecord.p3Attending === 'false'}>Can't Make It</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Their Email (Optional)</label>
-                  <input type="email" name="p3Email" value={guestRecord.p3Email || ''} class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors" />
-                </div>
-                <div>
-                  <label class="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Their Phone (Optional)</label>
-                  <input type="text" name="p3PhoneNumber" value={guestRecord.p3PhoneNumber || ''} class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors" />
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-widest text-pink-400 mb-2">Dietary Restrictions / Allergies (Applies to Party)</label>
-            <input type="text" name="dietaryNotes" placeholder="ALLERGIES?" value={guestRecord.dietaryNotes || ''} class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-4 py-3 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors uppercase text-sm tracking-wider" />
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-widest text-pink-400 mb-2">Song Request</label>
-            <input type="text" name="songRequest" placeholder="WHAT SONG WILL GET YOU IN THE PIT?" value={guestRecord.songRequest || ''} class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-4 py-3 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors uppercase text-sm tracking-wider" />
-          </div>
-
-          <button type="submit" class="w-full bg-zinc-200 hover:bg-white text-zinc-900 font-bold text-lg uppercase tracking-widest py-4 transition-colors mt-4 rounded-sm">
-            Lock It In
-          </button>
-        </form>
-      </div>
+      <RsvpEditForm 
+        guestRecord={guestRecord} 
+        duplicateError={Astro.url.searchParams.get('error') === 'duplicate'} 
+      />
     )}
   </main>
 </Layout>
-
-<script is:inline>
-;(() => {
-  let isDirty = false;
-  const rsvpForm = document.getElementById('rsvp-form');
-
-  if (rsvpForm) {
-    rsvpForm.addEventListener('input', () => { isDirty = true; });
-    rsvpForm.addEventListener('change', () => { isDirty = true; });
-    rsvpForm.addEventListener('submit', () => { isDirty = false; });
-  }
-
-  window.addEventListener('beforeunload', (e) => {
-    if (isDirty) {
-      e.preventDefault();
-      e.returnValue = true;
-    }
-  });
-
-  // Dynamic Search Input Styling
-  const searchInput = document.getElementById('ticket-search-input');
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      if (e.target.value.length > 4) {
-        // Shrink for emails and phone numbers
-        e.target.classList.remove('text-3xl', 'tracking-[1em]', 'py-6');
-        e.target.classList.add('text-lg', 'tracking-widest', 'py-4');
-      } else {
-        // Grow for 4-digit codes
-        e.target.classList.remove('text-lg', 'tracking-widest', 'py-4');
-        e.target.classList.add('text-3xl', 'tracking-[1em]', 'py-6');
-      }
-    });
-  }
-
-  // Cascading "No" Logic
-  const mainAttending = document.getElementById('main-attending');
-  if (mainAttending) {
-    const handleCascadingNo = (isNotAttending, showWarning) => {
-      let partyChanged = false;
-      
-      ['p1-attending', 'p2-attending', 'p3-attending'].forEach(id => {
-        const pSelect = document.getElementById(id);
-        if (pSelect) {
-          if (isNotAttending) {
-            // Force it to 'false'
-            if (pSelect.value !== 'false') {
-              pSelect.value = 'false';
-              pSelect.dispatchEvent(new Event('change'));
-              partyChanged = true;
-            }
-            // Visually lock the dropdown so they can't change it back
-            pSelect.classList.add('opacity-50', 'pointer-events-none');
-          } else {
-            // Unlock if main guest is attending
-            pSelect.classList.remove('opacity-50', 'pointer-events-none');
-          }
-        }
-      });
-      
-      if (isNotAttending && partyChanged && showWarning) {
-        alert("Since you can't make it, we've updated your party's RSVP to match. We'll miss you guys!");
-      }
-    };
-
-    // Listen for changes
-    mainAttending.addEventListener('change', (e) => {
-      handleCascadingNo(e.target.value === 'false', true);
-    });
-
-    // Run once on load just in case they are editing an existing "No" ticket
-    handleCascadingNo(mainAttending.value === 'false', false);
-  }
-})();
-</script>
