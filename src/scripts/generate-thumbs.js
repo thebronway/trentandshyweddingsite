@@ -2,10 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
 
+const isProd = process.env.NODE_ENV === 'production';
+const baseDir = isProd ? 'dist/client/images' : 'public/images';
+
 const dirs = [
-  'public/images/engagement',
-  'public/images/wedding',
-  'public/images/camping'
+  `${baseDir}/engagement`,
+  `${baseDir}/wedding`,
+  `${baseDir}/camping`
 ];
 
 const generateThumbnails = async () => {

@@ -1,8 +1,9 @@
 ---
 interface Props {
   images: { thumbSrc: string; fullSrc: string; alt: string }[];
+  emptyMessage?: string;
 }
-const { images } = Astro.props;
+const { images, emptyMessage = "Photos coming soon." } = Astro.props;
 ---
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="gallery-grid">
   {images.map((img) => (
@@ -19,7 +20,7 @@ const { images } = Astro.props;
   
   {images.length === 0 && (
     <div class="col-span-full text-center py-20 border border-dashed border-zinc-700 bg-zinc-900/30">
-      <p class="text-zinc-500 text-sm uppercase tracking-widest font-bold">Photos coming soon.</p>
+      <p class="text-zinc-500 text-sm uppercase tracking-widest font-bold">{emptyMessage}</p>
     </div>
   )}
 </div>
