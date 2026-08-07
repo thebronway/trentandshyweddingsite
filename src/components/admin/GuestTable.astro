@@ -8,96 +8,146 @@ const { allGuests } = Astro.props;
   <table class="w-full text-left text-sm text-zinc-300">
     <thead class="text-xs uppercase bg-zinc-900/60 text-pink-400 border-b border-zinc-700">
       <tr>
-        <th class="px-6 py-4 cursor-pointer hover:text-pink-300 transition-colors sort-header select-none" data-sort="name">Name & RSVP <span class="sort-icon">▲</span></th>
-        <th class="px-6 py-4">Code</th>
-        <th class="px-6 py-4">Contact</th>
-        <th class="px-6 py-4">Role & Party</th>
+        <th class="px-6 py-4 cursor-pointer hover:text-pink-300 transition-colors sort-header select-none" data-sort="lastName">The Party <span class="sort-icon">▲</span></th>
+        <th class="px-6 py-4">RSVP Status</th>
+        <th class="px-6 py-4">Details</th>
+        <th class="px-6 py-4">Box Office</th>
         <th class="px-6 py-4 text-right">Actions</th>
       </tr>
     </thead>
     <tbody>
-      {allGuests.sort((a, b) => a.firstName.localeCompare(b.firstName)).map((guest) => {
+      {allGuests.sort((a, b) => (a.lastName || '').localeCompare(b.lastName || '')).map((guest) => {
         const statusStr = guest.hasRsvpd ? (guest.isAttending ? 'attending' : 'declined') : 'pending';
         const searchableText = `${guest.firstName} ${guest.lastName || ''} ${guest.email || ''} ${guest.phoneNumber || ''} ${guest.partyCode || ''} ${guest.p1Name || ''} ${guest.p1Email || ''} ${guest.p1PhoneNumber || ''} ${guest.p2Name || ''} ${guest.p2Email || ''} ${guest.p2PhoneNumber || ''} ${guest.p3Name || ''} ${guest.p3Email || ''} ${guest.p3PhoneNumber || ''}`.toLowerCase();
+        
+        const renderRoleBadge = (roleStr: string | null | undefined) => {
+          const r = (roleStr || 'guest').toLowerCase();
+          if (r === 'admin') return <span class="bg-amber-500/20 text-amber-400 border border-amber-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase">Main Act</span>;
+          if (r === 'openers') return <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase">Openers</span>;
+          if (r === 'vip') return <span class="bg-purple-500/20 text-purple-400 border border-purple-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase">VIP</span>;
+          return <span class="bg-zinc-700/50 text-zinc-400 border border-zinc-600 px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase">Guest</span>;
+        };
+
+        const renderRsvpBadge = (statusStr: string | boolean | null | undefined, hasRsvpd: boolean = true) => {
+          if (!hasRsvpd || statusStr === 'pending') return <span class="bg-zinc-700/50 text-zinc-400 border border-zinc-600 px-2 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-widest">Pending</span>;
+          if (statusStr === 'true' || statusStr === 'attending' || statusStr === true) return <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-2 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-widest">Hell Yes</span>;
+          return <span class="bg-red-500/20 text-red-400 border border-red-500/50 px-2 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-widest">Declined</span>;
+        };
+
         return (
-          <tr class="guest-row border-b border-zinc-700 hover:bg-zinc-700/30 transition-colors" data-search={searchableText} data-name={guest.firstName.toLowerCase()} data-code={(guest.partyCode || '').toLowerCase()}>
-            <td class="px-6 py-4 font-medium text-zinc-100">
-              <div class="flex items-center gap-2 text-base">
-                <span>{guest.firstName} {guest.lastName || ''}</span>
-                {guest.hasRsvpd ? 
-                  (guest.isAttending ? <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-1.5 py-0.5 rounded-sm text-[10px] font-bold leading-none">Y</span> : <span class="bg-red-500/20 text-red-400 border border-red-500/50 px-1.5 py-0.5 rounded-sm text-[10px] font-bold leading-none">N</span>) 
-                  : <span class="bg-zinc-700/50 text-zinc-400 border border-zinc-600 px-1.5 py-0.5 rounded-sm text-[10px] font-bold leading-none">P</span>}
+          <tr class="guest-row border-b border-zinc-700 hover:bg-zinc-700/30 transition-colors" data-search={searchableText} data-lastname={(guest.lastName || '').toLowerCase()} data-code={(guest.partyCode || '').toLowerCase()}>
+            
+            {/* 1. The Party (Names + Roles) */}
+            <td class="px-6 py-4 align-top min-w-[200px]">
+              <div class="flex flex-col gap-3">
+                <div class="flex items-center gap-2 h-6">
+                  <span class="font-bold text-zinc-100 text-sm whitespace-nowrap">{guest.firstName} {guest.lastName || ''}</span>
+                  {renderRoleBadge(guest.role)}
+                </div>
+                {guest.allocatedPlusOnes >= 1 && guest.p1Name && (
+                  <div class="flex items-center gap-2 h-6 text-zinc-400 ml-3">
+                    <span class="text-xs whitespace-nowrap">↳ {guest.p1Name} {guest.p1LastName || ''}</span>
+                    {renderRoleBadge(guest.p1Role)}
+                  </div>
+                )}
+                {guest.allocatedPlusOnes >= 2 && guest.p2Name && (
+                  <div class="flex items-center gap-2 h-6 text-zinc-400 ml-3">
+                    <span class="text-xs whitespace-nowrap">↳ {guest.p2Name} {guest.p2LastName || ''}</span>
+                    {renderRoleBadge(guest.p2Role)}
+                  </div>
+                )}
+                {guest.allocatedPlusOnes >= 3 && guest.p3Name && (
+                  <div class="flex items-center gap-2 h-6 text-zinc-400 ml-3">
+                    <span class="text-xs whitespace-nowrap">↳ {guest.p3Name} {guest.p3LastName || ''}</span>
+                    {renderRoleBadge(guest.p3Role)}
+                  </div>
+                )}
               </div>
-              {guest.allocatedPlusOnes >= 1 && guest.p1Name && (
-                <div class="text-xs text-zinc-500 mt-1.5 uppercase tracking-widest flex items-center gap-2">+1: {guest.p1Name} 
-                  {guest.p1Attending === 'true' ? <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">Y</span> : 
-                   guest.p1Attending === 'false' ? <span class="bg-red-500/20 text-red-400 border border-red-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">N</span> : 
-                  <span class="bg-zinc-700/50 text-zinc-400 border border-zinc-600 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">P</span>}
-                </div>
-              )}
-              {guest.allocatedPlusOnes >= 2 && guest.p2Name && (
-                <div class="text-xs text-zinc-500 mt-1.5 uppercase tracking-widest flex items-center gap-2">+2: {guest.p2Name}
-                   {guest.p2Attending === 'true' ? <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">Y</span> : 
-                   guest.p2Attending === 'false' ? <span class="bg-red-500/20 text-red-400 border border-red-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">N</span> : 
-                   <span class="bg-zinc-700/50 text-zinc-400 border border-zinc-600 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">P</span>}
-                </div>
-              )}
-              {guest.allocatedPlusOnes >= 3 && guest.p3Name && (
-                <div class="text-xs text-zinc-500 mt-1.5 uppercase tracking-widest flex items-center gap-2">+3: {guest.p3Name}
-                  {guest.p3Attending === 'true' ? <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">Y</span> : 
-                   guest.p3Attending === 'false' ? <span class="bg-red-500/20 text-red-400 border border-red-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">N</span> : 
-                   <span class="bg-zinc-700/50 text-zinc-400 border border-zinc-600 px-1.5 py-0.5 rounded-sm text-[9px] font-bold leading-none">P</span>}
-                </div>
-              )}
             </td>
-            <td class="px-6 py-4 font-mono text-pink-400 font-bold tracking-widest">
-              {guest.partyCode || 'NONE'}
-            </td>
-            <td class="px-6 py-4">
-              {guest.email && <div>{guest.email}</div>}
-              {guest.phoneNumber && <div class="text-zinc-400">{guest.phoneNumber}</div>}
-              {guest.dietaryNotes && (
-                <div class="text-xs text-zinc-500 mt-1">
-                  <strong class="uppercase tracking-widest text-[9px] text-zinc-600">Allergies:</strong> {guest.dietaryNotes}
+
+            {/* 2. RSVP Statuses */}
+            <td class="px-6 py-4 align-top">
+              <div class="flex flex-col gap-3">
+                <div class="flex items-center h-6">
+                  {renderRsvpBadge(guest.isAttending, guest.hasRsvpd)}
                 </div>
-              )}
-              {guest.songRequest && (
-                <div class="text-xs text-amber-600/70 mt-1">
-                  <strong class="uppercase tracking-widest text-[9px] text-amber-800">Song:</strong> {guest.songRequest}
-                </div>
-              )}
-            </td>                
-            <td class="px-6 py-4 uppercase text-xs">
-              {guest.role === 'admin' ? <span class="bg-amber-500/20 text-amber-400 border border-amber-500/50 px-2 py-0.5 rounded-sm font-bold tracking-widest text-[10px]">Main Act</span> : 
-               guest.role === 'openers' ? <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-2 py-0.5 rounded-sm font-bold tracking-widest text-[10px]">Openers</span> : 
-               guest.role === 'vip' ? <span class="bg-purple-500/20 text-purple-400 border border-purple-500/50 px-2 py-0.5 rounded-sm font-bold tracking-widest text-[10px]">VIP</span> : 
-               <span class="bg-zinc-700/50 text-zinc-400 border border-zinc-600 px-2 py-0.5 rounded-sm font-bold tracking-widest text-[10px]">Guest</span>} 
-              <br/><span class="text-emerald-500 font-bold mt-2 block">+{guest.allocatedPlusOnes}</span>
+                {guest.allocatedPlusOnes >= 1 && guest.p1Name && (
+                  <div class="flex items-center h-6">
+                    {renderRsvpBadge(guest.p1Attending)}
+                  </div>
+                )}
+                {guest.allocatedPlusOnes >= 2 && guest.p2Name && (
+                  <div class="flex items-center h-6">
+                    {renderRsvpBadge(guest.p2Attending)}
+                  </div>
+                )}
+                {guest.allocatedPlusOnes >= 3 && guest.p3Name && (
+                  <div class="flex items-center h-6">
+                    {renderRsvpBadge(guest.p3Attending)}
+                  </div>
+                )}
+              </div>
             </td>
-            <td class="px-6 py-4 text-right flex justify-end gap-3">
-              <button type="button" class="trigger-edit-btn text-pink-400 hover:text-pink-300 font-bold uppercase tracking-widest text-xs"
-                data-id={guest.id} data-code={guest.partyCode || ''} data-first={guest.firstName} data-last={guest.lastName || ''} data-email={guest.email || ''} data-phone={guest.phoneNumber || ''}
-                data-role={guest.role} data-alloc={guest.allocatedPlusOnes} data-rsvp={statusStr} data-notes={guest.dietaryNotes || ''} data-song={guest.songRequest || ''}
-                data-p1name={guest.p1Name || ''} data-p1email={guest.p1Email || ''} data-p1phone={guest.p1PhoneNumber || ''} data-p1att={guest.p1Attending} 
-                data-p2name={guest.p2Name || ''} data-p2email={guest.p2Email || ''} data-p2phone={guest.p2PhoneNumber || ''} data-p2att={guest.p2Attending} 
-                data-p3name={guest.p3Name || ''} data-p3email={guest.p3Email || ''} data-p3phone={guest.p3PhoneNumber || ''} data-p3att={guest.p3Attending}>
-                Edit
-              </button>
-              <form action="/api/admin/guests" method="POST" onsubmit="if(!confirm('Delete this guest?')) return false; if(document.getElementById('mute-admin-emails')?.checked) { const el = document.createElement('input'); el.type='hidden'; el.name='suppressEmail'; el.value='true'; this.appendChild(el); } return true;">
-                <input type="hidden" name="action" value="delete" />
-                <input type="hidden" name="id" value={guest.id} />
-                <button type="submit" class="text-red-600 font-bold px-2">X</button>
-              </form>
+
+            {/* 3. Contact & Requests */}
+            <td class="px-6 py-4 align-top max-w-[200px]">
+              <div class="flex flex-col gap-1">
+                {guest.email && <div class="text-zinc-200 truncate" title={guest.email}>{guest.email}</div>}
+                {guest.phoneNumber && <div class="text-zinc-400">{guest.phoneNumber}</div>}
+                {!guest.email && !guest.phoneNumber && <div class="text-zinc-600 italic">No contact info</div>}
+                
+                {guest.dietaryNotes && (
+                  <div class="text-xs text-amber-500 mt-2 bg-amber-950/30 border border-amber-900/50 p-1.5 rounded-sm inline-block">
+                    <strong class="uppercase tracking-widest text-[9px]">Allergies:</strong> {guest.dietaryNotes}
+                  </div>
+                )}
+                {guest.songRequest && (
+                  <div class="text-xs text-pink-400 mt-1 bg-pink-950/30 border border-pink-900/50 p-1.5 rounded-sm inline-block">
+                    <strong class="uppercase tracking-widest text-[9px]">Song:</strong> {guest.songRequest}
+                  </div>
+                )}
+              </div>
+            </td>
+
+            {/* 4. Box Office (Code & Size) */}
+            <td class="px-6 py-4 align-top">
+              <div class="flex flex-col gap-2">
+                <div class="font-mono text-pink-400 font-bold tracking-widest text-lg">
+                  {guest.partyCode || 'NONE'}
+                </div>
+                <div class="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">
+                  Party Size: <span class="text-zinc-300">{1 + guest.allocatedPlusOnes}</span>
+                </div>
+              </div>
+            </td>
+
+            {/* 5. Actions */}
+            <td class="px-6 py-4 text-right align-top">
+              <div class="flex justify-end gap-3">
+                <button type="button" class="trigger-edit-btn text-pink-400 hover:text-pink-300 font-bold uppercase tracking-widest text-xs"
+                  data-id={guest.id} data-code={guest.partyCode || ''} data-first={guest.firstName} data-last={guest.lastName || ''} data-email={guest.email || ''} data-phone={guest.phoneNumber || ''}
+                  data-role={guest.role} data-alloc={guest.allocatedPlusOnes} data-rsvp={statusStr} data-notes={guest.dietaryNotes || ''} data-song={guest.songRequest || ''}
+                  data-p1name={guest.p1Name || ''} data-p1last={guest.p1LastName || ''} data-p1role={guest.p1Role || 'guest'} data-p1email={guest.p1Email || ''} data-p1phone={guest.p1PhoneNumber || ''} data-p1att={guest.p1Attending} 
+                  data-p2name={guest.p2Name || ''} data-p2last={guest.p2LastName || ''} data-p2role={guest.p2Role || 'guest'} data-p2email={guest.p2Email || ''} data-p2phone={guest.p2PhoneNumber || ''} data-p2att={guest.p2Attending} 
+                  data-p3name={guest.p3Name || ''} data-p3last={guest.p3LastName || ''} data-p3role={guest.p3Role || 'guest'} data-p3email={guest.p3Email || ''} data-p3phone={guest.p3PhoneNumber || ''} data-p3att={guest.p3Attending}>
+                  Edit
+                </button>
+                <form action="/api/admin/guests" method="POST" onsubmit="if(!confirm('Delete this party?')) return false; if(document.getElementById('mute-admin-emails')?.checked) { const el = document.createElement('input'); el.type='hidden'; el.name='suppressEmail'; el.value='true'; this.appendChild(el); } return true;">
+                  <input type="hidden" name="action" value="delete" />
+                  <input type="hidden" name="id" value={guest.id} />
+                  <button type="submit" class="text-red-600 hover:text-red-400 transition-colors font-bold uppercase tracking-widest text-xs">Delete</button>
+                </form>
+              </div>
             </td>
           </tr>
-        )
+        );
       })}
     </tbody>
   </table>
 </div>
 
 <script>
-  let currentSort = { key: 'name', asc: true };
+  let currentSort = { key: 'lastName', asc: true };
   
   document.querySelectorAll('.sort-header').forEach(header => {
     header.addEventListener('click', () => {
@@ -143,16 +193,22 @@ const { allGuests } = Astro.props;
       (document.getElementById('edit-song') as HTMLInputElement).value = el.getAttribute('data-song') || '';
       
       (document.getElementById('edit-p1name') as HTMLInputElement).value = el.getAttribute('data-p1name') || '';
+      (document.getElementById('edit-p1last') as HTMLInputElement).value = el.getAttribute('data-p1last') || '';
+      (document.getElementById('edit-p1role') as HTMLSelectElement).value = el.getAttribute('data-p1role') || 'guest';
       (document.getElementById('edit-p1email') as HTMLInputElement).value = el.getAttribute('data-p1email') || '';
       (document.getElementById('edit-p1phone') as HTMLInputElement).value = el.getAttribute('data-p1phone') || '';
       (document.getElementById('edit-p1attending') as HTMLSelectElement).value = el.getAttribute('data-p1att') || '';
-
+      
       (document.getElementById('edit-p2name') as HTMLInputElement).value = el.getAttribute('data-p2name') || '';
+      (document.getElementById('edit-p2last') as HTMLInputElement).value = el.getAttribute('data-p2last') || '';
+      (document.getElementById('edit-p2role') as HTMLSelectElement).value = el.getAttribute('data-p2role') || 'guest';
       (document.getElementById('edit-p2email') as HTMLInputElement).value = el.getAttribute('data-p2email') || '';
       (document.getElementById('edit-p2phone') as HTMLInputElement).value = el.getAttribute('data-p2phone') || '';
       (document.getElementById('edit-p2attending') as HTMLSelectElement).value = el.getAttribute('data-p2att') || '';
 
       (document.getElementById('edit-p3name') as HTMLInputElement).value = el.getAttribute('data-p3name') || '';
+      (document.getElementById('edit-p3last') as HTMLInputElement).value = el.getAttribute('data-p3last') || '';
+      (document.getElementById('edit-p3role') as HTMLSelectElement).value = el.getAttribute('data-p3role') || 'guest';
       (document.getElementById('edit-p3email') as HTMLInputElement).value = el.getAttribute('data-p3email') || '';
       (document.getElementById('edit-p3phone') as HTMLInputElement).value = el.getAttribute('data-p3phone') || '';
       (document.getElementById('edit-p3attending') as HTMLSelectElement).value = el.getAttribute('data-p3att') || '';

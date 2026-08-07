@@ -16,27 +16,27 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="md:col-span-1">
           <label class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1 block">First</label>
-          <input type="text" name="firstName" id="edit-first" required class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2" />
+          <input type="text" name="firstName" id="edit-first" required class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" />
         </div>
         <div class="md:col-span-1">
           <label class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1 block">Last</label>
-          <input type="text" name="lastName" id="edit-last" required class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2" />
+          <input type="text" name="lastName" id="edit-last" required class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" />
         </div>
         <div class="md:col-span-1">
           <label class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1 block">Email</label>
-          <input type="email" name="email" id="edit-email" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2" />
+          <input type="email" name="email" id="edit-email" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" />
         </div>
         <div class="md:col-span-1">
           <label class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1 block">Phone</label>
-          <input type="text" name="phoneNumber" id="edit-phone" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2" />
+          <input type="text" name="phoneNumber" id="edit-phone" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" />
         </div>
         <div class="md:col-span-1">
           <label class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1 block">4-Digit Code</label>
-          <input type="text" name="partyCode" id="edit-code" required maxlength="4" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2" />
+          <input type="text" name="partyCode" id="edit-code" required maxlength="4" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" />
         </div>
         <div class="md:col-span-1">
           <label class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1 block">Role</label>
-          <select name="role" id="edit-role" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm">
+          <select name="role" id="edit-role" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm pr-8">
             <option value="guest">Guest</option>
             <option value="vip">VIP</option>
             <option value="openers">Openers</option>
@@ -45,7 +45,7 @@
         </div>
         <div class="md:col-span-1">
           <label class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1 block">Party Size</label>
-          <select name="allocatedPlusOnes" id="edit-allocation" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 text-zinc-100 font-bold px-3 py-2 text-sm text-center focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors">
+          <select name="allocatedPlusOnes" id="edit-allocation" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 text-zinc-100 font-bold px-3 py-2 text-sm text-center pr-8 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors">
             <option value="0">+0</option>
             <option value="1">+1</option>
             <option value="2">+2</option>
@@ -57,7 +57,7 @@
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-zinc-900/60 rounded-sm/50 p-4 border border-zinc-800">
         <div class="md:col-span-2">
           <p class="text-xs font-bold uppercase tracking-widest text-pink-400 mb-1">Main RSVP</p>
-          <select name="rsvpStatus" id="edit-rsvp" class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm">
+          <select name="rsvpStatus" id="edit-rsvp" class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm pr-8">
             <option value="pending">Pending</option>
             <option value="attending">Yes</option>
             <option value="declined">No</option>
@@ -65,19 +65,28 @@
         </div>
         <div class="md:col-span-1">
           <p class="text-xs font-bold uppercase tracking-widest text-pink-400 mb-1">Dietary Notes</p>
-          <input type="text" name="dietaryNotes" id="edit-notes" class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2" />
+          <input type="text" name="dietaryNotes" id="edit-notes" class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm" />
         </div>
         <div class="md:col-span-1">
           <p class="text-xs font-bold uppercase tracking-widest text-pink-400 mb-1">Song Request</p>
-          <input type="text" name="songRequest" id="edit-song" class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2" />
+          <input type="text" name="songRequest" id="edit-song" class="w-full bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm" />
         </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="edit-p-block border border-zinc-800 p-4" data-index="1">
-          <p class="text-xs font-bold uppercase tracking-widest text-pink-400 mb-2">+1 Name & RSVP</p>
-          <input type="text" name="p1Name" id="edit-p1name" placeholder="Name" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mb-2 text-sm" />
-          <select name="p1Attending" id="edit-p1attending" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-2 py-2 text-xs">
+          <p class="text-xs font-bold uppercase tracking-widest text-pink-400 mb-2">+1 Name, Role & RSVP</p>
+          <div class="flex gap-2 mb-2">
+            <input type="text" name="p1Name" id="edit-p1name" placeholder="First" class="w-1/2 bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" />
+            <input type="text" name="p1LastName" id="edit-p1last" placeholder="Last" class="w-1/2 bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" />
+          </div>
+          <select name="p1Role" id="edit-p1role" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mb-2 text-sm pr-8">
+            <option value="guest">Guest</option>
+            <option value="vip">VIP</option>
+            <option value="openers">Openers</option>
+            <option value="admin">Main Act</option>
+          </select>
+          <select name="p1Attending" id="edit-p1attending" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm pr-8">
             <option value="pending">Pending</option>
             <option value="true">Yes</option>
             <option value="false">No</option>
@@ -87,9 +96,18 @@
         </div>
         
         <div class="edit-p-block border border-zinc-800 p-4" data-index="2">
-          <p class="text-xs font-bold uppercase tracking-widest text-pink-400 mb-2">+2 Name & RSVP</p>
-          <input type="text" name="p2Name" id="edit-p2name" placeholder="Name" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mb-2 text-sm" />
-          <select name="p2Attending" id="edit-p2attending" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-2 py-2 text-xs">
+          <p class="text-xs font-bold uppercase tracking-widest text-pink-400 mb-2">+2 Name, Role & RSVP</p>
+          <div class="flex gap-2 mb-2">
+            <input type="text" name="p2Name" id="edit-p2name" placeholder="First" class="w-1/2 bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" />
+            <input type="text" name="p2LastName" id="edit-p2last" placeholder="Last" class="w-1/2 bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" />
+          </div>
+          <select name="p2Role" id="edit-p2role" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mb-2 text-sm pr-8">
+            <option value="guest">Guest</option>
+            <option value="vip">VIP</option>
+            <option value="openers">Openers</option>
+            <option value="admin">Main Act</option>
+          </select>
+          <select name="p2Attending" id="edit-p2attending" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm pr-8">
             <option value="pending">Pending</option>
             <option value="true">Yes</option>
             <option value="false">No</option>
@@ -99,9 +117,18 @@
         </div>
 
         <div class="edit-p-block border border-zinc-800 p-4" data-index="3">
-          <p class="text-xs font-bold uppercase tracking-widest text-pink-400 mb-2">+3 Name & RSVP</p>
-          <input type="text" name="p3Name" id="edit-p3name" placeholder="Name" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mb-2 text-sm" />
-          <select name="p3Attending" id="edit-p3attending" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-2 py-2 text-xs">
+          <p class="text-xs font-bold uppercase tracking-widest text-pink-400 mb-2">+3 Name, Role & RSVP</p>
+          <div class="flex gap-2 mb-2">
+            <input type="text" name="p3Name" id="edit-p3name" placeholder="First" class="w-1/2 bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" />
+            <input type="text" name="p3LastName" id="edit-p3last" placeholder="Last" class="w-1/2 bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" />
+          </div>
+          <select name="p3Role" id="edit-p3role" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mb-2 text-sm pr-8">
+            <option value="guest">Guest</option>
+            <option value="vip">VIP</option>
+            <option value="openers">Openers</option>
+            <option value="admin">Main Act</option>
+          </select>
+          <select name="p3Attending" id="edit-p3attending" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm pr-8">
             <option value="pending">Pending</option>
             <option value="true">Yes</option>
             <option value="false">No</option>

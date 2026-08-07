@@ -44,18 +44,24 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 
   // +1 Data
   const p1Name = allocatedPlusOnes >= 1 ? (formData.get('p1Name')?.toString().trim() || null) : null;
+  const p1LastName = allocatedPlusOnes >= 1 ? (formData.get('p1LastName')?.toString().trim() || null) : null;
+  const p1Role = allocatedPlusOnes >= 1 ? (formData.get('p1Role')?.toString() || 'guest') : 'guest';
   let p1Email = allocatedPlusOnes >= 1 ? (formData.get('p1Email')?.toString().trim().toLowerCase() || null) : null;
   let p1PhoneNumber = allocatedPlusOnes >= 1 ? extractPhone(formData.get('p1PhoneNumber')?.toString()) : null;
   const p1Attending = allocatedPlusOnes >= 1 ? (formData.get('p1Attending')?.toString() || 'pending') : 'pending';
 
-  // +2 Data
+ // +2 Data
   const p2Name = allocatedPlusOnes >= 2 ? (formData.get('p2Name')?.toString().trim() || null) : null;
+  const p2LastName = allocatedPlusOnes >= 2 ? (formData.get('p2LastName')?.toString().trim() || null) : null;
+  const p2Role = allocatedPlusOnes >= 2 ? (formData.get('p2Role')?.toString() || 'guest') : 'guest';
   let p2Email = allocatedPlusOnes >= 2 ? (formData.get('p2Email')?.toString().trim().toLowerCase() || null) : null;
   let p2PhoneNumber = allocatedPlusOnes >= 2 ? extractPhone(formData.get('p2PhoneNumber')?.toString()) : null;
   const p2Attending = allocatedPlusOnes >= 2 ? (formData.get('p2Attending')?.toString() || 'pending') : 'pending';
 
   // +3 Data
   const p3Name = allocatedPlusOnes >= 3 ? (formData.get('p3Name')?.toString().trim() || null) : null;
+  const p3LastName = allocatedPlusOnes >= 3 ? (formData.get('p3LastName')?.toString().trim() || null) : null;
+  const p3Role = allocatedPlusOnes >= 3 ? (formData.get('p3Role')?.toString() || 'guest') : 'guest';
   let p3Email = allocatedPlusOnes >= 3 ? (formData.get('p3Email')?.toString().trim().toLowerCase() || null) : null;
   let p3PhoneNumber = allocatedPlusOnes >= 3 ? extractPhone(formData.get('p3PhoneNumber')?.toString()) : null;
   const p3Attending = allocatedPlusOnes >= 3 ? (formData.get('p3Attending')?.toString() || 'pending') : 'pending';
@@ -116,9 +122,9 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     try {
       await db.update(guests).set({ 
         firstName, lastName, email, phoneNumber, partyCode, role, allocatedPlusOnes, hasRsvpd, isAttending, dietaryNotes, songRequest,
-        p1Name, p1Email, p1PhoneNumber, p1Attending, 
-        p2Name, p2Email, p2PhoneNumber, p2Attending, 
-        p3Name, p3Email, p3PhoneNumber, p3Attending
+        p1Name, p1LastName, p1Role, p1Email, p1PhoneNumber, p1Attending, 
+        p2Name, p2LastName, p2Role, p2Email, p2PhoneNumber, p2Attending, 
+        p3Name, p3LastName, p3Role, p3Email, p3PhoneNumber, p3Attending
       }).where(eq(guests.id, id));
       
       const editedGuest = await db.select().from(guests).where(eq(guests.id, id));
@@ -137,7 +143,10 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   if (action === 'add') {
     try {
       await db.insert(guests).values({
-        firstName, lastName, email, phoneNumber, partyCode, role, allocatedPlusOnes, hasRsvpd: false, isAttending: false
+        firstName, lastName, email, phoneNumber, partyCode, role, allocatedPlusOnes, hasRsvpd: false, isAttending: false,
+        p1Name, p1LastName, p1Role, p1Email, p1PhoneNumber, p1Attending,
+        p2Name, p2LastName, p2Role, p2Email, p2PhoneNumber, p2Attending,
+        p3Name, p3LastName, p3Role, p3Email, p3PhoneNumber, p3Attending
       });
       
       const conditions = [];

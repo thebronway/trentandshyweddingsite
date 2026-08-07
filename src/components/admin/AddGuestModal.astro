@@ -13,27 +13,27 @@
       <input type="hidden" name="action" value="add" />
       <div class="md:col-span-1">
         <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1">First Name</label>
-        <input type="text" name="firstName" required class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 text-zinc-100 px-3 py-2" />
+        <input type="text" name="firstName" required class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 text-zinc-100 px-3 py-2 text-sm" />
       </div>
       <div class="md:col-span-1">
         <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1">Last Name</label>
-        <input type="text" name="lastName" required class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 text-zinc-100 px-3 py-2" />
+        <input type="text" name="lastName" required class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 text-zinc-100 px-3 py-2 text-sm" />
       </div>
       <div class="md:col-span-1">
         <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1">Email</label>
-        <input type="email" name="email" id="add-email" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 text-zinc-100 px-3 py-2" />
+        <input type="email" name="email" id="add-email" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 text-zinc-100 px-3 py-2 text-sm" />
       </div>
       <div class="md:col-span-1">
         <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1">Phone</label>
-        <input type="text" name="phoneNumber" id="add-phone" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 text-zinc-100 px-3 py-2" />
+        <input type="text" name="phoneNumber" id="add-phone" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 text-zinc-100 px-3 py-2 text-sm" />
       </div>
       <div class="md:col-span-1">
         <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1">4-Digit Code</label>
-        <input type="text" name="partyCode" id="add-code" required maxlength="4" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 text-zinc-100 px-3 py-2" />
+        <input type="text" name="partyCode" id="add-code" required maxlength="4" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 text-zinc-100 px-3 py-2 text-sm" />
       </div>
       <div class="md:col-span-1">
         <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1">Role</label>
-        <select name="role" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 text-zinc-100 px-3 py-2 text-sm">
+        <select name="role" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 text-zinc-100 px-3 py-2 text-sm pr-8">
           <option value="guest">Guest</option>
           <option value="vip">VIP</option>
           <option value="openers">Openers</option>
@@ -42,7 +42,7 @@
       </div>
       <div class="md:col-span-1">
         <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1">Party Size (+)</label>
-        <select name="allocatedPlusOnes" id="add-allocation" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 text-zinc-100 px-3 py-2 text-sm text-center">
+        <select name="allocatedPlusOnes" id="add-allocation" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 text-zinc-100 px-3 py-2 text-sm text-center pr-8">
           <option value="0">+0</option>
           <option value="1">+1</option>
           <option value="2">+2</option>
@@ -53,21 +53,48 @@
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-zinc-800 pt-4 mt-2">
         <div class="add-p-block border border-zinc-800 p-4 opacity-30 grayscale" data-index="1">
           <p class="text-xs font-bold uppercase tracking-widest text-pink-400 mb-2">+1 Name & Info</p>
-          <input type="text" name="p1Name" placeholder="Name" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mb-2 text-sm" disabled />
+          <div class="flex gap-2 mb-2">
+            <input type="text" name="p1Name" placeholder="First" class="w-1/2 bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" disabled />
+            <input type="text" name="p1LastName" placeholder="Last" class="w-1/2 bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" disabled />
+          </div>
+          <select name="p1Role" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mb-2 text-sm pr-8" disabled>
+            <option value="guest">Guest</option>
+            <option value="vip">VIP</option>
+            <option value="openers">Openers</option>
+            <option value="admin">Main Act</option>
+          </select>
           <input type="email" name="p1Email" placeholder="Email" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mt-2 text-sm" disabled />
           <input type="text" name="p1PhoneNumber" placeholder="Phone" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mt-2 text-sm" disabled />
         </div>
         
         <div class="add-p-block border border-zinc-800 p-4 opacity-30 grayscale" data-index="2">
           <p class="text-xs font-bold uppercase tracking-widest text-pink-400 mb-2">+2 Name & Info</p>
-          <input type="text" name="p2Name" placeholder="Name" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mb-2 text-sm" disabled />
+          <div class="flex gap-2 mb-2">
+            <input type="text" name="p2Name" placeholder="First" class="w-1/2 bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" disabled />
+            <input type="text" name="p2LastName" placeholder="Last" class="w-1/2 bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" disabled />
+          </div>
+          <select name="p2Role" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mb-2 text-sm pr-8" disabled>
+            <option value="guest">Guest</option>
+            <option value="vip">VIP</option>
+            <option value="openers">Openers</option>
+            <option value="admin">Main Act</option>
+          </select>
           <input type="email" name="p2Email" placeholder="Email" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mt-2 text-sm" disabled />
           <input type="text" name="p2PhoneNumber" placeholder="Phone" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mt-2 text-sm" disabled />
         </div>
 
         <div class="add-p-block border border-zinc-800 p-4 opacity-30 grayscale" data-index="3">
           <p class="text-xs font-bold uppercase tracking-widest text-pink-400 mb-2">+3 Name & Info</p>
-          <input type="text" name="p3Name" placeholder="Name" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mb-2 text-sm" disabled />
+          <div class="flex gap-2 mb-2">
+            <input type="text" name="p3Name" placeholder="First" class="w-1/2 bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" disabled />
+            <input type="text" name="p3LastName" placeholder="Last" class="w-1/2 bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" disabled />
+          </div>
+          <select name="p3Role" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mb-2 text-sm pr-8" disabled>
+            <option value="guest">Guest</option>
+            <option value="vip">VIP</option>
+            <option value="openers">Openers</option>
+            <option value="admin">Main Act</option>
+          </select>
           <input type="email" name="p3Email" placeholder="Email" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mt-2 text-sm" disabled />
           <input type="text" name="p3PhoneNumber" placeholder="Phone" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 mt-2 text-sm" disabled />
         </div>
@@ -88,13 +115,13 @@
     const alloc = parseInt((addAllocSelect as HTMLSelectElement).value);
     addPBlocks.forEach(block => {
       const idx = parseInt(block.getAttribute('data-index') || '0');
-      const inputs = block.querySelectorAll('input');
+      const inputs = block.querySelectorAll('input, select');
       if (idx > alloc) {
         block.classList.add('opacity-30', 'grayscale');
-        inputs.forEach(i => i.disabled = true);
+        inputs.forEach(i => (i as HTMLInputElement | HTMLSelectElement).disabled = true);
       } else {
         block.classList.remove('opacity-30', 'grayscale');
-        inputs.forEach(i => i.disabled = false);
+        inputs.forEach(i => (i as HTMLInputElement | HTMLSelectElement).disabled = false);
       }
     });
   });

@@ -26,13 +26,6 @@ export const POST: APIRoute = async ({ request, redirect, cookies }) => {
   let p1Attending = formData.get('p1Attending')?.toString() || 'pending';
   let p2Attending = formData.get('p2Attending')?.toString() || 'pending';
   let p3Attending = formData.get('p3Attending')?.toString() || 'pending';
-
-  // BACKEND GUARD: Enforce Cascading "No"
-  if (!isAttending) {
-    p1Attending = 'false';
-    p2Attending = 'false';
-    p3Attending = 'false';
-  }
   
   const extractPhone = (val: string | undefined) => val ? val.replace(/\D/g, '').replace(/^1/, '') : null;
   let p1Email = formData.get('p1Email')?.toString().trim().toLowerCase() || null;

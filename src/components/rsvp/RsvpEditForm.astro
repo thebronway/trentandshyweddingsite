@@ -9,13 +9,6 @@ const { guestRecord, duplicateError } = Astro.props;
 <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 rounded-sm p-4 sm:p-8 shadow-2xl">
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-zinc-700 pb-4 mb-8">
     <div class="w-full sm:w-auto overflow-hidden">
-      {guestRecord.role && ['vip', 'opener', 'openers'].includes(guestRecord.role.toLowerCase()) && (
-        <div class="mb-3">
-          <span class="inline-block bg-pink-600 text-white px-4 py-1.5 text-sm sm:text-base font-display uppercase tracking-widest rounded-sm shadow-[0_0_15px_rgba(219,39,119,0.5)] border border-pink-400">
-            ★ {guestRecord.role} ★
-          </span>
-        </div>
-      )}
       <h1 class="text-3xl sm:text-4xl text-zinc-100 font-display uppercase tracking-widest truncate">
         {guestRecord.hasRsvpd ? 'Update Ticket' : 'Your Ticket'}
       </h1>
@@ -51,9 +44,16 @@ const { guestRecord, duplicateError } = Astro.props;
     </div>
 
     <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
-      <h3 class="text-xl font-display text-pink-400 uppercase tracking-widest mb-4 border-b border-zinc-700 pb-2">
-        {guestRecord.firstName} {guestRecord.lastName || ''}
-      </h3>
+      <div class="flex items-center gap-3 mb-4 border-b border-zinc-700 pb-2">
+        <h3 class="text-xl font-display text-pink-400 uppercase tracking-widest">
+          {guestRecord.firstName} {guestRecord.lastName || ''}
+        </h3>
+        {guestRecord.role && ['vip', 'opener', 'openers', 'admin'].includes(guestRecord.role.toLowerCase()) && (
+          <span class="inline-block bg-pink-600/20 text-pink-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-sm border border-pink-500/50">
+            {guestRecord.role === 'admin' ? 'Main Act' : guestRecord.role}
+          </span>
+        )}
+      </div>
       <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
         <div>
           <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Attending?</label>
@@ -68,9 +68,16 @@ const { guestRecord, duplicateError } = Astro.props;
 
     {guestRecord.allocatedPlusOnes >= 1 && (
       <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
-        <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest mb-4 border-b border-zinc-700 pb-2">
-          {guestRecord.p1Name ? `${guestRecord.p1Name} (Guest)` : 'Guest'}
-        </h3>
+        <div class="flex items-center gap-3 mb-4 border-b border-zinc-700 pb-2">
+          <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest">
+            {guestRecord.p1Name ? `${guestRecord.p1Name} ${guestRecord.p1LastName || ''} (Guest)` : 'Guest'}
+          </h3>
+          {guestRecord.p1Role && ['vip', 'opener', 'openers', 'admin'].includes(guestRecord.p1Role.toLowerCase()) && (
+            <span class="inline-block bg-pink-600/20 text-pink-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-sm border border-pink-500/50">
+              {guestRecord.p1Role === 'admin' ? 'Main Act' : guestRecord.p1Role}
+            </span>
+          )}
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="md:col-span-2">
             <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Attending?</label>
@@ -94,9 +101,16 @@ const { guestRecord, duplicateError } = Astro.props;
 
    {guestRecord.allocatedPlusOnes >= 2 && (
       <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
-        <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest mb-4 border-b border-zinc-700 pb-2">
-          {guestRecord.p2Name ? `${guestRecord.p2Name} (Guest)` : 'Guest'}
-        </h3>
+        <div class="flex items-center gap-3 mb-4 border-b border-zinc-700 pb-2">
+          <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest">
+            {guestRecord.p2Name ? `${guestRecord.p2Name} ${guestRecord.p2LastName || ''} (Guest)` : 'Guest'}
+          </h3>
+          {guestRecord.p2Role && ['vip', 'opener', 'openers', 'admin'].includes(guestRecord.p2Role.toLowerCase()) && (
+            <span class="inline-block bg-pink-600/20 text-pink-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-sm border border-pink-500/50">
+              {guestRecord.p2Role === 'admin' ? 'Main Act' : guestRecord.p2Role}
+            </span>
+          )}
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="md:col-span-2">
             <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Attending?</label>
@@ -120,9 +134,16 @@ const { guestRecord, duplicateError } = Astro.props;
 
     {guestRecord.allocatedPlusOnes >= 3 && (
       <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
-        <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest mb-4 border-b border-zinc-700 pb-2">
-          {guestRecord.p3Name ? `${guestRecord.p3Name} (Guest)` : 'Guest'}
-        </h3>
+        <div class="flex items-center gap-3 mb-4 border-b border-zinc-700 pb-2">
+          <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest">
+            {guestRecord.p3Name ? `${guestRecord.p3Name} ${guestRecord.p3LastName || ''} (Guest)` : 'Guest'}
+          </h3>
+          {guestRecord.p3Role && ['vip', 'opener', 'openers', 'admin'].includes(guestRecord.p3Role.toLowerCase()) && (
+            <span class="inline-block bg-pink-600/20 text-pink-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-sm border border-pink-500/50">
+              {guestRecord.p3Role === 'admin' ? 'Main Act' : guestRecord.p3Role}
+            </span>
+          )}
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="md:col-span-2">
             <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Attending?</label>
@@ -178,35 +199,5 @@ const { guestRecord, duplicateError } = Astro.props;
       }
     });
 
-    // Cascading "No" Logic
-    const mainAttending = document.getElementById('main-attending');
-    if (mainAttending) {
-      const handleCascadingNo = (isNotAttending, showWarning) => {
-        let partyChanged = false;
-        ['p1-attending', 'p2-attending', 'p3-attending'].forEach(id => {
-          const pSelect = document.getElementById(id);
-          if (pSelect) {
-            if (isNotAttending) {
-              if (pSelect.value !== 'false') {
-                pSelect.value = 'false';
-                pSelect.dispatchEvent(new Event('change'));
-                partyChanged = true;
-              }
-              pSelect.classList.add('opacity-50', 'pointer-events-none');
-            } else {
-               pSelect.classList.remove('opacity-50', 'pointer-events-none');
-            }
-          }
-        });
-        if (isNotAttending && partyChanged && showWarning) {
-          alert("Since you can't make it, we've updated your party's RSVP to match. We'll miss you guys!");
-        }
-      };
-
-      mainAttending.addEventListener('change', (e) => {
-        handleCascadingNo(e.target.value === 'false', true);
-      });
-      handleCascadingNo(mainAttending.value === 'false', false);
-    }
   })();
 </script>

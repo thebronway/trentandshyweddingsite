@@ -87,10 +87,7 @@ allGuests.forEach(g => {
             <div class="flex justify-between items-start mb-4">
               <div>
                 <div class="flex flex-wrap items-center gap-2 mb-1">
-                  <h3 class="text-xl font-display text-white uppercase tracking-wider leading-none">{guest.lastName ? `${guest.lastName}, ` : ''}{guest.firstName}</h3>
-                  <span class={`text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-sm ${guest.role === 'admin' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : guest.role === 'openers' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' : guest.role === 'vip' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/50' : 'bg-zinc-700/50 text-zinc-400 border border-zinc-600'}`}>
-                    {guest.role === 'admin' ? 'Main Act' : guest.role}
-                  </span>
+                  <h3 class="text-xl font-display text-white uppercase tracking-wider leading-none">{guest.lastName ? `${guest.lastName}, ` : ''}{guest.firstName} Party</h3>
                 </div>
                 {guest.partyCode && <p class="text-zinc-500 text-xs font-mono tracking-widest uppercase">CODE: {guest.partyCode}</p>}
               </div>
@@ -106,7 +103,12 @@ allGuests.forEach(g => {
               {/* Main Guest */}
               <div class={`flex justify-between items-center p-2 rounded-sm border ${mainExpected ? 'border-zinc-700 bg-zinc-900/50' : 'border-red-900/30 bg-red-950/30 opacity-50'}`}>
                 <div class="flex flex-col">
-                  <span class="text-sm text-zinc-200 uppercase font-bold tracking-widest">{guest.firstName} {guest.lastName || ''}</span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm text-zinc-200 uppercase font-bold tracking-widest">{guest.firstName} {guest.lastName || ''}</span>
+                    <span class={`text-[9px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded-sm ${guest.role === 'admin' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : guest.role === 'openers' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' : guest.role === 'vip' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/50' : 'bg-zinc-700/50 text-zinc-400 border border-zinc-600'}`}>
+                      {guest.role === 'admin' ? 'Main Act' : guest.role}
+                    </span>
+                  </div>
                   {!mainExpected && <span class="text-[9px] text-red-400 font-bold uppercase tracking-widest">{guest.hasRsvpd ? 'Declined' : 'Pending'}</span>}
                   {mainExpected && <span class="checkin-time text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{guest.isCheckedIn ? formatTime(guest.checkInTime) : ''}</span>}
                 </div>
@@ -135,7 +137,12 @@ allGuests.forEach(g => {
               {guest.allocatedPlusOnes >= 1 && (
                  <div class={`flex justify-between items-center p-2 rounded-sm border ${p1Expected ? 'border-zinc-700 bg-zinc-900/50' : 'border-red-900/30 bg-red-950/30 opacity-50'}`}>
                   <div class="flex flex-col">
-                    <span class="text-sm text-zinc-300 uppercase font-bold tracking-widest">{guest.p1Name ? `${guest.p1Name} (Guest)` : 'Guest'}</span>
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm text-zinc-300 uppercase font-bold tracking-widest">{guest.p1Name ? `${guest.p1Name} ${guest.p1LastName || ''} (Guest)` : 'Guest'}</span>
+                      <span class={`text-[9px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded-sm ${guest.p1Role === 'admin' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : guest.p1Role === 'openers' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' : guest.p1Role === 'vip' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/50' : 'bg-zinc-700/50 text-zinc-400 border border-zinc-600'}`}>
+                        {guest.p1Role === 'admin' ? 'Main Act' : guest.p1Role}
+                      </span>
+                    </div>
                     {!p1Expected && <span class="text-[9px] text-red-400 font-bold uppercase tracking-widest">{guest.p1Attending === 'false' ? 'Declined' : 'Pending'}</span>}
                     {p1Expected && <span class="checkin-time text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{guest.p1CheckedIn ? formatTime(guest.p1CheckInTime) : ''}</span>}
                   </div>
@@ -163,7 +170,12 @@ allGuests.forEach(g => {
               {guest.allocatedPlusOnes >= 2 && (
                  <div class={`flex justify-between items-center p-2 rounded-sm border ${p2Expected ? 'border-zinc-700 bg-zinc-900/50' : 'border-red-900/30 bg-red-950/30 opacity-50'}`}>
                   <div class="flex flex-col">
-                    <span class="text-sm text-zinc-300 uppercase font-bold tracking-widest">{guest.p2Name ? `${guest.p2Name} (Guest)` : 'Guest'}</span>
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm text-zinc-300 uppercase font-bold tracking-widest">{guest.p2Name ? `${guest.p2Name} ${guest.p2LastName || ''} (Guest)` : 'Guest'}</span>
+                      <span class={`text-[9px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded-sm ${guest.p2Role === 'admin' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : guest.p2Role === 'openers' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' : guest.p2Role === 'vip' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/50' : 'bg-zinc-700/50 text-zinc-400 border border-zinc-600'}`}>
+                        {guest.p2Role === 'admin' ? 'Main Act' : guest.p2Role}
+                      </span>
+                    </div>
                     {!p2Expected && <span class="text-[9px] text-red-400 font-bold uppercase tracking-widest">{guest.p2Attending === 'false' ? 'Declined' : 'Pending'}</span>}
                     {p2Expected && <span class="checkin-time text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{guest.p2CheckedIn ? formatTime(guest.p2CheckInTime) : ''}</span>}
                   </div>
@@ -191,7 +203,12 @@ allGuests.forEach(g => {
               {guest.allocatedPlusOnes >= 3 && (
                  <div class={`flex justify-between items-center p-2 rounded-sm border ${p3Expected ? 'border-zinc-700 bg-zinc-900/50' : 'border-red-900/30 bg-red-950/30 opacity-50'}`}>
                   <div class="flex flex-col">
-                    <span class="text-sm text-zinc-300 uppercase font-bold tracking-widest">{guest.p3Name ? `${guest.p3Name} (Guest)` : 'Guest'}</span>
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm text-zinc-300 uppercase font-bold tracking-widest">{guest.p3Name ? `${guest.p3Name} ${guest.p3LastName || ''} (Guest)` : 'Guest'}</span>
+                      <span class={`text-[9px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded-sm ${guest.p3Role === 'admin' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : guest.p3Role === 'openers' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' : guest.p3Role === 'vip' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/50' : 'bg-zinc-700/50 text-zinc-400 border border-zinc-600'}`}>
+                        {guest.p3Role === 'admin' ? 'Main Act' : guest.p3Role}
+                      </span>
+                    </div>
                     {!p3Expected && <span class="text-[9px] text-red-400 font-bold uppercase tracking-widest">{guest.p3Attending === 'false' ? 'Declined' : 'Pending'}</span>}
                     {p3Expected && <span class="checkin-time text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{guest.p3CheckedIn ? formatTime(guest.p3CheckInTime) : ''}</span>}
                   </div>
