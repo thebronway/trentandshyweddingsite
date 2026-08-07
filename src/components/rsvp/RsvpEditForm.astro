@@ -5,6 +5,19 @@ interface Props {
 }
 
 const { guestRecord, duplicateError } = Astro.props;
+
+const getBadge = (roleStr: string | null | undefined) => {
+  const r = (roleStr || 'guest').toLowerCase();
+  if (r === 'admin') return { text: 'Main Act', classes: 'bg-amber-500/20 text-amber-400 border border-amber-500/50 px-2 py-1 text-xs font-bold uppercase tracking-widest rounded-sm whitespace-nowrap' };
+  if (r === 'openers') return { text: 'Openers', classes: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-2 py-1 text-xs font-bold uppercase tracking-widest rounded-sm whitespace-nowrap' };
+  if (r === 'vip') return { text: '★ VIP ★', classes: 'bg-purple-500/20 text-purple-400 border border-purple-500/50 px-2 py-1 text-xs font-bold uppercase tracking-widest rounded-sm whitespace-nowrap' };
+  return null;
+};
+
+const mainBadge = getBadge(guestRecord.role);
+const p1Badge = getBadge(guestRecord.p1Role);
+const p2Badge = getBadge(guestRecord.p2Role);
+const p3Badge = getBadge(guestRecord.p3Role);
 ---
 <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 rounded-sm p-4 sm:p-8 shadow-2xl">
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-zinc-700 pb-4 mb-8">
@@ -48,11 +61,7 @@ const { guestRecord, duplicateError } = Astro.props;
         <h3 class="text-xl font-display text-pink-400 uppercase tracking-widest">
           {guestRecord.firstName} {guestRecord.lastName || ''}
         </h3>
-        {guestRecord.role && ['vip', 'opener', 'openers', 'admin'].includes(guestRecord.role.toLowerCase()) && (
-          <span class="inline-block bg-pink-600/20 text-pink-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-sm border border-pink-500/50">
-            {guestRecord.role === 'admin' ? 'Main Act' : guestRecord.role}
-          </span>
-        )}
+        {mainBadge && <span class={`inline-block ${mainBadge.classes}`}>{mainBadge.text}</span>}
       </div>
       <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
         <div>
@@ -72,11 +81,7 @@ const { guestRecord, duplicateError } = Astro.props;
           <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest">
             {guestRecord.p1Name ? `${guestRecord.p1Name} ${guestRecord.p1LastName || ''} (Guest)` : 'Guest'}
           </h3>
-          {guestRecord.p1Role && ['vip', 'opener', 'openers', 'admin'].includes(guestRecord.p1Role.toLowerCase()) && (
-            <span class="inline-block bg-pink-600/20 text-pink-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-sm border border-pink-500/50">
-              {guestRecord.p1Role === 'admin' ? 'Main Act' : guestRecord.p1Role}
-            </span>
-          )}
+          {p1Badge && <span class={`inline-block ${p1Badge.classes}`}>{p1Badge.text}</span>}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="md:col-span-2">
@@ -105,11 +110,7 @@ const { guestRecord, duplicateError } = Astro.props;
           <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest">
             {guestRecord.p2Name ? `${guestRecord.p2Name} ${guestRecord.p2LastName || ''} (Guest)` : 'Guest'}
           </h3>
-          {guestRecord.p2Role && ['vip', 'opener', 'openers', 'admin'].includes(guestRecord.p2Role.toLowerCase()) && (
-            <span class="inline-block bg-pink-600/20 text-pink-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-sm border border-pink-500/50">
-              {guestRecord.p2Role === 'admin' ? 'Main Act' : guestRecord.p2Role}
-            </span>
-          )}
+          {p2Badge && <span class={`inline-block ${p2Badge.classes}`}>{p2Badge.text}</span>}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="md:col-span-2">
@@ -138,11 +139,7 @@ const { guestRecord, duplicateError } = Astro.props;
           <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest">
             {guestRecord.p3Name ? `${guestRecord.p3Name} ${guestRecord.p3LastName || ''} (Guest)` : 'Guest'}
           </h3>
-          {guestRecord.p3Role && ['vip', 'opener', 'openers', 'admin'].includes(guestRecord.p3Role.toLowerCase()) && (
-            <span class="inline-block bg-pink-600/20 text-pink-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-sm border border-pink-500/50">
-              {guestRecord.p3Role === 'admin' ? 'Main Act' : guestRecord.p3Role}
-            </span>
-          )}
+          {p3Badge && <span class={`inline-block ${p3Badge.classes}`}>{p3Badge.text}</span>}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="md:col-span-2">

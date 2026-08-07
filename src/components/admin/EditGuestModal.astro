@@ -32,7 +32,7 @@
         </div>
         <div class="md:col-span-1">
           <label class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1 block">4-Digit Code</label>
-          <input type="text" name="partyCode" id="edit-code" required maxlength="4" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" />
+          <input type="text" name="partyCode" id="edit-code" required minlength="4" maxlength="4" pattern=".{4,4}" title="Please enter exactly 4 characters" class="w-full bg-zinc-900/60 rounded-sm border border-zinc-700 px-3 py-2 text-sm" />
         </div>
         <div class="md:col-span-1">
           <label class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1 block">Role</label>

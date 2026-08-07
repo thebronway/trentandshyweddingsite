@@ -22,16 +22,16 @@ const { allGuests } = Astro.props;
         
         const renderRoleBadge = (roleStr: string | null | undefined) => {
           const r = (roleStr || 'guest').toLowerCase();
-          if (r === 'admin') return <span class="bg-amber-500/20 text-amber-400 border border-amber-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase">Main Act</span>;
-          if (r === 'openers') return <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase">Openers</span>;
-          if (r === 'vip') return <span class="bg-purple-500/20 text-purple-400 border border-purple-500/50 px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase">VIP</span>;
-          return <span class="bg-zinc-700/50 text-zinc-400 border border-zinc-600 px-1.5 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase">Guest</span>;
+          if (r === 'admin') return <span class="bg-amber-500/20 text-amber-400 border border-amber-500/50 px-2 py-1 rounded-sm text-xs font-bold tracking-widest uppercase whitespace-nowrap">Main Act</span>;
+          if (r === 'openers') return <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-2 py-1 rounded-sm text-xs font-bold tracking-widest uppercase whitespace-nowrap">Openers</span>;
+          if (r === 'vip') return <span class="bg-purple-500/20 text-purple-400 border border-purple-500/50 px-2 py-1 rounded-sm text-xs font-bold tracking-widest uppercase whitespace-nowrap">★ VIP ★</span>;
+          return <span class="bg-zinc-700/50 text-zinc-400 border border-zinc-600 px-2 py-1 rounded-sm text-xs font-bold tracking-widest uppercase whitespace-nowrap">Guest</span>;
         };
 
         const renderRsvpBadge = (statusStr: string | boolean | null | undefined, hasRsvpd: boolean = true) => {
-          if (!hasRsvpd || statusStr === 'pending') return <span class="bg-zinc-700/50 text-zinc-400 border border-zinc-600 px-2 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-widest">Pending</span>;
-          if (statusStr === 'true' || statusStr === 'attending' || statusStr === true) return <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-2 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-widest">Hell Yes</span>;
-          return <span class="bg-red-500/20 text-red-400 border border-red-500/50 px-2 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-widest">Declined</span>;
+          if (!hasRsvpd || statusStr === 'pending') return <span class="bg-zinc-700/50 text-zinc-400 border border-zinc-600 px-2 py-1 rounded-sm text-xs font-bold uppercase tracking-widest whitespace-nowrap">Pending</span>;
+          if (statusStr === 'true' || statusStr === 'attending' || statusStr === true) return <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-2 py-1 rounded-sm text-xs font-bold uppercase tracking-widest whitespace-nowrap">Hell Yes</span>;
+          return <span class="bg-red-500/20 text-red-400 border border-red-500/50 px-2 py-1 rounded-sm text-xs font-bold uppercase tracking-widest whitespace-nowrap">Declined</span>;
         };
 
         return (
@@ -97,13 +97,13 @@ const { allGuests } = Astro.props;
                 {!guest.email && !guest.phoneNumber && <div class="text-zinc-600 italic">No contact info</div>}
                 
                 {guest.dietaryNotes && (
-                  <div class="text-xs text-amber-500 mt-2 bg-amber-950/30 border border-amber-900/50 p-1.5 rounded-sm inline-block">
-                    <strong class="uppercase tracking-widest text-[9px]">Allergies:</strong> {guest.dietaryNotes}
+                  <div class="text-xs text-amber-500 mt-2 bg-amber-950/30 border border-amber-900/50 px-2 py-1 rounded-sm inline-block whitespace-nowrap">
+                    <strong class="uppercase tracking-widest text-xs">Allergies:</strong> {guest.dietaryNotes}
                   </div>
                 )}
                 {guest.songRequest && (
-                  <div class="text-xs text-pink-400 mt-1 bg-pink-950/30 border border-pink-900/50 p-1.5 rounded-sm inline-block">
-                    <strong class="uppercase tracking-widest text-[9px]">Song:</strong> {guest.songRequest}
+                  <div class="text-xs text-pink-400 mt-1 bg-pink-950/30 border border-pink-900/50 px-2 py-1 rounded-sm inline-block whitespace-nowrap">
+                    <strong class="uppercase tracking-widest text-xs">Song:</strong> {guest.songRequest}
                   </div>
                 )}
               </div>

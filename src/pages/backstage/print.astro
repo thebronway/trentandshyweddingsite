@@ -1,0 +1,243 @@
+---
+import { db } from '../../db';
+import { guests } from '../../db/schema';
+
+// Minimalistic Print Template
+const view = Astro.url.searchParams.get('view') || 'party';
+const sortKey = Astro.url.searchParams.get('sort') || 'lastName';
+const filter = Astro.url.searchParams.get('filter') || 'all';
+
+const allGuests = await db.select().from(guests);
+
+let renderData: any[] = [];
+
+// Prepare data based on view type
+if (view === 'individual') {
+  allGuests.forEach(g => {
+    renderData.push({ type: 'ind', id: g.id, target: 'main', firstName: g.firstName, lastName: g.lastName, role: g.role, isExpected: g.hasRsvpd && g.isAttending, hasRsvpd: g.hasRsvpd, rsvpStatus: g.isAttending, isCheckedIn: g.isCheckedIn, partyCode: g.partyCode, dietaryNotes: g.dietaryNotes });
+    if (g.allocatedPlusOnes >= 1 && g.p1Name) renderData.push({ type: 'ind', id: g.id, target: 'p1', firstName: g.p1Name, lastName: g.p1LastName, role: g.p1Role, isExpected: g.p1Attending === 'true', hasRsvpd: g.p1Attending !== 'pending', rsvpStatus: g.p1Attending, isCheckedIn: g.p1CheckedIn, partyCode: g.partyCode, dietaryNotes: g.dietaryNotes });
+    if (g.allocatedPlusOnes >= 2 && g.p2Name) renderData.push({ type: 'ind', id: g.id, target: 'p2', firstName: g.p2Name, lastName: g.p2LastName, role: g.p2Role, isExpected: g.p2Attending === 'true', hasRsvpd: g.p2Attending !== 'pending', rsvpStatus: g.p2Attending, isCheckedIn: g.p2CheckedIn, partyCode: g.partyCode, dietaryNotes: g.dietaryNotes });
+    if (g.allocatedPlusOnes >= 3 && g.p3Name) renderData.push({ type: 'ind', id: g.id, target: 'p3', firstName: g.p3Name, lastName: g.p3LastName, role: g.p3Role, isExpected: g.p3Attending === 'true', hasRsvpd: g.p3Attending !== 'pending', rsvpStatus: g.p3Attending, isCheckedIn: g.p3CheckedIn, partyCode: g.partyCode, dietaryNotes: g.dietaryNotes });
+  });
+} else {
+  renderData = allGuests.map(g => ({
+    ...g,
+    type: 'party',
+    anyExpected: (g.hasRsvpd && g.isAttending) || (g.allocatedPlusOnes >= 1 && g.p1Attending === 'true') || (g.allocatedPlusOnes >= 2 && g.p2Attending === 'true') || (g.allocatedPlusOnes >= 3 && g.p3Attending === 'true')
+  }));
+}
+
+// Apply Sort
+renderData.sort((a, b) => {
+  const valA = ((sortKey === 'firstName' ? a.firstName : a.lastName) || '').toLowerCase();
+  const valB = ((sortKey === 'firstName' ? b.firstName : b.lastName) || '').toLowerCase();
+  return valA.localeCompare(valB);
+});
+
+// Apply Filters exactly like the JS frontend
+const statusesParam = Astro.url.searchParams.get('statuses') || 'attending,declined,pending';
+const allowedStatuses = statusesParam.split(',');
+
+const getStatusStr = (hasRsvpd: boolean, isAttending: any) => {
+  if (!hasRsvpd || isAttending === 'pending') return 'pending';
+  if (isAttending === 'true' || isAttending === true || isAttending === 'attending') return 'attending';
+  return 'declined';
+};
+
+renderData = renderData.filter(item => {
+  if (view === 'individual') {
+    const status = getStatusStr(item.hasRsvpd, item.rsvpStatus);
+    if (!allowedStatuses.includes(status)) return false;
+  } else {
+    const pStatuses = [getStatusStr(item.hasRsvpd, item.isAttending)];
+    if (item.allocatedPlusOnes >= 1 && item.p1Name) pStatuses.push(getStatusStr(item.p1Attending !== 'pending', item.p1Attending));
+    if (item.allocatedPlusOnes >= 2 && item.p2Name) pStatuses.push(getStatusStr(item.p2Attending !== 'pending', item.p2Attending));
+    if (item.allocatedPlusOnes >= 3 && item.p3Name) pStatuses.push(getStatusStr(item.p3Attending !== 'pending', item.p3Attending));
+    
+    const hasAllowed = pStatuses.some(s => allowedStatuses.includes(s));
+    if (!hasAllowed) return false;
+  }
+
+  if (filter === 'all') return true;
+
+  if (view === 'individual') {
+    if (filter === 'expected') return item.isExpected && !item.isCheckedIn;
+    if (filter === 'checked-in') return item.isCheckedIn;
+    if (filter === 'needs-approval') return !item.isExpected;
+    if (filter === 'vip-list') return (item.role === 'admin' || item.role === 'openers' || item.role === 'vip') && item.isExpected && !item.isCheckedIn;
+  } else {
+    const hasCheckedIn = item.isCheckedIn || item.p1CheckedIn || item.p2CheckedIn || item.p3CheckedIn;
+    const hasRemainingExpected = (item.isAttending && !item.isCheckedIn) || (item.p1Attending === 'true' && !item.p1CheckedIn) || (item.p2Attending === 'true' && !item.p2CheckedIn) || (item.p3Attending === 'true' && !item.p3CheckedIn);
+    
+    if (filter === 'expected') return hasRemainingExpected;
+    if (filter === 'checked-in') return hasCheckedIn;
+    if (filter === 'needs-approval') return !item.anyExpected;
+    if (filter === 'vip-list') return (item.role === 'admin' || item.role === 'openers' || item.role === 'vip') && hasRemainingExpected;
+  }
+  return true;
+});
+
+const reportTitle = `${view.charAt(0).toUpperCase() + view.slice(1)} View - Sorted by ${sortKey === 'firstName' ? 'First Name' : 'Last Name'} - Filter: ${filter.toUpperCase()} - Statuses: ${allowedStatuses.map(s => s.toUpperCase()).join(', ')}`;
+
+// Helpers to standardize text output
+const getStatusText = (status: any, hasRsvpd = true) => {
+  if (!hasRsvpd || status === 'pending') return 'Pending';
+  if (status === 'true' || status === true || status === 'attending') return 'Hell Yes';
+  return 'Declined';
+};
+
+const getRoleText = (role: string | null) => {
+  const r = (role || 'guest').toLowerCase();
+  if (r === 'admin') return 'Main Act';
+  if (r === 'openers') return 'Openers';
+  if (r === 'vip') return '★ VIP ★';
+  return 'Guest';
+};
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Check-in Roster Print</title>
+  <style>
+    body { font-family: sans-serif; font-size: 12px; margin: 0; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #333; padding: 8px; text-align: left; vertical-align: top; }
+    th { background-color: #f0f0f0; }
+    h1 { font-size: 18px; margin: 0 0 10px 0; }
+    .box { width: 14px; height: 14px; border: 1px solid #000; display: inline-block; margin-right: 6px; vertical-align: text-bottom; }
+    .checked { background-color: #333; }
+    .not-expected { color: #888; font-style: italic; }
+    .cell-group { margin-bottom: 6px; min-height: 18px; }
+    .cell-group:last-child { margin-bottom: 0; }
+    .fit-content { white-space: nowrap; width: 1%; }
+    
+    @media print {
+      @page { margin: 0.5cm; }
+      button { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1>Guest Check-in Roster</h1>
+    <button onclick="window.print()" style="padding: 8px 16px; cursor: pointer; font-weight: bold;">Print Roster</button>
+  </div>
+  <p style="margin-top: 0; color: #555;"><strong>Details:</strong> {reportTitle}</p>
+
+  <table>
+    <thead>
+      <tr>
+        {view === 'individual' ? (
+          <>
+            <th style="width: 70px;">Check-In</th>
+            <th class="fit-content">Name</th>
+            <th style="width: 100px;">Role</th>
+            <th style="width: 100px;">RSVP Status</th>
+            <th style="width: 80px;">Code</th>
+            <th style="width: auto;">Notes</th>
+          </>
+        ) : (
+          <>
+            <th class="fit-content">Party Name</th>
+            <th style="width: 80px;">Code</th>
+            <th class="fit-content">Guests</th>
+            <th style="width: 100px;">Role</th>
+            <th style="width: 100px;">RSVP Status</th>
+            <th style="width: auto;">Notes</th>
+          </>
+        )}
+      </tr>
+    </thead>
+    <tbody>
+      {view === 'individual' ? renderData.map(ind => (
+        <tr class={!ind.isExpected ? 'not-expected' : ''}>
+          <td style="text-align: center;">
+            <div class={`box ${ind.isCheckedIn ? 'checked' : ''}`}></div>
+          </td>
+          <td class="fit-content">
+            <strong>{ind.lastName ? `${ind.lastName}, ` : ''}{ind.firstName}</strong>
+          </td>
+          <td>{getRoleText(ind.role)}</td>
+          <td>{getStatusText(ind.rsvpStatus, ind.hasRsvpd)}</td>
+          <td>{ind.partyCode || 'N/A'}</td>
+          <td>
+            {ind.dietaryNotes ? <span><strong>Allergies:</strong> {ind.dietaryNotes}</span> : ''}
+          </td>
+        </tr>
+      )) : renderData.map(party => (
+        <tr class={!party.anyExpected ? 'not-expected' : ''}>
+          <td class="fit-content">
+            <strong>{party.lastName ? `${party.lastName}, ` : ''}{party.firstName} Party</strong>
+          </td>
+          <td>{party.partyCode || 'N/A'}</td>
+          
+          <td class="fit-content">
+            {allowedStatuses.includes(getStatusStr(party.hasRsvpd, party.isAttending)) && (
+              <div class="cell-group">
+                <div class={`box ${party.isCheckedIn ? 'checked' : ''}`}></div> 
+                {party.firstName} {party.lastName || ''}
+              </div>
+            )}
+            {party.allocatedPlusOnes >= 1 && party.p1Name && allowedStatuses.includes(getStatusStr(party.p1Attending !== 'pending', party.p1Attending)) && (
+              <div class="cell-group">
+                <div class={`box ${party.p1CheckedIn ? 'checked' : ''}`}></div> 
+                {party.p1Name} {party.p1LastName || ''}
+              </div>
+            )}
+            {party.allocatedPlusOnes >= 2 && party.p2Name && allowedStatuses.includes(getStatusStr(party.p2Attending !== 'pending', party.p2Attending)) && (
+              <div class="cell-group">
+                <div class={`box ${party.p2CheckedIn ? 'checked' : ''}`}></div> 
+                {party.p2Name} {party.p2LastName || ''}
+              </div>
+            )}
+            {party.allocatedPlusOnes >= 3 && party.p3Name && allowedStatuses.includes(getStatusStr(party.p3Attending !== 'pending', party.p3Attending)) && (
+              <div class="cell-group">
+                <div class={`box ${party.p3CheckedIn ? 'checked' : ''}`}></div> 
+                {party.p3Name} {party.p3LastName || ''}
+              </div>
+            )}
+          </td>
+          
+          <td>
+            {allowedStatuses.includes(getStatusStr(party.hasRsvpd, party.isAttending)) && (
+              <div class="cell-group">{getRoleText(party.role)}</div>
+            )}
+            {party.allocatedPlusOnes >= 1 && party.p1Name && allowedStatuses.includes(getStatusStr(party.p1Attending !== 'pending', party.p1Attending)) && (
+              <div class="cell-group">{getRoleText(party.p1Role)}</div>
+            )}
+            {party.allocatedPlusOnes >= 2 && party.p2Name && allowedStatuses.includes(getStatusStr(party.p2Attending !== 'pending', party.p2Attending)) && (
+              <div class="cell-group">{getRoleText(party.p2Role)}</div>
+            )}
+            {party.allocatedPlusOnes >= 3 && party.p3Name && allowedStatuses.includes(getStatusStr(party.p3Attending !== 'pending', party.p3Attending)) && (
+              <div class="cell-group">{getRoleText(party.p3Role)}</div>
+            )}
+          </td>
+
+          <td>
+            {allowedStatuses.includes(getStatusStr(party.hasRsvpd, party.isAttending)) && (
+              <div class="cell-group">{getStatusText(party.isAttending, party.hasRsvpd)}</div>
+            )}
+            {party.allocatedPlusOnes >= 1 && party.p1Name && allowedStatuses.includes(getStatusStr(party.p1Attending !== 'pending', party.p1Attending)) && (
+              <div class="cell-group">{getStatusText(party.p1Attending)}</div>
+            )}
+            {party.allocatedPlusOnes >= 2 && party.p2Name && allowedStatuses.includes(getStatusStr(party.p2Attending !== 'pending', party.p2Attending)) && (
+              <div class="cell-group">{getStatusText(party.p2Attending)}</div>
+            )}
+            {party.allocatedPlusOnes >= 3 && party.p3Name && allowedStatuses.includes(getStatusStr(party.p3Attending !== 'pending', party.p3Attending)) && (
+              <div class="cell-group">{getStatusText(party.p3Attending)}</div>
+            )}
+          </td>
+
+          <td>
+            {party.dietaryNotes ? <span><strong>Allergies:</strong> {party.dietaryNotes}</span> : ''}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <script is:inline>
+    window.onload = () => window.print();
+  </script>
+</body>
+</html>

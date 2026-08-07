@@ -4,15 +4,64 @@
     const checkedInEl = document.getElementById('checked-in-counter');
     const remainingEl = document.getElementById('remaining-counter');
 
+    // View & Sort Elements
+    const viewToggle = document.getElementById('view-toggle');
+    const sortToggle = document.getElementById('sort-toggle');
+    const printExportBtn = document.getElementById('print-export-btn');
+
     // Search and Filtering Logic variables
     const searchInput = document.getElementById('guest-search');
     const filterBtns = document.querySelectorAll('.filter-btn');
+    const statusBtns = document.querySelectorAll('.status-filter-btn');
     const cards = document.querySelectorAll('.guest-card');
     let currentFilter = 'all'; // all, expected, checked-in, needs-approval
+
+    // Sort Logic
+    function sortCards(container) {
+      if (!sortToggle) return;
+      const sortKey = sortToggle.value === 'firstName' ? 'data-first-name' : 'data-last-name';
+      
+      const cardsArray = Array.from(container.querySelectorAll('.guest-card'));
+      cardsArray.sort((a, b) => {
+        const valA = a.getAttribute(sortKey) || '';
+        const valB = b.getAttribute(sortKey) || '';
+        return valA.localeCompare(valB);
+      });
+      
+      cardsArray.forEach(card => container.appendChild(card));
+    }
+
+    if (viewToggle) {
+      viewToggle.addEventListener('change', (e) => {
+        const val = e.target.value;
+        document.querySelectorAll('.view-container').forEach(c => c.classList.add('hidden'));
+        const activeContainer = document.getElementById(`view-${val}`);
+        if(activeContainer) {
+            activeContainer.classList.remove('hidden');
+            sortCards(activeContainer);
+        }
+      });
+    }
+
+    if (sortToggle) {
+      sortToggle.addEventListener('change', () => {
+        document.querySelectorAll('.view-container:not(.hidden)').forEach(sortCards);
+      });
+    }
+
+    if (printExportBtn) {
+      printExportBtn.addEventListener('click', () => {
+        const view = viewToggle ? viewToggle.value : 'party';
+        const sort = sortToggle ? sortToggle.value : 'lastName';
+        const activeStatuses = Array.from(statusBtns).filter(b => b.classList.contains('active')).map(b => b.getAttribute('data-status')).join(',');
+        window.open(`/backstage/print?view=${view}&sort=${sort}&filter=${currentFilter}&statuses=${activeStatuses}`, '_blank');
+      });
+    }
 
     // Evaluate filters dynamically based on current DOM state
     function applyFilters() {
       const term = searchInput ? searchInput.value.toLowerCase() : '';
+      const activeStatuses = Array.from(statusBtns).filter(b => b.classList.contains('active')).map(b => b.getAttribute('data-status'));
       
       cards.forEach(card => {
         const matchesSearch = card.getAttribute('data-search').includes(term);
@@ -34,7 +83,30 @@
           matchesType = isVipTier && hasRemainingExpected;
         }
 
-        card.style.display = (matchesSearch && matchesType) ? 'flex' : 'none';
+        let hasVisibleMembers = false;
+        
+        // Handle inner members for Party View
+        const members = card.querySelectorAll('.party-member-row');
+        if (members.length > 0) {
+          members.forEach(member => {
+            const status = member.getAttribute('data-guest-status');
+            if (activeStatuses.includes(status)) {
+              member.style.display = 'flex';
+              hasVisibleMembers = true;
+            } else {
+              member.style.display = 'none';
+            }
+          });
+          
+          card.style.display = (matchesSearch && matchesType && hasVisibleMembers) ? 'flex' : 'none';
+        } else {
+          // Handle Individual View
+          const statusesStr = card.getAttribute('data-statuses');
+          const cardStatuses = statusesStr ? statusesStr.split(',') : [];
+          const matchesStatus = cardStatuses.some(s => activeStatuses.includes(s));
+          
+          card.style.display = (matchesSearch && matchesType && matchesStatus) ? 'flex' : 'none';
+        }
       });
     }
 
@@ -83,13 +155,19 @@
       
       const timeSpan = btn.previousElementSibling?.querySelector('.checkin-time');
 
-      // Optimistic UI Update
-      btn.setAttribute('data-status', newStatus.toString());
-      btn.innerText = newStatus ? 'Undo' : 'Check In';
-      if (!newStatus && timeSpan) timeSpan.innerText = ''; // Clear time optimisticly 
+      // Find all matching buttons in both Party and Individual views to keep DOMs synced
+      const matchingBtns = document.querySelectorAll(`.checkin-toggle[data-id="${guestId}"][data-target="${target}"]`);
+      
+      // Optimistic UI Update across all views
+      matchingBtns.forEach(matchingBtn => {
+        matchingBtn.setAttribute('data-status', newStatus.toString());
+        matchingBtn.innerText = newStatus ? 'Undo' : 'Check In';
+        const matchingTimeSpan = matchingBtn.previousElementSibling?.classList.contains('checkin-time') ? matchingBtn.previousElementSibling : null;
+        if (!newStatus && matchingTimeSpan) matchingTimeSpan.innerText = '';
+        updateCardState(matchingBtn.closest('.guest-card'));
+      });
       
       const card = btn.closest('.guest-card');
-      updateCardState(card);
       adjustCounters(newStatus);
       applyFilters(); // Re-evaluate view state
 
@@ -241,6 +319,21 @@
         activeBtn.classList.add('bg-pink-600', 'text-white');
         
         currentFilter = activeBtn.getAttribute('data-filter');
+        applyFilters();
+      });
+    });
+
+    statusBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const el = e.currentTarget;
+        const activeClasses = el.getAttribute('data-active-class').split(' ');
+        if (el.classList.contains('active')) {
+          el.classList.remove('active', ...activeClasses);
+          el.classList.add('bg-zinc-900', 'border-zinc-700', 'text-zinc-500');
+        } else {
+          el.classList.add('active', ...activeClasses);
+          el.classList.remove('bg-zinc-900', 'border-zinc-700', 'text-zinc-500');
+        }
         applyFilters();
       });
     });
