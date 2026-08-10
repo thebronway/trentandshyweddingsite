@@ -4,8 +4,6 @@ import Nav from '../../components/Nav.astro';
 
 const roleCookie = Astro.cookies.get('role');
 const role = roleCookie ? roleCookie.value : null;
-
-const canViewCamping = role === 'admin' || role === 'openers' || role === 'vip';
 ---
 <Layout title="Photo Galleries">
   <Nav />
@@ -24,12 +22,10 @@ const canViewCamping = role === 'admin' || role === 'openers' || role === 'vip';
         <h2 class="text-3xl text-white font-display uppercase tracking-widest mb-2 group-hover:text-pink-300 transition-colors">The Wedding</h2>
       </a>
 
-      {canViewCamping && (
-        <a href="/gallery/camping" class="md:col-span-2 group block bg-zinc-900/80 backdrop-blur-md border border-emerald-900/50 border-l-4 border-l-emerald-500 p-8 shadow-2xl hover:border-emerald-500 transition-colors rounded-sm text-center">
+      <a href="/gallery/camping" class="md:col-span-2 group block bg-zinc-900/80 backdrop-blur-md border border-emerald-900/50 border-l-4 border-l-emerald-500 p-8 shadow-2xl hover:border-emerald-500 transition-colors rounded-sm text-center">
           <h2 class="text-3xl text-emerald-400 font-display uppercase tracking-widest mb-2 group-hover:text-emerald-300 transition-colors">Camping Weekend</h2>
-          <p class="text-emerald-600 text-xs font-bold uppercase tracking-widest">Wedding Party Access Only</p>
+          <p class="text-emerald-600 text-xs font-bold uppercase tracking-widest">Bachelor and Bachelorette Weekend</p>
         </a>
-      )}
     </div>
   </main>
 </Layout>

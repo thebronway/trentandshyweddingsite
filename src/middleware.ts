@@ -34,12 +34,7 @@ export const onRequest = defineMiddleware((context, next) => {
     }
   }
 
-  // 4. Protect the VIP-only Camping Gallery
-  if (url.pathname.startsWith('/gallery/camping')) {
-    if (role !== 'openers' && role !== 'vip' && role !== 'admin') {
-      return redirect('/gallery');
-    }
-  }
+  // 4. (Removed Camping Gallery Protection)
 
   // 5. Global CSRF Protection for state-changing requests
   if (request.method !== 'GET' && request.method !== 'HEAD') {

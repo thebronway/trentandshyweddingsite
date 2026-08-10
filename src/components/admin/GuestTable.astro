@@ -97,13 +97,25 @@ const { allGuests } = Astro.props;
                 {!guest.email && !guest.phoneNumber && <div class="text-zinc-600 italic">No contact info</div>}
                 
                 {guest.dietaryNotes && (
-                  <div class="text-xs text-amber-500 mt-2 bg-amber-950/30 border border-amber-900/50 px-2 py-1 rounded-sm inline-block whitespace-nowrap">
-                    <strong class="uppercase tracking-widest text-xs">Allergies:</strong> {guest.dietaryNotes}
+                  <div class="relative group mt-2">
+                    <div class="text-xs text-amber-500 bg-amber-950/30 border border-amber-900/50 px-2 py-1 rounded-sm block w-full truncate cursor-help">
+                      <strong class="uppercase tracking-widest text-xs">Allergies:</strong> {guest.dietaryNotes}
+                    </div>
+                    <div class="hidden group-hover:block absolute z-50 left-0 top-full mt-1 p-3 bg-zinc-900 border border-amber-900/50 rounded-sm shadow-2xl min-w-[200px] max-w-[250px] whitespace-normal break-words pointer-events-none">
+                      <strong class="text-amber-500 font-bold uppercase tracking-widest text-[10px] block mb-1">Allergies:</strong>
+                      <span class="text-zinc-300 text-xs">{guest.dietaryNotes}</span>
+                    </div>
                   </div>
                 )}
                 {guest.songRequest && (
-                  <div class="text-xs text-pink-400 mt-1 bg-pink-950/30 border border-pink-900/50 px-2 py-1 rounded-sm inline-block whitespace-nowrap">
-                    <strong class="uppercase tracking-widest text-xs">Song:</strong> {guest.songRequest}
+                  <div class="relative group mt-1">
+                    <div class="text-xs text-pink-400 bg-pink-950/30 border border-pink-900/50 px-2 py-1 rounded-sm block w-full truncate cursor-help">
+                      <strong class="uppercase tracking-widest text-xs">Song:</strong> {guest.songRequest}
+                    </div>
+                    <div class="hidden group-hover:block absolute z-50 left-0 top-full mt-1 p-3 bg-zinc-900 border border-pink-900/50 rounded-sm shadow-2xl min-w-[200px] max-w-[250px] whitespace-normal break-words pointer-events-none">
+                      <strong class="text-pink-400 font-bold uppercase tracking-widest text-[10px] block mb-1">Song:</strong>
+                      <span class="text-zinc-300 text-xs">{guest.songRequest}</span>
+                    </div>
                   </div>
                 )}
               </div>
