@@ -6,6 +6,8 @@ import { guests } from '../../db/schema';
 const view = Astro.url.searchParams.get('view') || 'party';
 const sortKey = Astro.url.searchParams.get('sort') || 'lastName';
 const filter = Astro.url.searchParams.get('filter') || 'all';
+const vipOnly = Astro.url.searchParams.get('vip') === 'true';
+const guestOnly = Astro.url.searchParams.get('guest') === 'true';
 
 const allGuests = await db.select().from(guests);
 
@@ -44,42 +46,64 @@ const getStatusStr = (hasRsvpd: boolean, isAttending: any) => {
   return 'declined';
 };
 
-renderData = renderData.filter(item => {
-  if (view === 'individual') {
-    const status = getStatusStr(item.hasRsvpd, item.rsvpStatus);
-    if (!allowedStatuses.includes(status)) return false;
-  } else {
-    const pStatuses = [getStatusStr(item.hasRsvpd, item.isAttending)];
-    if (item.allocatedPlusOnes >= 1 && item.p1Name) pStatuses.push(getStatusStr(item.p1Attending !== 'pending', item.p1Attending));
-    if (item.allocatedPlusOnes >= 2 && item.p2Name) pStatuses.push(getStatusStr(item.p2Attending !== 'pending', item.p2Attending));
-    if (item.allocatedPlusOnes >= 3 && item.p3Name) pStatuses.push(getStatusStr(item.p3Attending !== 'pending', item.p3Attending));
+if (view !== 'allergies' && view !== 'songs') {
+  renderData = renderData.filter(item => {
+    if (view === 'individual') {
+      const status = getStatusStr(item.hasRsvpd, item.rsvpStatus);
+      if (!allowedStatuses.includes(status)) return false;
+    } else {
+      const pStatuses = [getStatusStr(item.hasRsvpd, item.isAttending)];
+      if (item.allocatedPlusOnes >= 1 && item.p1Name) pStatuses.push(getStatusStr(item.p1Attending !== 'pending', item.p1Attending));
+      if (item.allocatedPlusOnes >= 2 && item.p2Name) pStatuses.push(getStatusStr(item.p2Attending !== 'pending', item.p2Attending));
+      if (item.allocatedPlusOnes >= 3 && item.p3Name) pStatuses.push(getStatusStr(item.p3Attending !== 'pending', item.p3Attending));
+      
+      const hasAllowed = pStatuses.some(s => allowedStatuses.includes(s));
+      if (!hasAllowed) return false;
+    }
+
+    const r = (item.role || 'guest').toLowerCase();
+    const isVipTier = r === 'admin' || r === 'openers' || r === 'vip';
+    const isGuestTier = r === 'guest';
     
-    const hasAllowed = pStatuses.some(s => allowedStatuses.includes(s));
-    if (!hasAllowed) return false;
-  }
-
-  if (filter === 'all') return true;
-
-  if (view === 'individual') {
-    if (filter === 'expected') return item.isExpected && !item.isCheckedIn;
-    if (filter === 'checked-in') return item.isCheckedIn;
-    if (filter === 'needs-approval') return !item.isExpected;
-    if (filter === 'vip-list') return (item.role === 'admin' || item.role === 'openers' || item.role === 'vip') && item.isExpected && !item.isCheckedIn;
-  } else {
-    const hasCheckedIn = item.isCheckedIn || item.p1CheckedIn || item.p2CheckedIn || item.p3CheckedIn;
-    const hasRemainingExpected = (item.isAttending && !item.isCheckedIn) || (item.p1Attending === 'true' && !item.p1CheckedIn) || (item.p2Attending === 'true' && !item.p2CheckedIn) || (item.p3Attending === 'true' && !item.p3CheckedIn);
+    let matchesModifiers = false;
+    if (vipOnly && isVipTier) matchesModifiers = true;
+    if (guestOnly && isGuestTier) matchesModifiers = true;
     
-    if (filter === 'expected') return hasRemainingExpected;
-    if (filter === 'checked-in') return hasCheckedIn;
-    if (filter === 'needs-approval') return !item.anyExpected;
-    if (filter === 'vip-list') return (item.role === 'admin' || item.role === 'openers' || item.role === 'vip') && hasRemainingExpected;
-  }
-  return true;
-});
+    if (!matchesModifiers) return false;
 
-const reportTitle = `${view.charAt(0).toUpperCase() + view.slice(1)} View - Sorted by ${sortKey === 'firstName' ? 'First Name' : 'Last Name'} - Filter: ${filter.toUpperCase()} - Statuses: ${allowedStatuses.map(s => s.toUpperCase()).join(', ')}`;
+    if (filter === 'expected') {
+      if (view === 'individual') return item.isExpected && !item.isCheckedIn;
+      const hasRemainingExpected = (item.isAttending && !item.isCheckedIn) || (item.p1Attending === 'true' && !item.p1CheckedIn) || (item.p2Attending === 'true' && !item.p2CheckedIn) || (item.p3Attending === 'true' && !item.p3CheckedIn);
+      return hasRemainingExpected;
+    } else if (filter === 'checked-in') {
+      if (view === 'individual') return item.isCheckedIn;
+      return item.isCheckedIn || item.p1CheckedIn || item.p2CheckedIn || item.p3CheckedIn;
+    }
+    
+    return true;
+  });
+}
+
+let reportTitle = "";
+if (view === 'allergies') {
+  renderData = allGuests.filter(g => g.dietaryNotes && g.dietaryNotes.trim() !== '').sort((a,b) => (a.lastName||'').localeCompare(b.lastName||''));
+  reportTitle = "Master Allergies & Dietary Restrictions List";
+} else if (view === 'songs') {
+  renderData = allGuests.filter(g => g.songRequest && g.songRequest.trim() !== '').sort((a,b) => (a.lastName||'').localeCompare(b.lastName||''));
+  reportTitle = "Master Song Requests List";
+} else {
+  reportTitle = `${view.charAt(0).toUpperCase() + view.slice(1)} View - Sorted by ${sortKey === 'firstName' ? 'First Name' : 'Last Name'} - Filter: ${filter.toUpperCase()} - VIP: ${vipOnly ? 'Yes' : 'No'} - Guests: ${guestOnly ? 'Yes' : 'No'} - Statuses: ${allowedStatuses.map(s => s.toUpperCase()).join(', ')}`;
+}
 
 // Helpers to standardize text output
+const getPartyNames = (party: any) => {
+  let names = [`${party.firstName} ${party.lastName || ''}`.trim()];
+  if (party.allocatedPlusOnes >= 1 && party.p1Name) names.push(`${party.p1Name} ${party.p1LastName || ''}`.trim());
+  if (party.allocatedPlusOnes >= 2 && party.p2Name) names.push(`${party.p2Name} ${party.p2LastName || ''}`.trim());
+  if (party.allocatedPlusOnes >= 3 && party.p3Name) names.push(`${party.p3Name} ${party.p3LastName || ''}`.trim());
+  return names;
+};
+
 const getStatusText = (status: any, hasRsvpd = true) => {
   if (!hasRsvpd || status === 'pending') return 'Pending';
   if (status === 'true' || status === true || status === 'attending') return 'Hell Yes';
@@ -90,9 +114,14 @@ const getRoleText = (role: string | null) => {
   const r = (role || 'guest').toLowerCase();
   if (r === 'admin') return 'Main Act';
   if (r === 'openers') return 'Openers';
-  if (r === 'vip') return '★ VIP ★';
+  if (r === 'vip') return 'VIP';
   return 'Guest';
 };
+
+const generatedAt = new Date().toLocaleString('en-US', {
+  month: 'short', day: 'numeric', year: 'numeric',
+  hour: 'numeric', minute: '2-digit', timeZoneName: 'short'
+});
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -100,12 +129,12 @@ const getRoleText = (role: string | null) => {
   <meta charset="UTF-8">
   <title>Check-in Roster Print</title>
   <style>
-    body { font-family: sans-serif; font-size: 12px; margin: 0; padding: 20px; }
+    body { font-family: sans-serif; font-size: 14px; margin: 0; padding: 20px; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { border: 1px solid #333; padding: 8px; text-align: left; vertical-align: top; }
     th { background-color: #f0f0f0; }
-    h1 { font-size: 18px; margin: 0 0 10px 0; }
-    .box { width: 14px; height: 14px; border: 1px solid #000; display: inline-block; margin-right: 6px; vertical-align: text-bottom; }
+    h1 { font-size: 20px; margin: 0 0 10px 0; }
+    .box { width: 16px; height: 16px; border: 1px solid #000; display: inline-block; margin-right: 8px; vertical-align: text-bottom; }
     .checked { background-color: #333; }
     .not-expected { color: #888; font-style: italic; }
     .cell-group { margin-bottom: 6px; min-height: 18px; }
@@ -119,38 +148,67 @@ const getRoleText = (role: string | null) => {
   </style>
 </head>
 <body>
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h1>Guest Check-in Roster</h1>
-    <button onclick="window.print()" style="padding: 8px 16px; cursor: pointer; font-weight: bold;">Print Roster</button>
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+    <div>
+      <h1>Guest Check-in Roster</h1>
+      <p style="margin: 0 0 4px 0; color: #555;"><strong>Details:</strong> {reportTitle}</p>
+      <p style="margin: 0; color: #555;"><strong>Generated:</strong> {generatedAt}</p>
+    </div>
+    <button onclick="window.print()" style="padding: 8px 16px; cursor: pointer; font-weight: bold; height: fit-content;">Print Roster</button>
   </div>
-  <p style="margin-top: 0; color: #555;"><strong>Details:</strong> {reportTitle}</p>
 
   <table>
     <thead>
       <tr>
-        {view === 'individual' ? (
+        {view === 'allergies' ? (
           <>
-            <th style="width: 70px;">Check-In</th>
+            <th class="fit-content">Party Name</th>
+            <th style="width: auto;">Dietary Restrictions / Allergies</th>
+          </>
+        ) : view === 'songs' ? (
+          <>
+            <th class="fit-content">Party Name</th>
+            <th style="width: auto;">Song Request</th>
+          </>
+        ) : view === 'individual' ? (
+          <>
+            <th style="width: 150px;">Check-In</th>
             <th class="fit-content">Name</th>
-            <th style="width: 100px;">Role</th>
-            <th style="width: 100px;">RSVP Status</th>
-            <th style="width: 80px;">Code</th>
+            <th style="width: 120px;">Role</th>
+            <th style="width: 180px;">RSVP Status</th>
             <th style="width: auto;">Notes</th>
           </>
         ) : (
           <>
             <th class="fit-content">Party Name</th>
-            <th style="width: 80px;">Code</th>
             <th class="fit-content">Guests</th>
-            <th style="width: 100px;">Role</th>
-            <th style="width: 100px;">RSVP Status</th>
+            <th style="width: 120px;">Role</th>
+            <th style="width: 180px;">RSVP Status</th>
             <th style="width: auto;">Notes</th>
           </>
         )}
       </tr>
     </thead>
     <tbody>
-      {view === 'individual' ? renderData.map(ind => (
+      {view === 'allergies' ? renderData.map(party => (
+        <tr>
+          <td class="fit-content">
+            {getPartyNames(party).map((name, i) => (
+              <div style={i === 0 ? "font-weight: bold;" : "color: #555; margin-top: 2px;"}>{name}</div>
+            ))}
+          </td>
+          <td>{party.dietaryNotes}</td>
+        </tr>
+      )) : view === 'songs' ? renderData.map(party => (
+        <tr>
+          <td class="fit-content">
+            {getPartyNames(party).map((name, i) => (
+              <div style={i === 0 ? "font-weight: bold;" : "color: #555; margin-top: 2px;"}>{name}</div>
+            ))}
+          </td>
+          <td>{party.songRequest}</td>
+        </tr>
+      )) : view === 'individual' ? renderData.map(ind => (
         <tr class={!ind.isExpected ? 'not-expected' : ''}>
           <td style="text-align: center;">
             <div class={`box ${ind.isCheckedIn ? 'checked' : ''}`}></div>
@@ -160,7 +218,6 @@ const getRoleText = (role: string | null) => {
           </td>
           <td>{getRoleText(ind.role)}</td>
           <td>{getStatusText(ind.rsvpStatus, ind.hasRsvpd)}</td>
-          <td>{ind.partyCode || 'N/A'}</td>
           <td>
             {ind.dietaryNotes ? <span><strong>Allergies:</strong> {ind.dietaryNotes}</span> : ''}
           </td>
@@ -170,8 +227,6 @@ const getRoleText = (role: string | null) => {
           <td class="fit-content">
             <strong>{party.lastName ? `${party.lastName}, ` : ''}{party.firstName} Party</strong>
           </td>
-          <td>{party.partyCode || 'N/A'}</td>
-          
           <td class="fit-content">
             {allowedStatuses.includes(getStatusStr(party.hasRsvpd, party.isAttending)) && (
               <div class="cell-group">

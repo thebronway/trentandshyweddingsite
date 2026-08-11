@@ -13,8 +13,14 @@
     const searchInput = document.getElementById('guest-search');
     const filterBtns = document.querySelectorAll('.filter-btn');
     const statusBtns = document.querySelectorAll('.status-filter-btn');
+    const vipToggle = document.getElementById('vip-toggle');
+    const guestToggle = document.getElementById('guest-toggle');
+    const printAllergiesBtn = document.getElementById('print-allergies-btn');
+    const printSongsBtn = document.getElementById('print-songs-btn');
     const cards = document.querySelectorAll('.guest-card');
-    let currentFilter = 'all'; // all, expected, checked-in, needs-approval
+    let currentFilter = 'all'; // all, expected, checked-in
+    let vipActive = true;
+    let guestActive = true;
 
     // Sort Logic
     function sortCards(container) {
@@ -54,7 +60,19 @@
         const view = viewToggle ? viewToggle.value : 'party';
         const sort = sortToggle ? sortToggle.value : 'lastName';
         const activeStatuses = Array.from(statusBtns).filter(b => b.classList.contains('active')).map(b => b.getAttribute('data-status')).join(',');
-        window.open(`/backstage/print?view=${view}&sort=${sort}&filter=${currentFilter}&statuses=${activeStatuses}`, '_blank');
+        window.open(`/backstage/print?view=${view}&sort=${sort}&filter=${currentFilter}&vip=${vipActive}&guest=${guestActive}&statuses=${activeStatuses}`, '_blank');
+      });
+    }
+
+    if (printAllergiesBtn) {
+      printAllergiesBtn.addEventListener('click', () => {
+        window.open(`/backstage/print?view=allergies`, '_blank');
+      });
+    }
+
+    if (printSongsBtn) {
+      printSongsBtn.addEventListener('click', () => {
+        window.open(`/backstage/print?view=songs`, '_blank');
       });
     }
 
@@ -65,23 +83,25 @@
       
       cards.forEach(card => {
         const matchesSearch = card.getAttribute('data-search').includes(term);
-        let matchesType = true;
+        let matchesTier1 = true;
         
         const hasCheckedIn = card.querySelectorAll('.checkin-toggle[data-status="true"]').length > 0;
         const hasRemainingExpected = card.querySelectorAll('.checkin-toggle[data-status="false"]').length > 0;
-        const isNeedsApproval = card.classList.contains('guest-card-needs-approval');
         
         if (currentFilter === 'expected') {
-          matchesType = hasRemainingExpected;
+          matchesTier1 = hasRemainingExpected;
         } else if (currentFilter === 'checked-in') {
-          matchesType = hasCheckedIn;
-        } else if (currentFilter === 'needs-approval') {
-          matchesType = isNeedsApproval;
-        } else if (currentFilter === 'vip-list') {
-          const role = card.getAttribute('data-role');
-          const isVipTier = role === 'admin' || role === 'openers' || role === 'vip';
-          matchesType = isVipTier && hasRemainingExpected;
+          matchesTier1 = hasCheckedIn;
         }
+
+        // Tier 2: Modifiers (VIP / Guest)
+        const role = card.getAttribute('data-role');
+        const isVipTier = role === 'admin' || role === 'openers' || role === 'vip';
+        const isGuestTier = role === 'guest';
+        
+        let matchesModifiers = false;
+        if (vipActive && isVipTier) matchesModifiers = true;
+        if (guestActive && isGuestTier) matchesModifiers = true;
 
         let hasVisibleMembers = false;
         
@@ -98,14 +118,14 @@
             }
           });
           
-          card.style.display = (matchesSearch && matchesType && hasVisibleMembers) ? 'flex' : 'none';
+          card.style.display = (matchesSearch && matchesTier1 && matchesModifiers && hasVisibleMembers) ? 'flex' : 'none';
         } else {
           // Handle Individual View
           const statusesStr = card.getAttribute('data-statuses');
           const cardStatuses = statusesStr ? statusesStr.split(',') : [];
           const matchesStatus = cardStatuses.some(s => activeStatuses.includes(s));
           
-          card.style.display = (matchesSearch && matchesType && matchesStatus) ? 'flex' : 'none';
+          card.style.display = (matchesSearch && matchesTier1 && matchesModifiers && matchesStatus) ? 'flex' : 'none';
         }
       });
     }
@@ -146,12 +166,21 @@
     // Check-In API Call
     const toggleCheckIn = async (btn) => {
       if (btn.disabled) return;
+      
+      const currentStatus = btn.getAttribute('data-status') === 'true';
+      const newStatus = !currentStatus;
+
+      // Ask for confirmation if undoing a check-in
+      if (!newStatus) {
+        if (!confirm('Are you sure you want to undo this check-in?')) {
+          return;
+        }
+      }
+
       btn.disabled = true;
 
       const guestId = btn.getAttribute('data-id');
       const target = btn.getAttribute('data-target');
-      const currentStatus = btn.getAttribute('data-status') === 'true';
-      const newStatus = !currentStatus;
       
       const timeSpan = btn.previousElementSibling?.querySelector('.checkin-time');
 
@@ -337,5 +366,37 @@
         applyFilters();
       });
     });
+
+    if (vipToggle) {
+      vipToggle.addEventListener('click', (e) => {
+        const el = e.currentTarget;
+        vipActive = !vipActive;
+        const activeClasses = el.getAttribute('data-active-class').split(' ');
+        if (vipActive) {
+          el.classList.add(...activeClasses);
+          el.classList.remove('bg-zinc-900', 'border-zinc-700', 'text-zinc-300');
+        } else {
+          el.classList.remove(...activeClasses);
+          el.classList.add('bg-zinc-900', 'border-zinc-700', 'text-zinc-300');
+        }
+        applyFilters();
+      });
+    }
+
+    if (guestToggle) {
+      guestToggle.addEventListener('click', (e) => {
+        const el = e.currentTarget;
+        guestActive = !guestActive;
+        const activeClasses = el.getAttribute('data-active-class').split(' ');
+        if (guestActive) {
+          el.classList.add(...activeClasses);
+          el.classList.remove('bg-zinc-900', 'border-zinc-700', 'text-zinc-300');
+        } else {
+          el.classList.remove(...activeClasses);
+          el.classList.add('bg-zinc-900', 'border-zinc-700', 'text-zinc-300');
+        }
+        applyFilters();
+      });
+    }
   });
 })();
