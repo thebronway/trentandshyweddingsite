@@ -13,6 +13,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
   const cookieOptions = { path: '/', maxAge: 60 * 60 * 24 * 30, httpOnly: true, secure: import.meta.env.PROD, sameSite: 'strict' as const };
 
+  if (presaleCode && presaleCode.length === 4) {
+    return redirect(`/?error=rsvpcode&redirectTo=${encodeURIComponent(redirectTo)}`);
+  }
+
   if (presaleCode === adminPass) {
     cookies.set('role', 'admin', cookieOptions);
     return redirect(redirectTo);

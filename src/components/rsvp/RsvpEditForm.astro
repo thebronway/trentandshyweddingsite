@@ -251,5 +251,11 @@ const p3Badge = getBadge(guestRecord.p3Role);
       }
     });
 
+    // Make all rich text links (like in announcements) open in a new tab
+    document.querySelectorAll('.prose a').forEach(link => {
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener noreferrer');
+    });
+
   })();
 </script>

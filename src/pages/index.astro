@@ -34,13 +34,19 @@ const redirectTo = Astro.url.searchParams.get('redirectTo') || '/about';
           </div>
         )}
 
+        {error === 'rsvpcode' && (
+          <div class="bg-amber-950/50 border border-amber-900 text-amber-500 px-4 py-3 mb-6 text-xs font-bold uppercase tracking-widest text-center leading-relaxed">
+            Hey, it looks like you used your RSVP code to try to log in. <br /><br />Instead, please enter the 12 character passcode located below the QR code on your invitation to log onto the site.
+          </div>
+        )}
+
         <form action="/api/verify" method="POST" class="flex flex-col gap-4">
           <input type="hidden" name="redirectTo" value={redirectTo} />
           <input 
             type="text" 
             name="code"
             required 
-            placeholder="PRESALE CODE"
+            placeholder="PASSCODE"
             oninput="this.value = this.value.toUpperCase().replace(/ /g, '')"
             class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 px-4 py-4 text-lg text-center tracking-widest uppercase focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors rounded-sm"
           />

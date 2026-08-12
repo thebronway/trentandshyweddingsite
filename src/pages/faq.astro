@@ -27,7 +27,18 @@ const faqsList = await db.select().from(faqs).orderBy(asc(faqs.sortOrder));
     
     <div class="mt-12 text-center p-6 border border-zinc-700 bg-zinc-800/60 backdrop-blur-md rounded-sm">
       <p class="text-zinc-300 uppercase tracking-widest text-xs font-bold mb-2">Still have questions?</p>
-      <a href="mailto:shrentshredding@gmail.com" class="text-pink-400 hover:text-pink-300 tracking-wider font-bold">Email Trent and Shy</a>
+      <a href="mailto:shrentshredding@gmail.com" class="text-pink-400 hover:text-pink-300 tracking-wider font-bold">Email Trent 
+and Shy</a>
     </div>
   </main>
 </Layout>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Automatically make all rich text links open in a new tab
+    document.querySelectorAll('.prose a').forEach(link => {
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener noreferrer');
+    });
+  });
+</script>
