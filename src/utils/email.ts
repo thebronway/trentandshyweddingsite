@@ -31,10 +31,59 @@ function generateCSV(guests: any[]) {
 }
 
 // Helper: Build the dark/metal themed HTML for the guest
-function buildGuestEmailHtml(guest: any, isUpdate: boolean, closeDate: Date | null) {
-  const formattedCloseDate = closeDate 
-    ? new Date(closeDate).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })
+function buildGuestEmailHtml(guest: any, isUpdate: boolean, siteSettings: any) {
+  const formattedCloseDate = siteSettings?.rsvpCloseDate 
+    ? new Date(siteSettings.rsvpCloseDate).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })
     : "the deadline";
+
+  const getBadgeHtml = (roleStr: string | null | undefined) => {
+    const r = (roleStr || 'guest').toLowerCase();
+    const baseStyle = "display: inline-block; padding: 4px 8px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; margin-left: 12px; vertical-align: middle; white-space: nowrap;";
+    if (r === 'admin') return `<span style="${baseStyle} background-color: #451a03; border: 1px solid #78350f; color: #fbbf24;">Main Act</span>`;
+    if (r === 'openers') return `<span style="${baseStyle} background-color: #022c22; border: 1px solid #064e3b; color: #34d399;">Openers</span>`;
+    if (r === 'vip') return `<span style="${baseStyle} background-color: #3b0764; border: 1px solid #581c87; color: #c084fc;">★ VIP ★</span>`;
+    return `<span style="${baseStyle} background-color: #27272a; border: 1px solid #3f3f46; color: #a1a1aa;">Guest</span>`;
+  };
+
+  const partyRoles = [guest.role];
+  if (guest.allocatedPlusOnes >= 1) partyRoles.push(guest.p1Role);
+  if (guest.allocatedPlusOnes >= 2) partyRoles.push(guest.p2Role);
+  if (guest.allocatedPlusOnes >= 3) partyRoles.push(guest.p3Role);
+  
+  const hasRole = (r: string) => partyRoles.map(x => (x || 'guest').toLowerCase()).includes(r);
+  
+  let announcementHtml = '';
+  
+  if (siteSettings?.messageAll) {
+    announcementHtml += `<div style="background-color: #4a044e; border: 1px solid #831843; color: #f472b6; padding: 15px; margin-bottom: 15px; border-radius: 4px; font-size: 14px;">
+      <span style="display: block; font-size: 10px; margin-bottom: 5px; opacity: 0.8; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">Announcement</span>
+      ${siteSettings.messageAll}
+    </div>`;
+  }
+  if (hasRole('admin') && siteSettings?.messageAdmin) {
+    announcementHtml += `<div style="background-color: #451a03; border: 1px solid #78350f; color: #f59e0b; padding: 15px; margin-bottom: 15px; border-radius: 4px; font-size: 14px;">
+      <span style="display: block; font-size: 10px; margin-bottom: 5px; opacity: 0.8; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">Announcement</span>
+      ${siteSettings.messageAdmin}
+    </div>`;
+  }
+  if (hasRole('openers') && siteSettings?.messageOpeners) {
+    announcementHtml += `<div style="background-color: #022c22; border: 1px solid #064e3b; color: #34d399; padding: 15px; margin-bottom: 15px; border-radius: 4px; font-size: 14px;">
+      <span style="display: block; font-size: 10px; margin-bottom: 5px; opacity: 0.8; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">Announcement</span>
+      ${siteSettings.messageOpeners}
+    </div>`;
+  }
+  if (hasRole('vip') && siteSettings?.messageVip) {
+    announcementHtml += `<div style="background-color: #3b0764; border: 1px solid #581c87; color: #c084fc; padding: 15px; margin-bottom: 15px; border-radius: 4px; font-size: 14px;">
+      <span style="display: block; font-size: 10px; margin-bottom: 5px; opacity: 0.8; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">Announcement</span>
+      ${siteSettings.messageVip}
+    </div>`;
+  }
+  if (hasRole('guest') && siteSettings?.messageGuest) {
+    announcementHtml += `<div style="background-color: #18181b; border: 1px solid #3f3f46; color: #d4d4d8; padding: 15px; margin-bottom: 15px; border-radius: 4px; font-size: 14px;">
+      <span style="display: block; font-size: 10px; margin-bottom: 5px; opacity: 0.8; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">Announcement</span>
+      ${siteSettings.messageGuest}
+    </div>`;
+  }
 
   const title = isUpdate ? "Your RSVP Has Been Updated" : "You're on the Guest List";
   const status = guest.isAttending ? "Hell Yes (Attending)" : "Can't Make It (Declined)";
@@ -42,32 +91,60 @@ function buildGuestEmailHtml(guest: any, isUpdate: boolean, closeDate: Date | nu
   let html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background-color: #450a0a; color: #f4f4f5; padding: 30px; border: 1px solid #3f3f46; border-radius: 4px;">
       <h2 style="color: #f472b6; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; margin-bottom: 5px;">Trent & Shy's "Till Death" Tour (Wedding)</h2>
-      <h1 style="color: #f4f4f5; text-transform: uppercase; font-size: 24px; border-bottom: 2px solid #f472b6; padding-bottom: 10px; margin-top: 0;">${title}</h1>
+      <h1 style="color: #f4f4f5; text-transform: uppercase; font-size: 24px; border-bottom: 2px solid #f472b6; padding-bottom: 10px; margin-top: 0; margin-bottom: 20px;">${title}</h1>
       
+      ${announcementHtml}
+
       <div style="background-color: #52525b; padding: 15px; margin: 20px 0; border-left: 4px solid #f472b6; border-radius: 4px;">
         <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Date:</strong> October 10, 2026</p>
-        <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Time:</strong> Doors at 4:30 PM</p>
+        <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Time:</strong> Doors TBA</p>
         <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Venue:</strong> Baltimore Soundstage</p>
         <p style="margin: 0; font-size: 14px; color: #e4e4e7;">124 Market Pl, Baltimore, MD 21202</p>
       </div>
 
-      <p style="color: #e4e4e7; font-size: 14px; margin-bottom: 20px;"><strong>Party under:</strong> ${guest.email}</p>
+      <p style="color: #e4e4e7; font-size: 14px; margin-bottom: 30px;"><strong>Party under:</strong> <span style="color: #f472b6;">${guest.email}</span></p>
       
-      <h3 style="color: #f472b6; text-transform: uppercase;">Main Guest: ${guest.firstName} ${guest.lastName || ''}</h3>
-      <p><strong>Status:</strong> ${status}</p>
+      <div style="border-bottom: 1px solid #3f3f46; padding-bottom: 15px; margin-bottom: 15px;">
+        <div style="font-size: 10px; text-transform: uppercase; color: #f472b6; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px;">Main Guest</div>
+        <h3 style="color: #f4f4f5; text-transform: uppercase; margin: 0 0 8px 0; font-size: 20px;">
+          ${guest.firstName} ${guest.lastName || ''} ${getBadgeHtml(guest.role)}
+        </h3>
+        <p style="margin: 0; font-size: 14px; color: #e4e4e7;"><strong>Status:</strong> ${status}</p>
+      </div>
   `;
 
   if (guest.allocatedPlusOnes >= 1) {
-      html += `<h3 style="color: #34d399; text-transform: uppercase; margin-top: 20px;">Plus One: ${guest.p1Name || 'Guest'}</h3>
-               <p><strong>Status:</strong> ${guest.p1Attending === 'true' ? 'Yes' : guest.p1Attending === 'false' ? 'No' : 'Pending'}</p>`;
+      const p1LastName = guest.p1LastName ? ` ${guest.p1LastName}` : '';
+      html += `
+      <div style="border-bottom: 1px solid #3f3f46; padding-bottom: 15px; margin-bottom: 15px;">
+        <div style="font-size: 10px; text-transform: uppercase; color: #f472b6; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px;">Plus One</div>
+        <h3 style="color: #f4f4f5; text-transform: uppercase; margin: 0 0 8px 0; font-size: 20px;">
+          ${guest.p1Name || 'Guest'}${p1LastName} ${getBadgeHtml(guest.p1Role)}
+        </h3>
+        <p style="margin: 0; font-size: 14px; color: #e4e4e7;"><strong>Status:</strong> ${guest.p1Attending === 'true' ? 'Hell Yes (Attending)' : guest.p1Attending === 'false' ? "Can't Make It (Declined)" : 'Pending'}</p>
+      </div>`;
   }
   if (guest.allocatedPlusOnes >= 2) {
-      html += `<h3 style="color: #34d399; text-transform: uppercase; margin-top: 20px;">Plus Two: ${guest.p2Name || 'Guest'}</h3>
-               <p><strong>Status:</strong> ${guest.p2Attending === 'true' ? 'Yes' : guest.p2Attending === 'false' ? 'No' : 'Pending'}</p>`;
+      const p2LastName = guest.p2LastName ? ` ${guest.p2LastName}` : '';
+      html += `
+      <div style="border-bottom: 1px solid #3f3f46; padding-bottom: 15px; margin-bottom: 15px;">
+        <div style="font-size: 10px; text-transform: uppercase; color: #f472b6; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px;">Plus Two</div>
+        <h3 style="color: #f4f4f5; text-transform: uppercase; margin: 0 0 8px 0; font-size: 20px;">
+          ${guest.p2Name || 'Guest'}${p2LastName} ${getBadgeHtml(guest.p2Role)}
+        </h3>
+        <p style="margin: 0; font-size: 14px; color: #e4e4e7;"><strong>Status:</strong> ${guest.p2Attending === 'true' ? 'Hell Yes (Attending)' : guest.p2Attending === 'false' ? "Can't Make It (Declined)" : 'Pending'}</p>
+      </div>`;
   }
   if (guest.allocatedPlusOnes >= 3) {
-      html += `<h3 style="color: #34d399; text-transform: uppercase; margin-top: 20px;">Plus Three: ${guest.p3Name || 'Guest'}</h3>
-               <p><strong>Status:</strong> ${guest.p3Attending === 'true' ? 'Yes' : guest.p3Attending === 'false' ? 'No' : 'Pending'}</p>`;
+      const p3LastName = guest.p3LastName ? ` ${guest.p3LastName}` : '';
+      html += `
+      <div style="border-bottom: 1px solid #3f3f46; padding-bottom: 15px; margin-bottom: 15px;">
+        <div style="font-size: 10px; text-transform: uppercase; color: #f472b6; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px;">Plus Three</div>
+        <h3 style="color: #f4f4f5; text-transform: uppercase; margin: 0 0 8px 0; font-size: 20px;">
+          ${guest.p3Name || 'Guest'}${p3LastName} ${getBadgeHtml(guest.p3Role)}
+        </h3>
+        <p style="margin: 0; font-size: 14px; color: #e4e4e7;"><strong>Status:</strong> ${guest.p3Attending === 'true' ? 'Hell Yes (Attending)' : guest.p3Attending === 'false' ? "Can't Make It (Declined)" : 'Pending'}</p>
+      </div>`;
   }
 
   if (guest.dietaryNotes) {
@@ -101,7 +178,7 @@ function buildGuestEmailHtml(guest: any, isUpdate: boolean, closeDate: Date | nu
 // EXPORTED FUNCTIONS
 // ---------------------------------------------------------
 
-export async function sendGuestConfirmation(guest: any, isUpdate: boolean, closeDate: Date | null) {
+export async function sendGuestConfirmation(guest: any, isUpdate: boolean, siteSettings: any) {
   if (!process.env.SENDER_NO_REPLY) return;
   
   // Gather all valid emails for the party to ensure everyone gets the confirmation
@@ -113,12 +190,17 @@ export async function sendGuestConfirmation(guest: any, isUpdate: boolean, close
 
   if (!uniqueToEmails) return;
 
+  const isTestMode = !!process.env.TEST_EMAIL_OVERRIDE;
+  const targetEmail = isTestMode ? process.env.TEST_EMAIL_OVERRIDE : uniqueToEmails;
+  const baseSubject = isUpdate ? "Your Trent & Shy RSVP is Updated" : "Trent & Shy RSVP Confirmed";
+  const finalSubject = isTestMode ? `[TEST MODE - To: ${uniqueToEmails}] ${baseSubject}` : baseSubject;
+
   try {
     await transporter.sendMail({
       from: `"Trent & Shy Box Office" <${process.env.SENDER_NO_REPLY}>`,
-      to: uniqueToEmails,
-      subject: isUpdate ? "Your Trent & Shy RSVP is Updated" : "Trent & Shy RSVP Confirmed",
-      html: buildGuestEmailHtml(guest, isUpdate, closeDate)
+      to: targetEmail,
+      subject: finalSubject,
+      html: buildGuestEmailHtml(guest, isUpdate, siteSettings)
     });
   } catch (error) {
     console.error("Error sending guest email:", error);
@@ -129,12 +211,17 @@ export async function sendAdminNotification(guest: any, allGuests: any[], action
   if (!process.env.ADMIN_NOTIFY_EMAIL || !process.env.SENDER_RSVP) return;
 
   const csvContent = generateCSV(allGuests);
+  
+  const isTestMode = !!process.env.TEST_EMAIL_OVERRIDE;
+  const targetEmail = isTestMode ? process.env.TEST_EMAIL_OVERRIDE : process.env.ADMIN_NOTIFY_EMAIL;
+  const baseSubject = `RSVP Alert: ${guest.firstName} ${guest.lastName || ''} - ${action}`;
+  const finalSubject = isTestMode ? `[TEST MODE - To: Admin] ${baseSubject}` : baseSubject;
 
   try {
     await transporter.sendMail({
       from: `"Trent & Shy RSVP" <${process.env.SENDER_RSVP}>`,
-      to: process.env.ADMIN_NOTIFY_EMAIL,
-      subject: `RSVP Alert: ${guest.firstName} ${guest.lastName || ''} - ${action}`,
+      to: targetEmail,
+      subject: finalSubject,
       html: `
         <div style="font-family: sans-serif;">
           <h2>Guest List Update</h2>

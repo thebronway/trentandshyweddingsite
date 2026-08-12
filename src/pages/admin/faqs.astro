@@ -128,11 +128,92 @@ const allFaqs = await db.select().from(faqs).orderBy(asc(faqs.sortOrder));
     });
   });
 
+  let isDirty = false;
+
   document.querySelectorAll('.close-edit-faq').forEach(btn => {
     btn.addEventListener('click', () => {
       document.getElementById('edit-faq-modal').classList.add('hidden');
+      isDirty = false; // Reset if they cancel the edit
     });
+  });
+
+  // Track dirty state for inputs, changes, and rich text editors
+  document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('input', () => { isDirty = true; });
+    form.addEventListener('change', () => { isDirty = true; });
+    form.addEventListener('submit', () => { isDirty = false; });
+  });
+  
+  document.addEventListener('trix-change', () => { isDirty = true; });
+
+  // Prevent leaving if unsaved changes exist
+  window.addEventListener('beforeunload', (e) => {
+    if (isDirty) {
+      e.preventDefault();
+      e.returnValue = true;
+    }
   });
 
 })();
 </script>
+
+<style is:global>
+  /* Trix Editor Link Color */
+  trix-editor a, .trix-content a {
+    color: #f472b6 !important; /* text-pink-400 */
+    text-decoration: underline !important;
+  }
+
+  /* Trix Toolbar Buttons (Solid Background & Visible Icons) */
+  .trix-button-group {
+    background-color: transparent !important;
+    border: none !important;
+  }
+  
+  .trix-button-group .trix-button {
+    background-color: #27272a !important; /* bg-zinc-800 */
+    color: #e4e4e7 !important; /* text-zinc-200 (Makes icons light gray) */
+    border: 1px solid #3f3f46 !important; /* border-zinc-700 */
+  }
+
+  .trix-button-group .trix-button:hover {
+    background-color: #3f3f46 !important; /* hover: bg-zinc-700 */
+  }
+
+  .trix-button-group .trix-button.trix-active {
+    background-color: #f472b6 !important; /* active: pink-400 */
+    color: #18181b !important; /* active icon: dark zinc */
+    border-color: #f472b6 !important;
+  }
+
+  /* Trix Popout Dialog Dark Mode Overrides */
+  .trix-dialog {
+    background-color: #18181b !important; /* bg-zinc-900 */
+    border: 1px solid #3f3f46 !important; /* border-zinc-700 */
+    color: #f4f4f5 !important; /* text-zinc-100 */
+    border-radius: 0.125rem !important; 
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  }
+  
+  .trix-dialog .trix-input {
+    background-color: #27272a !important; /* bg-zinc-800 */
+    border: 1px solid #52525b !important; /* border-zinc-600 */
+    color: #e4e4e7 !important; /* text-zinc-200 */
+  }
+
+  .trix-dialog .trix-input:focus {
+    border-color: #f472b6 !important; /* border-pink-400 */
+    outline: none !important;
+  }
+
+  .trix-dialog .trix-button {
+    background-color: #f472b6 !important; /* bg-pink-400 */
+    color: #18181b !important; /* text-zinc-900 */
+    border: none !important;
+    font-weight: bold !important;
+  }
+  
+  .trix-dialog .trix-button:hover {
+    background-color: #f9a8d4 !important; /* bg-pink-300 */
+  }
+</style>

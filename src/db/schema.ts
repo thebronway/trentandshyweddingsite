@@ -59,4 +59,9 @@ export const settings = pgTable('settings', {
   rsvpCloseDate: timestamp('rsvp_close_date', { withTimezone: true }).defaultNow().notNull(),
   earlyMessage: text('early_message').default('RSVP opens soon!').notNull(),
   lateMessage: text('late_message').default('RSVP is now closed. Please contact Trent or Shy.').notNull(),
+  messageAll: text('message_all').default(''),
+  messageGuest: text('message_guest').default(''),
+  messageVip: text('message_vip').default(''),
+  messageOpeners: text('message_openers').default(''),
+  messageAdmin: text('message_admin').default(''),
 });

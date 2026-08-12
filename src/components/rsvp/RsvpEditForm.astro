@@ -2,9 +2,10 @@
 interface Props {
   guestRecord: any;
   duplicateError: boolean;
+  siteSettings: any;
 }
 
-const { guestRecord, duplicateError } = Astro.props;
+const { guestRecord, duplicateError, siteSettings } = Astro.props;
 
 const getBadge = (roleStr: string | null | undefined) => {
   const r = (roleStr || 'guest').toLowerCase();
@@ -36,6 +37,56 @@ const p3Badge = getBadge(guestRecord.p3Role);
     </div>
   )}
 
+  {(() => {
+    const partyRoles = [guestRecord.role];
+    if (guestRecord.allocatedPlusOnes >= 1) partyRoles.push(guestRecord.p1Role);
+    if (guestRecord.allocatedPlusOnes >= 2) partyRoles.push(guestRecord.p2Role);
+    if (guestRecord.allocatedPlusOnes >= 3) partyRoles.push(guestRecord.p3Role);
+    
+    const hasRole = (r: string) => partyRoles.map(x => (x || 'guest').toLowerCase()).includes(r);
+    
+    const showAdminMsg = hasRole('admin') && siteSettings?.messageAdmin;
+    const showOpenersMsg = hasRole('openers') && siteSettings?.messageOpeners;
+    const showVipMsg = hasRole('vip') && siteSettings?.messageVip;
+    const showGuestMsg = hasRole('guest') && siteSettings?.messageGuest;
+    const showAllMsg = siteSettings?.messageAll;
+
+    return (
+      <div class="flex flex-col gap-3 mb-6">
+        {showAllMsg && (
+          <div class="bg-pink-950/30 border border-pink-900/50 text-pink-400 px-4 py-3 rounded-sm">
+            <span class="block text-[9px] mb-1 opacity-70 font-bold uppercase tracking-widest">Announcement</span>
+            <div class="prose prose-invert max-w-none [&_a]:text-pink-400 [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-pink-300 transition-colors text-sm" set:html={siteSettings.messageAll}></div>
+          </div>
+        )}
+        {showAdminMsg && (
+          <div class="bg-amber-950/30 border border-amber-900/50 text-amber-500 px-4 py-3 rounded-sm">
+            <span class="block text-[9px] mb-1 opacity-70 font-bold uppercase tracking-widest">Announcement</span>
+            <div class="prose prose-invert max-w-none [&_a]:text-amber-400 [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-amber-300 transition-colors text-sm" set:html={siteSettings.messageAdmin}></div>
+          </div>
+        )}
+        {showOpenersMsg && (
+          <div class="bg-emerald-950/30 border border-emerald-900/50 text-emerald-400 px-4 py-3 rounded-sm">
+            <span class="block text-[9px] mb-1 opacity-70 font-bold uppercase tracking-widest">Announcement</span>
+            <div class="prose prose-invert max-w-none [&_a]:text-emerald-400 [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-emerald-300 transition-colors text-sm" set:html={siteSettings.messageOpeners}></div>
+          </div>
+        )}
+        {showVipMsg && (
+          <div class="bg-purple-950/30 border border-purple-900/50 text-purple-400 px-4 py-3 rounded-sm">
+            <span class="block text-[9px] mb-1 opacity-70 font-bold uppercase tracking-widest">Announcement</span>
+            <div class="prose prose-invert max-w-none [&_a]:text-purple-400 [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-purple-300 transition-colors text-sm" set:html={siteSettings.messageVip}></div>
+          </div>
+        )}
+        {showGuestMsg && (
+          <div class="bg-zinc-900/80 border border-zinc-700 text-zinc-300 px-4 py-3 rounded-sm">
+            <span class="block text-[9px] mb-1 opacity-70 font-bold uppercase tracking-widest">Announcement</span>
+            <div class="prose prose-invert max-w-none [&_a]:text-zinc-400 [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-zinc-300 transition-colors text-sm" set:html={siteSettings.messageGuest}></div>
+          </div>
+        )}
+      </div>
+    );
+  })()}
+
   <form action="/api/rsvp" method="POST" id="rsvp-form" class="flex flex-col gap-8">
     <input type="hidden" name="id" value={guestRecord.id} />
 
@@ -57,8 +108,9 @@ const p3Badge = getBadge(guestRecord.p3Role);
     </div>
 
     <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
-      <div class="flex items-center gap-3 mb-4 border-b border-zinc-700 pb-2">
-        <h3 class="text-xl font-display text-pink-400 uppercase tracking-widest">
+      <div class="text-[10px] text-pink-400 uppercase tracking-widest font-bold mb-1">Main Guest</div>
+      <div class="flex flex-wrap items-center gap-3 mb-4 border-b border-zinc-700 pb-2">
+        <h3 class="text-xl font-display text-zinc-100 uppercase tracking-widest">
           {guestRecord.firstName} {guestRecord.lastName || ''}
         </h3>
         {mainBadge && <span class={`inline-block ${mainBadge.classes}`}>{mainBadge.text}</span>}
@@ -77,9 +129,10 @@ const p3Badge = getBadge(guestRecord.p3Role);
 
     {guestRecord.allocatedPlusOnes >= 1 && (
       <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
-        <div class="flex items-center gap-3 mb-4 border-b border-zinc-700 pb-2">
-          <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest">
-            {guestRecord.p1Name ? `${guestRecord.p1Name} ${guestRecord.p1LastName || ''} (Guest)` : 'Guest'}
+        <div class="text-[10px] text-pink-400 uppercase tracking-widest font-bold mb-1">Plus One</div>
+        <div class="flex flex-wrap items-center gap-3 mb-4 border-b border-zinc-700 pb-2">
+          <h3 class="text-xl font-display text-zinc-100 uppercase tracking-widest">
+            {guestRecord.p1Name ? `${guestRecord.p1Name} ${guestRecord.p1LastName || ''}` : 'Guest'}
           </h3>
           {p1Badge && <span class={`inline-block ${p1Badge.classes}`}>{p1Badge.text}</span>}
         </div>
@@ -104,11 +157,12 @@ const p3Badge = getBadge(guestRecord.p3Role);
       </div>
     )}
 
-   {guestRecord.allocatedPlusOnes >= 2 && (
+    {guestRecord.allocatedPlusOnes >= 2 && (
       <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
-        <div class="flex items-center gap-3 mb-4 border-b border-zinc-700 pb-2">
-          <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest">
-            {guestRecord.p2Name ? `${guestRecord.p2Name} ${guestRecord.p2LastName || ''} (Guest)` : 'Guest'}
+        <div class="text-[10px] text-pink-400 uppercase tracking-widest font-bold mb-1">Plus Two</div>
+        <div class="flex flex-wrap items-center gap-3 mb-4 border-b border-zinc-700 pb-2">
+          <h3 class="text-xl font-display text-zinc-100 uppercase tracking-widest">
+            {guestRecord.p2Name ? `${guestRecord.p2Name} ${guestRecord.p2LastName || ''}` : 'Guest'}
           </h3>
           {p2Badge && <span class={`inline-block ${p2Badge.classes}`}>{p2Badge.text}</span>}
         </div>
@@ -135,9 +189,10 @@ const p3Badge = getBadge(guestRecord.p3Role);
 
     {guestRecord.allocatedPlusOnes >= 3 && (
       <div class="border border-zinc-700 bg-zinc-900/60 rounded-sm p-4 sm:p-6">
-        <div class="flex items-center gap-3 mb-4 border-b border-zinc-700 pb-2">
-          <h3 class="text-xl font-display text-pink-300 uppercase tracking-widest">
-            {guestRecord.p3Name ? `${guestRecord.p3Name} ${guestRecord.p3LastName || ''} (Guest)` : 'Guest'}
+        <div class="text-[10px] text-pink-400 uppercase tracking-widest font-bold mb-1">Plus Three</div>
+        <div class="flex flex-wrap items-center gap-3 mb-4 border-b border-zinc-700 pb-2">
+          <h3 class="text-xl font-display text-zinc-100 uppercase tracking-widest">
+            {guestRecord.p3Name ? `${guestRecord.p3Name} ${guestRecord.p3LastName || ''}` : 'Guest'}
           </h3>
           {p3Badge && <span class={`inline-block ${p3Badge.classes}`}>{p3Badge.text}</span>}
         </div>

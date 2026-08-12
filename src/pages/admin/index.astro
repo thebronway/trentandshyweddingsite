@@ -6,7 +6,6 @@ import { guests, settings } from '../../db/schema';
 
 // Import our new split components
 import Headcount from '../../components/admin/Headcount.astro';
-import RsvpSettings from '../../components/admin/RsvpSettings.astro';
 import EmailLists from '../../components/admin/EmailLists.astro';
 import GuestTable from '../../components/admin/GuestTable.astro';
 import AddGuestModal from '../../components/admin/AddGuestModal.astro';
@@ -104,6 +103,7 @@ const emailsAll = [...new Set(arrAll)].join(', ');
           <label for="mute-admin-emails" class="text-xs font-bold uppercase tracking-widest text-zinc-400 cursor-pointer">Mute Email Alerts</label>
         </div>
         <div class="flex flex-wrap gap-2 items-center justify-end relative">
+          <a href="/admin/settings" class="bg-zinc-800/60 backdrop-blur-md hover:bg-zinc-700 text-zinc-100 font-bold px-6 py-2 uppercase tracking-wider transition-colors text-sm border border-zinc-700 rounded-sm">Manage RSVP Settings</a>
           <a href="/admin/faqs" class="bg-zinc-800/60 backdrop-blur-md hover:bg-zinc-700 text-zinc-100 font-bold px-6 py-2 uppercase tracking-wider transition-colors text-sm border border-zinc-700 rounded-sm">Manage FAQs</a>
           
           <div class="relative inline-block text-left">
@@ -129,9 +129,8 @@ const emailsAll = [...new Set(arrAll)].join(', ');
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="mb-8">
       <Headcount totalYes={totalYes} totalNo={totalNo} totalPending={totalPending} />
-      <RsvpSettings siteSettings={siteSettings} success={success} />
     </div>
 
     <EmailLists emailsYes={emailsYes} emailsPending={emailsPending} emailsNo={emailsNo} emailsAll={emailsAll} />

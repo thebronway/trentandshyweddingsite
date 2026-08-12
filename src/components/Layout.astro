@@ -3,6 +3,7 @@ interface Props {
   title: string;
 }
 const { title } = Astro.props;
+const demoBannerText = process.env.DEMO_BANNER_TEXT;
 ---
 <!DOCTYPE html>
 <html lang="en" class="bg-zinc-950">
@@ -17,6 +18,11 @@ const { title } = Astro.props;
     <script defer src="https://analytics.area51b.com/script.js" data-website-id="d048e543-1677-4b0e-b671-40632e037cca"></script>
   </head>
   <body class="bg-gradient-to-b from-red-950 from-30% to-zinc-950 text-zinc-100 font-sans selection:bg-pink-600 selection:text-white antialiased flex flex-col min-h-screen">
+    {demoBannerText && (
+      <div class="sticky top-0 z-[9999] w-full bg-amber-500 text-amber-950 text-center font-bold text-xs py-1.5 uppercase tracking-widest shadow-md">
+        {demoBannerText}
+      </div>
+    )}
     <slot />
   </body>
 </html>

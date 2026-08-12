@@ -1,0 +1,190 @@
+---
+import Layout from '../../components/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import { db } from '../../db';
+import { settings } from '../../db/schema';
+
+const siteSettingsQuery = await db.select().from(settings).limit(1);
+const siteSettings = siteSettingsQuery[0] || { 
+  rsvpOpenDate: new Date(), rsvpCloseDate: new Date(), earlyMessage: '', lateMessage: '',
+  messageAll: '', messageGuest: '', messageVip: '', messageOpeners: '', messageAdmin: ''
+};
+
+const success = Astro.url.searchParams.get('success');
+
+const formatDateForInput = (dateObj: Date) => {
+  if (!dateObj) return '';
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}T${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
+};
+---
+<Layout title="RSVP Settings">
+  <Nav />
+  <main class="max-w-4xl mx-auto p-6 w-full mt-8">
+    <div class="flex justify-between items-end border-b border-zinc-700 pb-4 mb-6">
+      <h1 class="text-4xl text-white font-display uppercase tracking-widest">RSVP Settings</h1>
+      <a href="/admin" class="text-pink-400 text-xs font-bold uppercase tracking-widest hover:text-pink-300 transition-colors">&larr; Back to Control</a>
+    </div>
+    
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@2.0.8/dist/trix.css">
+    <script type="text/javascript" src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js" is:inline></script>
+
+    {success === 'settings' && (
+      <div class="bg-emerald-950/50 border border-emerald-500 text-emerald-200 p-4 mb-6 uppercase tracking-widest font-bold text-sm">
+        Settings Saved Successfully!
+      </div>
+    )}
+
+    <form action="/api/admin/settings" method="POST" class="space-y-8">
+      
+      {/* SECTION 1: Window & Standard Messages */}
+      <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 rounded-sm p-6 shadow-2xl">
+        <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-4 border-b border-zinc-700 pb-2">RSVP Window & Standard Messages</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-widest text-pink-400 mb-2">Open Date</label>
+            <input type="datetime-local" name="rsvpOpenDate" value={formatDateForInput(siteSettings.rsvpOpenDate)} required class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-widest text-pink-400 mb-2">Close Date</label>
+            <input type="datetime-local" name="rsvpCloseDate" value={formatDateForInput(siteSettings.rsvpCloseDate)} required class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors" />
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-widest text-pink-400 mb-2">Early Message (Before Open)</label>
+            <input type="text" name="earlyMessage" value={siteSettings.earlyMessage} required class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-widest text-pink-400 mb-2">Late Message (After Close)</label>
+            <input type="text" name="lateMessage" value={siteSettings.lateMessage} required class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors" />
+          </div>
+        </div>
+      </div>
+
+      {/* SECTION 2: Role-Specific Ticket Messages */}
+      <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 border-l-4 border-l-pink-400 rounded-sm p-6 shadow-2xl">
+        <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-2 border-b border-zinc-700 pb-2">Ticket Announcements</h2>
+        <p class="text-zinc-400 text-xs font-bold uppercase tracking-widest mb-6">These messages will display at the top of the RSVP form and Confirmation Emails if anyone in the party matches the role. Leave blank to disable.</p>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-widest text-pink-400 mb-1">Message for ALL Guests</label>
+            <input id="messageAll-input" type="hidden" name="messageAll" value={siteSettings.messageAll || ''}>
+            <trix-editor input="messageAll-input" class="bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 min-h-[100px] focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors"></trix-editor>
+          </div>
+          
+          <div class="pt-4 border-t border-zinc-700/50">
+            <label class="block text-xs font-bold uppercase tracking-widest text-amber-500 mb-1">Message for Main Act</label>
+            <input id="messageAdmin-input" type="hidden" name="messageAdmin" value={siteSettings.messageAdmin || ''}>
+            <trix-editor input="messageAdmin-input" class="bg-amber-950/20 border border-amber-900/50 rounded-sm text-amber-100 min-h-[100px] focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"></trix-editor>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-widest text-emerald-500 mb-1">Message for Openers</label>
+            <input id="messageOpeners-input" type="hidden" name="messageOpeners" value={siteSettings.messageOpeners || ''}>
+            <trix-editor input="messageOpeners-input" class="bg-emerald-950/20 border border-emerald-900/50 rounded-sm text-emerald-100 min-h-[100px] focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"></trix-editor>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-widest text-purple-400 mb-1">Message for VIPs</label>
+            <input id="messageVip-input" type="hidden" name="messageVip" value={siteSettings.messageVip || ''}>
+            <trix-editor input="messageVip-input" class="bg-purple-950/20 border border-purple-900/50 rounded-sm text-purple-100 min-h-[100px] focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors"></trix-editor>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-widest text-zinc-400 mb-1">Message for Standard Guests</label>
+            <input id="messageGuest-input" type="hidden" name="messageGuest" value={siteSettings.messageGuest || ''}>
+            <trix-editor input="messageGuest-input" class="bg-zinc-900 border border-zinc-600 rounded-sm text-zinc-100 min-h-[100px] focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-colors"></trix-editor>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <button type="submit" class="bg-zinc-200 hover:bg-white text-zinc-900 font-bold uppercase px-8 py-3 rounded-sm transition-colors tracking-widest text-sm">Save All Settings</button>
+      </div>
+    </form>
+  </main>
+</Layout>
+
+<script is:inline>
+  (() => {
+    let isDirty = false;
+    const form = document.querySelector('form');
+
+    if (form) {
+      form.addEventListener('input', () => { isDirty = true; });
+      form.addEventListener('change', () => { isDirty = true; });
+      document.addEventListener('trix-change', () => { isDirty = true; });
+      form.addEventListener('submit', () => { isDirty = false; });
+    }
+
+    window.addEventListener('beforeunload', (e) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = true;
+      }
+    });
+  })();
+</script>
+
+<style is:global>
+  /* Trix Editor Link Color */
+  trix-editor a, .trix-content a {
+    color: #f472b6 !important; /* text-pink-400 */
+    text-decoration: underline !important;
+  }
+
+  /* Trix Toolbar Buttons (Solid Background & Visible Icons) */
+  .trix-button-group {
+    background-color: transparent !important;
+    border: none !important;
+  }
+  
+  .trix-button-group .trix-button {
+    background-color: #27272a !important; /* bg-zinc-800 */
+    color: #e4e4e7 !important; /* text-zinc-200 (Makes icons light gray) */
+    border: 1px solid #3f3f46 !important; /* border-zinc-700 */
+  }
+
+  .trix-button-group .trix-button:hover {
+    background-color: #3f3f46 !important; /* hover: bg-zinc-700 */
+  }
+
+  .trix-button-group .trix-button.trix-active {
+    background-color: #f472b6 !important; /* active: pink-400 */
+    color: #18181b !important; /* active icon: dark zinc */
+    border-color: #f472b6 !important;
+  }
+
+  /* Trix Popout Dialog Dark Mode Overrides */
+  .trix-dialog {
+    background-color: #18181b !important; /* bg-zinc-900 */
+    border: 1px solid #3f3f46 !important; /* border-zinc-700 */
+    color: #f4f4f5 !important; /* text-zinc-100 */
+    border-radius: 0.125rem !important; 
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  }
+  
+  .trix-dialog .trix-input {
+    background-color: #27272a !important; /* bg-zinc-800 */
+    border: 1px solid #52525b !important; /* border-zinc-600 */
+    color: #e4e4e7 !important; /* text-zinc-200 */
+  }
+
+  .trix-dialog .trix-input:focus {
+    border-color: #f472b6 !important; /* border-pink-400 */
+    outline: none !important;
+  }
+
+  .trix-dialog .trix-button {
+    background-color: #f472b6 !important; /* bg-pink-400 */
+    color: #18181b !important; /* text-zinc-900 */
+    border: none !important;
+    font-weight: bold !important;
+  }
+  
+  .trix-dialog .trix-button:hover {
+    background-color: #f9a8d4 !important; /* bg-pink-300 */
+  }
+</style>

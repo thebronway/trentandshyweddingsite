@@ -121,6 +121,7 @@ if (searchValue.includes('@')) {
       <RsvpEditForm 
         guestRecord={guestRecord} 
         duplicateError={Astro.url.searchParams.get('error') === 'duplicate'} 
+        siteSettings={siteSettings}
       />
     )}
   </main>

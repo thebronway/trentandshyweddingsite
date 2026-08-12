@@ -13,6 +13,8 @@ interface ImportMetaEnv {
   readonly ADMIN_NOTIFY_EMAIL: string;
   readonly SENDER_NO_REPLY: string;
   readonly SENDER_RSVP: string;
+  readonly TEST_EMAIL_OVERRIDE?: string;
+  readonly DEMO_BANNER_TEXT?: string;
 }
 
 interface ImportMeta {
