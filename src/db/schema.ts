@@ -64,4 +64,6 @@ export const settings = pgTable('settings', {
   messageVip: text('message_vip').default(''),
   messageOpeners: text('message_openers').default(''),
   messageAdmin: text('message_admin').default(''),
+  staffCount: integer('staff_count').default(0).notNull(),
+  staffDietaryNotes: text('staff_dietary_notes'),
 });

@@ -167,6 +167,19 @@
 
   const editForm = document.getElementById('edit-guest-form');
   const editError = document.getElementById('edit-error');
+  let isEditDirty = false;
+
+  if (editForm) {
+    editForm.addEventListener('input', (e) => { if (e.isTrusted) isEditDirty = true; });
+    editForm.addEventListener('change', (e) => { if (e.isTrusted) isEditDirty = true; });
+  }
+
+  window.addEventListener('beforeunload', (e) => {
+    if (isEditDirty) {
+      e.preventDefault();
+      e.returnValue = true;
+    }
+  });
 
   editForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -192,6 +205,7 @@
           editError.classList.remove('hidden');
         }
       } else {
+        isEditDirty = false;
         window.location.reload();
       }
     } catch (err) {
@@ -203,6 +217,8 @@
   });
 
   document.querySelectorAll('.close-edit-btn').forEach(btn => btn.addEventListener('click', () => {
+    if (isEditDirty && !confirm('You have unsaved changes. Are you sure you want to discard them?')) return;
     document.getElementById('edit-panel')?.classList.add('hidden');
+    isEditDirty = false;
   }));
 </script>

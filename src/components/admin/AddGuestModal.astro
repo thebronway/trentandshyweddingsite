@@ -129,6 +129,19 @@
 
   const addForm = document.getElementById('add-guest-form');
   const addError = document.getElementById('add-error');
+  let isAddDirty = false;
+
+  if (addForm) {
+    addForm.addEventListener('input', (e) => { if (e.isTrusted) isAddDirty = true; });
+    addForm.addEventListener('change', (e) => { if (e.isTrusted) isAddDirty = true; });
+  }
+
+  window.addEventListener('beforeunload', (e) => {
+    if (isAddDirty) {
+      e.preventDefault();
+      e.returnValue = true;
+    }
+  });
 
   addForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -154,6 +167,7 @@
           addError.classList.remove('hidden');
         }
       } else {
+        isAddDirty = false;
         window.location.reload();
       }
     } catch (err) {
@@ -165,6 +179,9 @@
   });
 
   document.querySelectorAll('.close-add-btn').forEach(btn => btn.addEventListener('click', () => {
+    if (isAddDirty && !confirm('You have unsaved changes. Are you sure you want to discard them?')) return;
     document.getElementById('add-panel')?.classList.add('hidden');
+    isAddDirty = false;
+    (addForm as HTMLFormElement)?.reset();
   }));
 </script>

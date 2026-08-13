@@ -1,0 +1,157 @@
+---
+import Layout from '../../components/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import { db } from '../../db';
+import { guests, settings } from '../../db/schema';
+
+const allGuests = await db.select().from(guests);
+const siteSettingsQuery = await db.select().from(settings).limit(1);
+const siteSettings = siteSettingsQuery[0] || { staffCount: 0, staffDietaryNotes: '' };
+
+const success = Astro.url.searchParams.get('success');
+
+// Calculate Confirmed Guest Headcount
+let guestCount = 0;
+const guestsWithAllergies: any[] = [];
+
+allGuests.forEach(g => {
+  if (g.hasRsvpd) {
+    if (g.isAttending) guestCount++;
+    if (g.allocatedPlusOnes >= 1 && g.p1Attending === 'true') guestCount++;
+    if (g.allocatedPlusOnes >= 2 && g.p2Attending === 'true') guestCount++;
+    if (g.allocatedPlusOnes >= 3 && g.p3Attending === 'true') guestCount++;
+
+    if (g.dietaryNotes && g.dietaryNotes.trim() !== '') {
+      guestsWithAllergies.push(g);
+    }
+  }
+});
+
+const staffCount = siteSettings.staffCount || 0;
+const totalPlates = guestCount + staffCount;
+
+// Sort allergies alphabetically by last name
+guestsWithAllergies.sort((a, b) => (a.lastName || '').localeCompare(b.lastName || ''));
+---
+
+<Layout title="Catering Report">
+  <div class="no-print"><Nav /></div>
+  <main class="max-w-4xl mx-auto p-6 w-full mt-8">
+    
+    <div class="flex justify-between items-end border-b border-zinc-700 pb-4 mb-6 no-print">
+      <h1 class="text-4xl text-white font-display uppercase tracking-widest">Catering Report</h1>
+      <div class="flex gap-4 items-center">
+        <a href="/admin" class="text-pink-400 text-xs font-bold uppercase tracking-widest hover:text-pink-300">&larr; Back to Control</a>
+        <button onclick="window.print()" class="bg-zinc-200 hover:bg-white text-zinc-900 font-bold px-6 py-2 uppercase tracking-wider transition-colors text-sm rounded-sm">Print Report</button>
+      </div>
+    </div>
+
+    {success && (
+      <div class="bg-emerald-950/50 border border-emerald-500 text-emerald-200 p-4 mb-6 uppercase tracking-widest font-bold text-sm no-print">
+        Staff Headcount Saved!
+      </div>
+    )}
+
+    <div class="hidden print-only mb-8 border-b border-black pb-4">
+      <h1 class="text-3xl font-display uppercase tracking-widest text-black">Master Catering Report</h1>
+      <p class="text-sm uppercase tracking-widest text-gray-600 mt-1">Trent & Shy Wedding • Generated {new Date().toLocaleDateString()}</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div class="bg-zinc-900/60 print:bg-white border border-zinc-700 print:border-black rounded-sm p-6 text-center">
+        <div class="text-4xl font-bold text-white print:text-black">{guestCount}</div>
+        <div class="text-xs uppercase tracking-widest text-zinc-400 print:text-gray-600 mt-2 font-bold">Confirmed Guests</div>
+      </div>
+      <div class="bg-zinc-900/60 print:bg-white border border-zinc-700 print:border-black rounded-sm p-6 text-center">
+        <div class="text-4xl font-bold text-zinc-300 print:text-black">{staffCount}</div>
+        <div class="text-xs uppercase tracking-widest text-zinc-500 print:text-gray-600 mt-2 font-bold">Staff Count</div>
+      </div>
+      <div class="bg-emerald-950/30 print:bg-gray-100 border border-emerald-900/50 print:border-black rounded-sm p-6 text-center shadow-lg print:shadow-none">
+        <div class="text-4xl font-bold text-emerald-500 print:text-black">{totalPlates}</div>
+        <div class="text-xs uppercase tracking-widest text-emerald-600 print:text-gray-800 mt-2 font-bold">Total Plates Required</div>
+      </div>
+    </div>
+
+    <div class="bg-zinc-800/60 backdrop-blur-md border border-zinc-700 rounded-sm p-6 mb-8 no-print border-l-4 border-l-amber-500">
+      <h2 class="text-xl font-display text-zinc-100 uppercase tracking-widest mb-4">Manage Venue Staff</h2>
+      <form action="/api/admin/catering" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        <div class="md:col-span-1">
+          <label class="block text-xs font-bold uppercase tracking-widest text-amber-500 mb-2">Staff Headcount</label>
+          <input type="number" min="0" name="staffCount" value={staffCount} class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-4 py-2 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-xs font-bold uppercase tracking-widest text-amber-500 mb-2">Staff Dietary Restrictions</label>
+          <input type="text" name="staffDietaryNotes" value={siteSettings.staffDietaryNotes || ''} placeholder="e.g., 1 Vegan, 1 Gluten Free" class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-4 py-2 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" />
+        </div>
+        <div class="md:col-span-1">
+          <button type="submit" class="w-full bg-zinc-200 hover:bg-white text-zinc-900 font-bold uppercase px-4 py-2 rounded-sm transition-colors tracking-widest text-sm">Save Staff</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="bg-zinc-800/60 print:bg-white backdrop-blur-md border border-zinc-700 print:border-none print:p-0 rounded-sm p-6 shadow-2xl print:shadow-none">
+      <h2 class="text-xl font-display text-zinc-100 print:text-black uppercase tracking-widest mb-6 border-b border-zinc-700 print:border-black pb-2">Dietary Restrictions & Allergies</h2>
+      
+      {guestsWithAllergies.length === 0 && !siteSettings.staffDietaryNotes ? (
+        <p class="text-zinc-500 text-sm uppercase tracking-widest print:text-black">No allergies or dietary restrictions reported.</p>
+      ) : (
+        <table class="w-full text-left text-sm print:text-black">
+          <thead class="text-xs uppercase bg-zinc-900/60 print:bg-gray-100 text-zinc-400 print:text-black border-b border-zinc-700 print:border-black">
+            <tr>
+              <th class="px-4 py-3">Guests / Staff</th>
+              <th class="px-4 py-3">Reported Restriction(s)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {siteSettings.staffDietaryNotes && (
+              <tr class="border-b border-zinc-700/50 print:border-gray-300 bg-amber-950/10 print:bg-transparent">
+                <td class="px-4 py-3 font-bold text-amber-500 print:text-black uppercase tracking-widest text-xs">Venue Staff</td>
+                <td class="px-4 py-3 text-red-400 print:text-black font-semibold">{siteSettings.staffDietaryNotes}</td>
+              </tr>
+            )}
+            {guestsWithAllergies.map(guest => (
+              <tr class="border-b border-zinc-700/50 print:border-gray-300">
+                <td class="px-4 py-3">
+                  <div>{guest.firstName} {guest.lastName || ''}</div>
+                  {guest.allocatedPlusOnes >= 1 && guest.p1Name && <div class="mt-1">{guest.p1Name} {guest.p1LastName || ''}</div>}
+                  {guest.allocatedPlusOnes >= 2 && guest.p2Name && <div class="mt-1">{guest.p2Name} {guest.p2LastName || ''}</div>}
+                  {guest.allocatedPlusOnes >= 3 && guest.p3Name && <div class="mt-1">{guest.p3Name} {guest.p3LastName || ''}</div>}
+                </td>
+                <td class="px-4 py-3 text-red-400 print:text-black font-semibold">{guest.dietaryNotes}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </main>
+</Layout>
+
+<script is:inline>
+  (() => {
+    let isDirty = false;
+    const form = document.querySelector('form');
+
+    if (form) {
+      form.addEventListener('input', (e) => { if (e.isTrusted) isDirty = true; });
+      form.addEventListener('change', (e) => { if (e.isTrusted) isDirty = true; });
+      form.addEventListener('submit', () => { isDirty = false; });
+    }
+
+    window.addEventListener('beforeunload', (e) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = true;
+      }
+    });
+  })();
+</script>
+
+<style>
+  @media print {
+    body { background: white !important; color: black !important; }
+    .no-print { display: none !important; }
+    .print-only { display: block !important; }
+  }
+  .print-only { display: none; }
+</style>

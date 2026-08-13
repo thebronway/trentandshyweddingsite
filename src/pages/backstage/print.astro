@@ -46,9 +46,8 @@ const getStatusStr = (hasRsvpd: boolean, isAttending: any) => {
   return 'declined';
 };
 
-if (view !== 'allergies' && view !== 'songs') {
-  renderData = renderData.filter(item => {
-    if (view === 'individual') {
+renderData = renderData.filter(item => {
+  if (view === 'individual') {
       const status = getStatusStr(item.hasRsvpd, item.rsvpStatus);
       if (!allowedStatuses.includes(status)) return false;
     } else {
@@ -82,18 +81,8 @@ if (view !== 'allergies' && view !== 'songs') {
     
     return true;
   });
-}
 
-let reportTitle = "";
-if (view === 'allergies') {
-  renderData = allGuests.filter(g => g.dietaryNotes && g.dietaryNotes.trim() !== '').sort((a,b) => (a.lastName||'').localeCompare(b.lastName||''));
-  reportTitle = "Master Allergies & Dietary Restrictions List";
-} else if (view === 'songs') {
-  renderData = allGuests.filter(g => g.songRequest && g.songRequest.trim() !== '').sort((a,b) => (a.lastName||'').localeCompare(b.lastName||''));
-  reportTitle = "Master Song Requests List";
-} else {
-  reportTitle = `${view.charAt(0).toUpperCase() + view.slice(1)} View - Sorted by ${sortKey === 'firstName' ? 'First Name' : 'Last Name'} - Filter: ${filter.toUpperCase()} - VIP: ${vipOnly ? 'Yes' : 'No'} - Guests: ${guestOnly ? 'Yes' : 'No'} - Statuses: ${allowedStatuses.map(s => s.toUpperCase()).join(', ')}`;
-}
+let reportTitle = `${view.charAt(0).toUpperCase() + view.slice(1)} View - Sorted by ${sortKey === 'firstName' ? 'First Name' : 'Last Name'} - Filter: ${filter.toUpperCase()} - VIP: ${vipOnly ? 'Yes' : 'No'} - Guests: ${guestOnly ? 'Yes' : 'No'} - Statuses: ${allowedStatuses.map(s => s.toUpperCase()).join(', ')}`;
 
 // Helpers to standardize text output
 const getPartyNames = (party: any) => {

@@ -1,0 +1,135 @@
+---
+import Layout from '../../components/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import { db } from '../../db';
+import { guests } from '../../db/schema';
+
+const allGuests = await db.select().from(guests);
+
+let totalExpected = 0;
+const rawRequests: { role: string, request: string, party: string }[] = [];
+
+allGuests.forEach(g => {
+  if (g.hasRsvpd) {
+    if (g.isAttending) totalExpected++;
+    if (g.allocatedPlusOnes >= 1 && g.p1Attending === 'true') totalExpected++;
+    if (g.allocatedPlusOnes >= 2 && g.p2Attending === 'true') totalExpected++;
+    if (g.allocatedPlusOnes >= 3 && g.p3Attending === 'true') totalExpected++;
+
+    if (g.songRequest && g.songRequest.trim() !== '') {
+      rawRequests.push({
+        role: g.role,
+        request: g.songRequest.trim(),
+        party: `${g.firstName} ${g.lastName || ''}`.trim()
+      });
+    }
+  }
+});
+
+// Helper to normalize strings for rough duplicate checking
+const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+// Grouping Logic
+const groupedRequests: { [key: string]: { original: string, roles: string[], count: number, parties: string[] } } = {};
+
+rawRequests.forEach(req => {
+  const key = normalize(req.request);
+  if (!groupedRequests[key]) {
+    groupedRequests[key] = { original: req.request, roles: [], count: 0, parties: [] };
+  }
+  groupedRequests[key].roles.push(req.role);
+  groupedRequests[key].parties.push(req.party);
+  groupedRequests[key].count++;
+});
+
+// Split into VIP vs Crowd
+const vipSetlist = Object.values(groupedRequests).filter(r => r.roles.some(role => ['admin', 'openers', 'vip'].includes(role)));
+const crowdSetlist = Object.values(groupedRequests).filter(r => !r.roles.some(role => ['admin', 'openers', 'vip'].includes(role)));
+
+// Sort by popularity (count), then alphabetical
+const sortList = (list: any[]) => list.sort((a, b) => b.count - a.count || a.original.localeCompare(b.original));
+
+sortList(vipSetlist);
+sortList(crowdSetlist);
+---
+
+<Layout title="DJ Report">
+  <div class="no-print"><Nav /></div>
+  <main class="max-w-4xl mx-auto p-6 w-full mt-8">
+    
+    <div class="flex justify-between items-end border-b border-zinc-700 pb-4 mb-6 no-print">
+      <h1 class="text-4xl text-white font-display uppercase tracking-widest">DJ Setlist Report</h1>
+      <div class="flex gap-4 items-center">
+        <a href="/admin" class="text-pink-400 text-xs font-bold uppercase tracking-widest hover:text-pink-300">&larr; Back to Control</a>
+        <button onclick="window.print()" class="bg-zinc-200 hover:bg-white text-zinc-900 font-bold px-6 py-2 uppercase tracking-wider transition-colors text-sm rounded-sm">Print Setlist</button>
+      </div>
+    </div>
+
+    <div class="hidden print-only mb-6 border-b border-black pb-4 text-black">
+      <h1 class="text-4xl font-display uppercase tracking-widest mb-1">DJ Setlist Report</h1>
+      <p class="text-sm font-bold uppercase tracking-widest text-gray-600">Trent & Shy Wedding • Playing for a crowd of {totalExpected}</p>
+    </div>
+    
+    <div class="no-print bg-purple-950/30 border border-purple-900/50 p-6 rounded-sm mb-8 text-center">
+      <div class="text-sm uppercase tracking-widest text-purple-400 font-bold mb-1">Total Crowd Size</div>
+      <div class="text-4xl font-bold text-white">{totalExpected} People</div>
+    </div>
+
+    <div class="bg-zinc-800/60 print:bg-white backdrop-blur-md border border-zinc-700 print:border-none print:p-0 rounded-sm p-6 shadow-2xl print:shadow-none mb-8 border-l-4 border-l-amber-500 print:border-l-0">
+      <h2 class="text-2xl font-display text-amber-500 print:text-black uppercase tracking-widest mb-1">The VIP Setlist</h2>
+      <p class="text-xs text-zinc-400 print:text-gray-600 uppercase tracking-widest font-bold mb-6 border-b border-zinc-700 print:border-black pb-2">Requested by the Wedding Party. High Priority.</p>
+      
+      {vipSetlist.length === 0 ? (
+        <p class="text-zinc-500 text-sm uppercase tracking-widest">No VIP requests yet.</p>
+      ) : (
+        <ul class="space-y-3">
+          {vipSetlist.map(song => (
+            <li class="flex justify-between items-center border-b border-zinc-700/50 print:border-gray-300 pb-2">
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 border-2 border-zinc-600 print:border-black rounded-sm"></div>
+                <span class="text-lg text-zinc-100 print:text-black font-semibold">{song.original}</span>
+                <span class="text-[9px] uppercase tracking-widest text-amber-500 print:text-gray-500 font-bold hidden sm:inline-block">({song.parties.join(', ')})</span>
+              </div>
+              {song.count > 1 && (
+                <span class="bg-pink-900/50 print:bg-transparent print:border print:border-black text-pink-300 print:text-black px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-widest">Requested {song.count}x</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+
+    <div class="bg-zinc-800/60 print:bg-white backdrop-blur-md border border-zinc-700 print:border-none print:p-0 rounded-sm p-6 shadow-2xl print:shadow-none">
+      <h2 class="text-2xl font-display text-zinc-100 print:text-black uppercase tracking-widest mb-1">The Crowd Setlist</h2>
+      <p class="text-xs text-zinc-400 print:text-gray-600 uppercase tracking-widest font-bold mb-6 border-b border-zinc-700 print:border-black pb-2">Requested by Standard Guests</p>
+      
+      {crowdSetlist.length === 0 ? (
+        <p class="text-zinc-500 text-sm uppercase tracking-widest">No crowd requests yet.</p>
+      ) : (
+        <ul class="space-y-3">
+          {crowdSetlist.map(song => (
+            <li class="flex justify-between items-center border-b border-zinc-700/50 print:border-gray-300 pb-2">
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 border-2 border-zinc-600 print:border-black rounded-sm"></div>
+                <span class="text-lg text-zinc-200 print:text-black">{song.original}</span>
+              </div>
+              {song.count > 1 && (
+                <span class="bg-zinc-700/50 print:bg-transparent print:border print:border-black text-zinc-300 print:text-black px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-widest">Requested {song.count}x</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+
+  </main>
+</Layout>
+
+<style>
+  @media print {
+    body { background: white !important; color: black !important; }
+    .no-print { display: none !important; }
+    .print-only { display: block !important; }
+  }
+  .print-only { display: none; }
+</style>
