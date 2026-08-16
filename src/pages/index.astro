@@ -24,8 +24,8 @@ const redirectTo = Astro.url.searchParams.get('redirectTo') || '/about';
 
       <div class="md:w-1/2 p-8 md:p-12 flex flex-col justify-center bg-zinc-900/60">
         <div class="mb-8">
-          <h1 class="text-3xl md:text-4xl text-white font-display tracking-widest uppercase mb-2">Unlock Site Access</h1>
-          <p class="text-zinc-400 font-bold tracking-widest uppercase text-xs">Enter the Passcode (12 Characters) below the QR code on the RSVP insert to unlock the site</p>
+          <h1 class="text-3xl md:text-4xl text-pink-400 font-display tracking-widest uppercase mb-2">Unlock Site Access</h1>
+          <p class="text-zinc-200 font-bold tracking-widest uppercase text-sm leading-relaxed">Enter the Passcode (12 Characters) below the QR code on the RSVP insert to unlock the site</p>
         </div>
 
         {error === 'invalid' && (
@@ -36,17 +36,22 @@ const redirectTo = Astro.url.searchParams.get('redirectTo') || '/about';
 
         {error === 'rsvpcode' && (
           <div class="bg-amber-950/50 border border-amber-900 text-amber-500 px-4 py-3 mb-6 text-xs font-bold uppercase tracking-widest text-center leading-relaxed">
-            Hey, it looks like you used your RSVP code to try to log in. <br /><br />Instead, please enter the 12 character passcode located below the QR code on your invitation to log onto the site.
+            Hey, it looks like you used your RSVP code to try to log onto the site. <br /><br />Instead, please enter the 12 character passcode located below the QR code on your invitation to log onto the site.
           </div>
         )}
+
+        <div id="rsvp-warning" class="hidden bg-amber-950/50 border border-amber-900 text-amber-500 px-4 py-3 mb-6 text-xs font-bold uppercase tracking-widest text-center leading-relaxed">
+          Hey! It looks like you're entering your 4-digit RSVP code. <br /><br /> Instead, please enter the 12-character website passcode (below the QR Code) here.
+        </div>
 
         <form action="/api/verify" method="POST" class="flex flex-col gap-4">
           <input type="hidden" name="redirectTo" value={redirectTo} />
           <input 
             type="text" 
+            id="passcode-input"
             name="code"
             required 
-            placeholder="PASSCODE"
+            placeholder="SITE PASSCODE"
             oninput="this.value = this.value.toUpperCase().replace(/ /g, '')"
             class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 px-4 py-4 text-lg text-center tracking-widest uppercase focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors rounded-sm"
           />
@@ -58,3 +63,22 @@ const redirectTo = Astro.url.searchParams.get('redirectTo') || '/about';
     </div>
   </main>
 </Layout>
+
+<script is:inline>
+  (() => {
+    const input = document.getElementById('passcode-input');
+    const warning = document.getElementById('rsvp-warning');
+    
+    if (input && warning) {
+      input.addEventListener('input', (e) => {
+        const val = e.target.value;
+        // Show warning if exactly 4 numbers are entered
+        if (val.length === 4 && /^\d{4}$/.test(val)) {
+          warning.classList.remove('hidden');
+        } else {
+          warning.classList.add('hidden');
+        }
+      });
+    }
+  })();
+</script>

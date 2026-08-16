@@ -219,7 +219,10 @@ const p3Badge = getBadge(guestRecord.p3Role);
 
     <div>
       <label class="block text-xs font-bold uppercase tracking-widest text-pink-400 mb-2">Dietary Restrictions / Allergies (Applies to Party)</label>
-      <input type="text" name="dietaryNotes" placeholder="ALLERGIES?" value={guestRecord.dietaryNotes || ''} class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-4 py-3 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors uppercase text-sm tracking-wider" />
+      <input type="text" id="dietary-notes-input" name="dietaryNotes" placeholder="ALLERGIES?" value={guestRecord.dietaryNotes || ''} class="w-full bg-zinc-900 border border-zinc-700 rounded-sm text-zinc-100 px-4 py-3 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-colors uppercase text-sm tracking-wider" />
+      <div id="allergy-warning" class="hidden mt-3 bg-amber-950/50 border border-amber-900 text-amber-500 px-4 py-3 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-center leading-relaxed rounded-sm">
+        No allergies? No need to put anything here! You can leave this blank.
+      </div>
     </div>
 
     <div>
@@ -256,6 +259,26 @@ const p3Badge = getBadge(guestRecord.p3Role);
       link.setAttribute('target', '_blank');
       link.setAttribute('rel', 'noopener noreferrer');
     });
+
+    // Real-time Allergy Validation
+    const allergyInput = document.getElementById('dietary-notes-input');
+    const allergyWarning = document.getElementById('allergy-warning');
+    
+    if (allergyInput && allergyWarning) {
+      allergyInput.addEventListener('input', (e) => {
+        // Remove whitespace and convert to lowercase for checking
+        const val = e.target.value.trim().toLowerCase();
+        
+        // Exact match regex for "none", "na", "n/a", "no", "nothing", "no allergies"
+        const exactMatchRegex = /^(none|na|n\/a|no|nothing|no allergies)$/;
+        
+        if (exactMatchRegex.test(val)) {
+          allergyWarning.classList.remove('hidden');
+        } else {
+          allergyWarning.classList.add('hidden');
+        }
+      });
+    }
 
   })();
 </script>
